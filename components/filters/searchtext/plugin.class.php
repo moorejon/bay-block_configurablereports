@@ -26,8 +26,8 @@ require_once($CFG->dirroot.'/blocks/configurable_reports/plugin.class.php');
 class plugin_searchtext extends plugin_base{
 
     public function init() {
-        $this->form = false;
-        $this->unique = true;
+        $this->form = true; // BS EDIT.
+        $this->unique = false; // BS EDIT.
         $this->fullname = get_string('filter_searchtext', 'block_configurable_reports');
         $this->reporttypes = array('searchtext', 'sql');
     }
@@ -38,17 +38,18 @@ class plugin_searchtext extends plugin_base{
 
     public function execute($finalelements, $data) {
 
-        $filtersearchtext = optional_param('filter_searchtext', '', PARAM_RAW);
+        $filtersearchtext = optional_param('filter_searchtext_'.$data->idnumber, '', PARAM_RAW); // BS EDIT.
         $operators = array('=', '<', '>', '<=', '>=', '~', 'in');
 
-        if (!$filtersearchtext) {
+        // BS EDIT.
+        /*if (!$filtersearchtext) {
             return $finalelements;
-        }
+        }*/
 
         if ($this->report->type != 'sql') {
             return array($filtersearchtext);
         } else {
-            if (preg_match("/%%FILTER_SEARCHTEXT:([^%]+)%%/i", $finalelements, $output)) {
+            if (preg_match("/%%FILTER_SEARCHTEXT:([^%]+)%%/i", $finalelements, $output) && $filtersearchtext) { // BS EDIT.
                 list($field, $operator) = preg_split('/:/', $output[1]);
                 if (!in_array($operator, $operators)) {
                     print_error('nosuchoperator');
@@ -78,15 +79,25 @@ class plugin_searchtext extends plugin_base{
                     $replace = ' AND '.$field.' '.$operator.' '.$filtersearchtext;
                 }
                 return str_replace('%%FILTER_SEARCHTEXT:'.$output[1].'%%', $replace, $finalelements);
+            } else {
+                return str_replace('%%FILTER_SEARCHTEXT:'.$output[1].'%%', '', $finalelements); // BS EDIT.
             }
         }
         return $finalelements;
     }
 
-    public function print_filter(&$mform) {
-        $filtersearchtext = optional_param('filter_searchtext', '', PARAM_RAW);
-        $mform->addElement('text', 'filter_searchtext', get_string('filter'));
-        $mform->setType('filter_searchtext', PARAM_RAW);
-        $mform->setDefault('filter_searchtext', $filtersearchtext);
+    public function print_filter(&$mform, $data) {
+        // BS EDIT.
+        if (isset($data->label)) {
+            $filterlabel = $data->label;
+        } else {
+            $filterlabel = get_string('filter');
+        }
+
+        $filtersearchtext = optional_param('filter_searchtext_'.$data->idnumber, '', PARAM_RAW);
+        $mform->addElement('text', 'filter_searchtext_'.$data->idnumber, $filterlabel);
+        $mform->setType('filter_searchtext_'.$data->idnumber, PARAM_RAW);
+        $mform->setDefault('filter_searchtext_'.$data->idnumber, $filtersearchtext);
+        // END BS EDIT.
     }
 }

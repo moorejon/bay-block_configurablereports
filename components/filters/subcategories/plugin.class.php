@@ -81,7 +81,21 @@ class plugin_subcategories extends plugin_base {
             }
         } else {
             require_once($CFG->libdir. '/coursecatlib.php');
-            $subcategorieslist = coursecat::make_categories_list();
+            $subcategorieslist = coursecat::make_categories_list('', 0, '##');
+
+            // BS EDIT.
+            foreach ($subcategorieslist as $index => $item) {
+                $arr = explode('##', $item);
+                $count = count($arr);
+                if ($count > 1) {
+                    for ($i = 0; $i < $count-1; $i++) {
+                        $arr[$i] = '--';
+                    }
+                    $item = implode(' ', $arr);
+                    $subcategorieslist[$index] = $item;
+                }
+            }
+            // END BS EDIT.
 
             if (!empty($subcategorieslist)) {
                 $courseoptions += $subcategorieslist;
