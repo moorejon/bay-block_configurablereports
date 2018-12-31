@@ -49,7 +49,7 @@ class plugin_searchtext extends plugin_base{
         if ($this->report->type != 'sql') {
             return array($filtersearchtext);
         } else {
-            if (preg_match("/%%FILTER_SEARCHTEXT:([^%]+)%%/i", $finalelements, $output) && $filtersearchtext) { // BS EDIT.
+            if (preg_match("/%%FILTER_SEARCHTEXT_$data->idnumber:([^%]+)%%/i", $finalelements, $output) && $filtersearchtext) { // BS EDIT.
                 list($field, $operator) = preg_split('/:/', $output[1]);
                 if (!in_array($operator, $operators)) {
                     print_error('nosuchoperator');
@@ -78,9 +78,9 @@ class plugin_searchtext extends plugin_base{
                 } else {
                     $replace = ' AND '.$field.' '.$operator.' '.$filtersearchtext;
                 }
-                return str_replace('%%FILTER_SEARCHTEXT:'.$output[1].'%%', $replace, $finalelements);
-            } else {
-                return str_replace('%%FILTER_SEARCHTEXT:'.$output[1].'%%', '', $finalelements); // BS EDIT.
+                return str_replace('%%FILTER_SEARCHTEXT_'.$data->idnumber.':'.$output[1].'%%', $replace, $finalelements);
+            } else if ($output) {
+                return str_replace('%%FILTER_SEARCHTEXT_'.$data->idnumber.':'.$output[1].'%%', '', $finalelements); // BS EDIT.
             }
         }
         return $finalelements;
