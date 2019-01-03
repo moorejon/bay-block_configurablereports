@@ -158,6 +158,11 @@ class plugin_fuserfield extends plugin_base {
                     $rs->close();
                 }
             }
+
+            // BS EDIT.
+            if (!empty($data->label)) {
+                $selectname = $data->label;
+            }
         }
 
         $mform->addElement('select', 'filter_fuserfield_'.$data->field, $selectname, $filteroptions);
