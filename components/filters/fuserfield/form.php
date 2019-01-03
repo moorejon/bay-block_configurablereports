@@ -57,6 +57,9 @@ class fuserfield_form extends moodleform {
         unset($usercolumns['password']);
         unset($usercolumns['sesskey']);
 
+        $mform->addElement('text', 'label', get_string('label', 'block_configurable_reports'));
+        $mform->setType('label', PARAM_RAW);
+
         $mform->addElement('select', 'field', get_string('field', 'block_configurable_reports'), $usercolumns);
 
         $mform->addElement('advcheckbox', 'excludedeletedusers', get_string('excludedeletedusers', 'block_configurable_reports'));
