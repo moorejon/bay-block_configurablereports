@@ -47,11 +47,27 @@ class plugin_subcategories extends plugin_base {
             return array($filtersubcategories);
         } else {
             if (preg_match("/%%FILTER_SUBCATEGORIES:([^%]+)%%/i", $finalelements, $output)) {
-                $replace = ' AND '.$output[1].' LIKE CONCAT( \'%/\', '.$filtersubcategories.', \'%\' ) ';
+                $filtersubcategories = $this->recursive_category_ids($filtersubcategories);
+                $replace = ' AND '.$output[1].' IN ('.$filtersubcategories.')';
                 return str_replace('%%FILTER_SUBCATEGORIES:'.$output[1].'%%', $replace, $finalelements);
             }
         }
         return $finalelements;
+    }
+
+    private function recursive_category_ids($parent) {
+        global $DB;
+        $categories = $DB->get_fieldset_select('course_categories', 'id','parent = ?', array($parent));
+        $return = $parent;
+        if ($categories) {
+            foreach ($categories as $category) {
+                $subcategories = $this->recursive_category_ids($category);
+                if ($subcategories) {
+                    $return .= ',' . $subcategories;
+                }
+            }
+        }
+        return $return;
     }
 
     public function print_filter(&$mform) {

@@ -57,6 +57,7 @@ class fuserfield_form extends moodleform {
         unset($usercolumns['password']);
         unset($usercolumns['sesskey']);
 
+        // BS EDIT
         $mform->addElement('text', 'label', get_string('label', 'block_configurable_reports'));
         $mform->setType('label', PARAM_RAW);
 
