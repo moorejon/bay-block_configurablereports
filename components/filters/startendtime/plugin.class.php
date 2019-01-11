@@ -63,22 +63,26 @@ class plugin_startendtime extends plugin_base {
 
         $operators = array('<', '>', '<=', '>=');
 
-        if (preg_match("/%%FILTER_STARTTIME:([^%]+)%%/i", $finalelements, $output)) {
-            list($field, $operator) = preg_split('/:/', $output[1]);
-            if (!in_array($operator, $operators)) {
-                print_error('nosuchoperator');
+        if (preg_match_all("/%%FILTER_STARTTIME:([^%]+)%%/i", $finalelements, $output)) {
+            for ($i = 0; $i < count($output[1]); $i++) {
+                list($field, $operator) = preg_split('/:/', $output[1][$i]);
+                if (!in_array($operator, $operators)) {
+                    print_error('nosuchoperator');
+                }
+                $replace = ' AND ' . $field . ' ' . $operator . ' ' . $filterstarttime;
+                $finalelements = str_replace('%%FILTER_STARTTIME:' . $output[1][$i] . '%%', $replace, $finalelements);
             }
-            $replace = ' AND '.$field.' '.$operator.' '.$filterstarttime;
-            $finalelements = str_replace('%%FILTER_STARTTIME:'.$output[1].'%%', $replace, $finalelements);
         }
 
-        if (preg_match("/%%FILTER_ENDTIME:([^%]+)%%/i", $finalelements, $output)) {
-            list($field, $operator) = preg_split('/:/', $output[1]);
-            if (!in_array($operator, $operators)) {
-                print_error('nosuchoperator');
+        if (preg_match_all("/%%FILTER_ENDTIME:([^%]+)%%/i", $finalelements, $output)) {
+            for ($i = 0; $i < count($output[1]); $i++) {
+                list($field, $operator) = preg_split('/:/', $output[1][$i]);
+                if (!in_array($operator, $operators)) {
+                    print_error('nosuchoperator');
+                }
+                $replace = ' AND ' . $field . ' ' . $operator . ' ' . $filterendtime;
+                $finalelements = str_replace('%%FILTER_ENDTIME:' . $output[1][$i] . '%%', $replace, $finalelements);
             }
-            $replace = ' AND '.$field.' '.$operator.' '.$filterendtime;
-            $finalelements = str_replace('%%FILTER_ENDTIME:'.$output[1].'%%', $replace, $finalelements);
         }
 
         $finalelements = str_replace('%STARTTIME%%', $filterstarttime, $finalelements);
