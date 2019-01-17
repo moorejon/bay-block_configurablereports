@@ -49,9 +49,20 @@ class plugin_fuserfield extends plugin_base {
         $filterfuserfield = optional_param('filter_fuserfield_'.$data->field, 0, PARAM_RAW);
         $filter = clean_param(base64_decode($filterfuserfield), PARAM_CLEAN);
 
+        $operators = array('=', '<>', '~');
+
         if ($filterfuserfield && preg_match_all("/%%FILTER_USERS:([^%]+)%%/i", $finalelements, $output)) {
             for ($i = 0; $i < count($output[1]); $i++) {
-                $replace = ' AND ' . $output[1][$i] . ' LIKE ' . "'%$filter%'";
+                list($field, $operator) = preg_split('/:/', $output[1][$i]);
+                if (!in_array($operator, $operators)) {
+                    print_error('nosuchoperator');
+                }
+                if ($operator == '~') {
+                    $replace = " AND " . $field . " LIKE '%" . $filterfuserfield . "%'";
+                } else {
+                    $replace = ' AND ' . $field . ' ' . $operator . ' ' . $filterfuserfield;
+                }
+
                 $finalelements = str_replace('%%FILTER_USERS:' . $output[1][$i] . '%%', $replace, $finalelements);
             }
         }
