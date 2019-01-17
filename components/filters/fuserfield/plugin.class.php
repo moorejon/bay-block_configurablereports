@@ -58,9 +58,9 @@ class plugin_fuserfield extends plugin_base {
                     print_error('nosuchoperator');
                 }
                 if ($operator == '~') {
-                    $replace = " AND " . $field . " LIKE '%" . $filterfuserfield . "%'";
+                    $replace = " AND " . $field . " LIKE '%" . $filter . "%'";
                 } else {
-                    $replace = ' AND ' . $field . ' ' . $operator . ' ' . $filterfuserfield;
+                    $replace = ' AND ' . $field . ' ' . $operator . ' ' . $filter;
                 }
 
                 $finalelements = str_replace('%%FILTER_USERS:' . $output[1][$i] . '%%', $replace, $finalelements);
