@@ -67,6 +67,7 @@ $PAGE->set_context($context);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_url('/blocks/configurable_reports/viewreport.php', ['id' => $id]);
 $PAGE->requires->jquery();
+$PAGE->requires->js_call_amd('block_configurable_reports/view_report', 'init');
 
 $reportclass->create_report();
 
