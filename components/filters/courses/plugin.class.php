@@ -50,7 +50,7 @@ class plugin_courses extends plugin_base{
             if (preg_match_all("/%%FILTER_COURSES:([^%]+)%%/i", $finalelements, $output)) {
                 for ($i = 0; $i < count($output[1]); $i++) {
                     $replace = ' AND '.$output[1][$i].' = '.$filtercourses;
-                    return str_replace('%%FILTER_COURSES:'.$output[1][$i].'%%', $replace, $finalelements);
+                    $finalelements = str_replace('%%FILTER_COURSES:'.$output[1][$i].'%%', $replace, $finalelements);
                 }
             }
         }
