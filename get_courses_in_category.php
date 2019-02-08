@@ -29,7 +29,7 @@ require_once($CFG->libdir . '/coursecatlib.php');
 $categoryid = required_param('category', PARAM_INT);
 
 $category = coursecat::get($categoryid);
-$courses = $category->get_courses(['recursive' => true]);
+$courses = $category->get_courses(['recursive' => true, 'sort' => ['fullname' => 1]]);
 foreach ($courses as $course) {
     $c = new stdClass();
     $c->id = $course->id;
