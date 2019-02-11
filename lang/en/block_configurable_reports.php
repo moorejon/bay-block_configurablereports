@@ -79,6 +79,7 @@ $string['operator'] = "Operator";
 $string['value'] = "Value";
 
 // Filter
+$string['defaulttimeframe'] = 'Default timeframe';
 $string['filter'] = "Filter";
 $string['nofilteryet'] = "No filters yet";
 $string['courses'] = "Courses";
