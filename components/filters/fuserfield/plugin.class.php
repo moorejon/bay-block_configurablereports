@@ -51,19 +51,19 @@ class plugin_fuserfield extends plugin_base {
 
         $operators = array('=', '<>', '~');
 
-        if ($filterfuserfield && preg_match_all("/%%FILTER_USERS:([^%]+)%%/i", $finalelements, $output)) {
+        if ($filterfuserfield && preg_match_all("/%%FILTER_USERS_$data->field:([^%]+)%%/i", $finalelements, $output)) {
             for ($i = 0; $i < count($output[1]); $i++) {
                 list($field, $operator) = preg_split('/:/', $output[1][$i]);
                 if (!in_array($operator, $operators)) {
                     print_error('nosuchoperator');
                 }
                 if ($operator == '~') {
-                    $replace = " AND " . $field . " LIKE '%" . $filter . "%'";
+                    $replace = " AND $field LIKE '%$filter%'";
                 } else {
-                    $replace = ' AND ' . $field . ' ' . $operator . ' ' . $filter;
+                    $replace = " AND $field $operator '$filter'";
                 }
 
-                $finalelements = str_replace('%%FILTER_USERS:' . $output[1][$i] . '%%', $replace, $finalelements);
+                $finalelements = str_replace('%%FILTER_USERS_'.$data->field.':' . $output[1][$i] . '%%', $replace, $finalelements);
             }
         }
 
