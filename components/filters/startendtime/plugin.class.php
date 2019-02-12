@@ -58,12 +58,12 @@ class plugin_startendtime extends plugin_base {
             } else {
                 list($filterstarttime, $filterendtime) = $this->get_start_end_times();
             }
+        } else {
+            $filterstarttime = make_timestamp($filterstarttime['year'], $filterstarttime['month'], $filterstarttime['day'],
+                    $filterstarttime['hour'], $filterstarttime['minute']);
+            $filterendtime = make_timestamp($filterendtime['year'], $filterendtime['month'], $filterendtime['day'],
+                    $filterendtime['hour'], $filterendtime['minute']);
         }
-
-        $filterstarttime = make_timestamp($filterstarttime['year'], $filterstarttime['month'], $filterstarttime['day'],
-            $filterstarttime['hour'], $filterstarttime['minute']);
-        $filterendtime = make_timestamp($filterendtime['year'], $filterendtime['month'], $filterendtime['day'],
-            $filterendtime['hour'], $filterendtime['minute']);
 
         $operators = array('<', '>', '<=', '>=');
 
