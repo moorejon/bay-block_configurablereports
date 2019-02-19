@@ -89,6 +89,7 @@ $string['filter_apply'] = 'Apply';
 $string['filter_searchtext'] = 'Search text';
 $string['searchtext'] = 'Search text';
 $string['filter_searchtext_summary'] = 'Free text filter';
+$string['filter_sql'] = 'SQL Filter';
 $string['years'] = 'Year (Numeric)';
 $string['filteryears'] = 'Year (Numeric)';
 $string['filteryears_summary'] = 'Filter by years (numeric representation, 2012...)';
@@ -122,7 +123,10 @@ $string['enrolledstudents'] = 'Enrolled students';
 $string['filterusers_summary'] = 'Filter a user (by id) from system user list';
 $string['filterenrolledstudents'] = 'Enrolled course students';
 $string['filterenrolledstudents_summary'] = 'Filter a user (by id) from enrolled course students';
+$string['filtersql_summary'] = 'Create a select dropdown filter using a custom sql statement';
+$string['noconfigidordisplay'] = 'Select statement must return configid and configdisplay.';
 $string['student'] = 'Student';
+$string['sqloptions'] = 'SQL Options';
 
 // Calcs
 $string['nocalcsyet'] = "No calculations yet";
