@@ -69,7 +69,7 @@ class plugin_fuserfield extends plugin_base {
 
         if ($filterfuserfield && preg_match_all("/%%FILTER_USERS:([^%]+)%%/i", $finalelements, $output)) {
             for ($i = 0; $i < count($output[1]); $i++) {
-                $replace = " AND $field LIKE '%$filter%'";
+                $replace = " AND " . $output[1][$i] . " LIKE '%$filter%'";
                 $finalelements = str_replace('%%FILTER_USERS:' . $output[1][$i] . '%%', $replace, $finalelements);
             }
         }
