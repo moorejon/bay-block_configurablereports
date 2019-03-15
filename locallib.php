@@ -22,6 +22,8 @@
  * @date: 2009
  */
 
+define('BLOCK_CONFIGURABLE_REPORTS_WEEK_START', 6); // Saturday.
+
 function cr_print_js_function() {
 ?>
     <script type="text/javascript">
@@ -45,109 +47,52 @@ function cr_print_js_function() {
 <?php
 }
 
-function cr_add_jsdatatables($cssid) {
-    global $DB, $CFG, $OUTPUT, $PAGE;
+function cr_add_jsdatatables($cssid, \moodle_page $page) {
+    global $OUTPUT;
+    $data = array();
+    $data['selector'] = $cssid;
 
-    $PAGE->requires->string_for_js('thousandssep', 'langconfig');
-    $PAGE->requires->strings_for_js(array(
-        'datatables_sortascending',
-        'datatables_sortdescending',
-        'datatables_first',
-        'datatables_last',
-        'datatables_next',
-        'datatables_previous',
-        'datatables_emptytable',
-        'datatables_info',
-        'datatables_infoempty',
-        'datatables_infofiltered',
-        'datatables_lengthmenu',
-        'datatables_loadingrecords',
-        'datatables_processing',
-        'datatables_search',
-        'datatables_zerorecords',
-    ), 'block_configurable_reports');
+    $page->requires->string_for_js('thousandssep', 'langconfig');
+    $page->requires->strings_for_js(
+        array(
+            'datatables_sortascending',
+            'datatables_sortdescending',
+            'datatables_first',
+            'datatables_last',
+            'datatables_next',
+            'datatables_previous',
+            'datatables_emptytable',
+            'datatables_info',
+            'datatables_infoempty',
+            'datatables_infofiltered',
+            'datatables_lengthmenu',
+            'datatables_loadingrecords',
+            'datatables_processing',
+            'datatables_search',
+            'datatables_zerorecords',
+            ),
+        'block_configurable_reports');
 
-    $script = new moodle_url('/blocks/configurable_reports/js/datatables/media/js/jquery.js');
-    $script = '
-        if (typeof jQuery == "undefined") {
-            document.write(unescape("%3Cscript type=\"text/javascript\" src=\"'.$script.'\"%3E%3C/script%3E"));
-        }
-    ';
-    echo html_writer::script($script);
-    echo html_writer::script(false, new moodle_url('/blocks/configurable_reports/js/datatables/media/js/jquery.dataTables.min.js'));
-    echo html_writer::script(false, new moodle_url('/blocks/configurable_reports/js/datatables/extras/FixedHeader/js/FixedHeader.js'));
-
-    $script = "$(document).ready(function() {
-        var oTable = $('$cssid').dataTable({
-            'bAutoWidth': false,
-            'sPaginationType': 'full_numbers',
-//                'sScrollX': '100%',
-//                'sScrollXInner': '110%',
-//                'bScrollCollapse': true
-            'oLanguage': {
-                'oAria': {
-                    'sSortAscending': M.str.block_configurable_reports.datatables_sortascending,
-                    'sSortDescending': M.str.block_configurable_reports.datatables_sortdescending,
-                },
-                'oPaginate': {
-                    'sFirst': M.str.block_configurable_reports.datatables_first,
-                    'sLast': M.str.block_configurable_reports.datatables_last,
-                    'sNext': M.str.block_configurable_reports.datatables_next,
-                    'sPrevious': M.str.block_configurable_reports.datatables_previous
-                },
-                'sEmptyTable': M.str.block_configurable_reports.datatables_emptytable,
-                'sInfo': M.str.block_configurable_reports.datatables_info,
-                'sInfoEmpty': M.str.block_configurable_reports.datatables_infoempty,
-                'sInfoFiltered': M.str.block_configurable_reports.datatables_infofiltered,
-                'sInfoThousands': M.str.langconfig.thousandssep,
-                'sLengthMenu': M.str.block_configurable_reports.datatables_lengthmenu,
-                'sLoadingRecords': M.str.block_configurable_reports.datatables_loadingrecords,
-                'sProcessing': M.str.block_configurable_reports.datatables_processing,
-                'sSearch': M.str.block_configurable_reports.datatables_search,
-                'sZeroRecords': M.str.block_configurable_reports.datatables_zerorecords
-            }
-        });
-        new FixedHeader( oTable );
-    } );";
-    echo html_writer::script($script);
+    $page->requires->js_call_amd('block_configurable_reports/main', 'add_jsdatatables', array($data));
 }
 
-function cr_add_jsordering($cssid) {
-    global $DB, $CFG, $OUTPUT;
+/**
+ * @param $cssid
+ * @param \moodle_page $page
+ */
+function cr_add_jsordering($cssid, \moodle_page $page = null) {
+    global $OUTPUT;
 
-    $script = new moodle_url('/blocks/configurable_reports/js/datatables/media/js/jquery.js');
-    $script = '
-        if (typeof jQuery == "undefined") {
-            document.write(unescape("%3Cscript type=\"text/javascript\" src=\"'.$script.'\"%3E%3C/script%3E"));
+    if(!empty($page)) {
+        $data = array();
+        $data['selector'] = $cssid;
+        if (method_exists($OUTPUT, 'image_url')) {
+            $data['background'] = $OUTPUT->image_url('normal', 'block_configurable_reports')->out();
+            $data['backgroundasc'] = $OUTPUT->image_url('asc', 'block_configurable_reports')->out();
+            $data['backgrounddesc'] = $OUTPUT->image_url('desc', 'block_configurable_reports')->out();
         }
-    ';
-    echo html_writer::script($script);
-
-    echo html_writer::script(false, new moodle_url('/blocks/configurable_reports/js/jquery.tablesorter.min.js'));
-    $script = '$(document).ready(function() {
-        // call the tablesorter plugin
-        $("'.$cssid.'").tablesorter();
-    });';
-    echo html_writer::script($script);
-    ?>
-
-        <style type="text/css">
-        <?php echo $cssid; ?> th.header{
-            background-image:url(<?php echo $OUTPUT->pix_url('normal', 'block_configurable_reports'); ?>);
-            background-position:right center;
-            background-repeat:no-repeat;
-            cursor:pointer;
-        }
-
-        <?php echo $cssid; ?> th.headerSortUp{
-         background-image:url(<?php echo $OUTPUT->pix_url('asc', 'block_configurable_reports');?>);
-        }
-
-        <?php echo $cssid; ?> th.headerSortDown{
-         background-image:url(<?php echo $OUTPUT->pix_url('desc', 'block_configurable_reports');?>);
-        }
-        </style>
-    <?php
+        $page->requires->js_call_amd('block_configurable_reports/main', 'js_order', array($data));
+    }
 }
 
 function urlencode_recursive($var) {
@@ -220,6 +165,12 @@ function cr_serialize($var) {
 }
 
 function cr_unserialize($var) {
+    // It's needed to convert the object to stdClass to avoid __PHP_Incomplete_Class error.
+    $var = preg_replace('/O:6:"object"/', 'O:8:"stdClass"', $var);
+    // To make SQL queries compatible with PostgreSQL it's needed to replace " to '.
+    $var = preg_replace('/THEN\+%22(.+?)%22/', 'THEN+%27${1}%27', $var);
+    $var = preg_replace('/%60/', '+++', $var);
+
     return urldecode_recursive(unserialize($var));
 }
 
@@ -505,13 +456,18 @@ function cr_get_context($context, $id = null, $flags = null) {
 
 function cr_make_categories_list(&$list, &$parents, $requiredcapability = '', $excludeid = 0, $category = null, $path = '') {
     global $CFG, $DB;
-    require_once($CFG->libdir.'/coursecatlib.php');
 
     // For categories list use just this one function.
     if (empty($list)) {
         $list = array();
     }
-    $list += coursecat::make_categories_list($requiredcapability, $excludeid);
+
+    if (class_exists('core_course_category')) {
+        $list += core_course_category::make_categories_list($requiredcapability, $excludeid);
+    } else {
+        require_once($CFG->libdir. '/coursecatlib.php');
+        $list += coursecat::make_categories_list($requiredcapability, $excludeid);
+    }
 
     // Building the list of all parents of all categories in the system is highly undesirable and hardly ever needed.
     // Usually user needs only parents for one particular category, in which case should be used:
@@ -542,8 +498,10 @@ function cr_import_xml($xml, $course) {
                 $val[0]['#'] = base64_decode(trim($val[0]['#']));
                 // Fix url_encode " and ' when importing SQL queries.
                 $tempcomponents = cr_unserialize($val[0]['#']);
-                $tempcomponents['customsql']['config']->querysql = str_replace("\'", "'", $tempcomponents['customsql']['config']->querysql);
-                $tempcomponents['customsql']['config']->querysql = str_replace('\"', '"', $tempcomponents['customsql']['config']->querysql);
+                if (array_key_exists('customsql', $tempcomponents)) {
+                    $tempcomponents['customsql']['config']->querysql = str_replace("\'", "'", $tempcomponents['customsql']['config']->querysql);
+                    $tempcomponents['customsql']['config']->querysql = str_replace('\"', '"', $tempcomponents['customsql']['config']->querysql);
+                }
                 $val[0]['#'] = cr_serialize($tempcomponents);
             }
             $newreport->{$key} = trim($val[0]['#']);
@@ -613,4 +571,133 @@ function cr_logging_info() {
     }
 
     return array($uselegacyreader, $useinternalreader, $logtable);
+}
+
+function block_configurable_reports_frequency_options() {
+    return array('daily' => get_string('automaticallydaily', 'block_configurable_reports'),
+            'weekly' => get_string('automaticallyweekly', 'block_configurable_reports'),
+            'monthly' => get_string('automaticallymonthly', 'block_configurable_reports'),
+            'quarterly' => get_string('automaticallyquarterly', 'block_configurable_reports')
+    );
+}
+
+function block_configurable_reports_daily_at_options() {
+    $time = array();
+    for ($h = 0; $h < 24; $h++) {
+        $hour = ($h < 10) ? "0$h" : $h;
+        $time[$h] = "$hour:00";
+    }
+    return $time;
+}
+
+function block_configurable_reports_email_options() {
+    return array('emailnumberofrows' => get_string('emailnumberofrows', 'block_configurable_reports'),
+            'emailresults' => get_string('emailresults', 'block_configurable_reports'),
+    );
+}
+
+function block_configurable_reports_get_ready_to_run_daily_reports($timenow) {
+    global $DB;
+    $reports = $DB->get_records_select('block_configurable_reports', "frequency = ?", array('daily'), 'id');
+
+    $reportstorun = array();
+    foreach ($reports as $id => $r) {
+        // Check whether the report is ready to run.
+        if (!block_configurable_reports_is_daily_report_ready($r, $timenow)) {
+            continue;
+        }
+        $reportstorun[$id] = $r;
+    }
+    return $reportstorun;
+}
+
+/**
+ * Check if the report is ready to run.
+ * @param object $report
+ * @return boolean
+ */
+function block_configurable_reports_is_daily_report_ready($report, $timenow) {
+    // Time when the report should run today.
+    list($runtimetoday) = block_configurable_reports_get_daily_time_starts($timenow, $report->runat);
+
+    // Values used to check whether the report has already run today.
+    list($today) = block_configurable_reports_get_daily_time_starts($timenow, 0);
+    list($lastrunday) = block_configurable_reports_get_daily_time_starts($report->lastrun, 0);
+
+    if (($runtimetoday <= $timenow) && ($today > $lastrunday)) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @param int $timenow a timestamp.
+ * @param int $at an hour, 0 to 23.
+ * @return array with two elements: the timestamp for hour $at today (where today
+ *      is defined by $timenow) and the timestamp for hour $at yesterday.
+ */
+function block_configurable_reports_get_daily_time_starts($timenow, $at) {
+    $hours = $at;
+    $minutes = 0;
+    $dateparts = getdate($timenow);
+    return array(
+            mktime((int)$hours, (int)$minutes, 0,
+                    $dateparts['mon'], $dateparts['mday'], $dateparts['year']),
+            mktime((int)$hours, (int)$minutes, 0,
+                    $dateparts['mon'], $dateparts['mday'] - 1, $dateparts['year']),
+    );
+}
+
+function block_configurable_reports_get_week_starts($timenow) {
+    $dateparts = getdate($timenow);
+    $daysafterweekstart = ($dateparts['wday'] - BLOCK_CONFIGURABLE_REPORTS_WEEK_START + 7) % 7;
+
+    return array(
+            mktime(0, 0, 0, $dateparts['mon'], $dateparts['mday'] - $daysafterweekstart,
+                    $dateparts['year']),
+            mktime(0, 0, 0, $dateparts['mon'], $dateparts['mday'] - $daysafterweekstart - 7,
+                    $dateparts['year']),
+    );
+}
+
+function block_configurable_reports_get_month_starts($timenow) {
+    $dateparts = getdate($timenow);
+
+    return array(
+            mktime(0, 0, 0, $dateparts['mon'], 1, $dateparts['year']),
+            mktime(0, 0, 0, $dateparts['mon'] - 1, 1, $dateparts['year']),
+    );
+}
+
+function block_configurable_reports_get_quarter_starts($timenow) {
+    $dateparts = getdate($timenow);
+
+    $quarter = intval(($dateparts['mon'] + 2) / 3);
+    $firstmonth = $quarter * 3 - 2;
+
+    return mktime(0, 0, 0, $firstmonth, 1, $dateparts['year']);
+}
+
+function block_configurable_reports_get_starts($report, $timenow) {
+    switch ($report->runable) {
+        case 'daily':
+            return block_configurable_reports_get_daily_time_starts($timenow, $report->runat);
+        case 'weekly':
+            return block_configurable_reports_get_week_starts($timenow);
+        case 'monthly':
+            return block_configurable_reports_get_month_starts($timenow);
+        case 'quarterly':
+            return block_configurable_reports_get_quarter_starts($timenow);
+        default:
+            throw new Exception('unexpected $report->runable.');
+    }
+}
+
+function get_temp_path($filename) {
+    global $CFG;
+
+    $tmppath = '/temp';
+    // Create a unique temporary filename to use for this schedule
+    $path = tempnam($CFG->dataroot.$tmppath, $filename);
+    return $path;
 }

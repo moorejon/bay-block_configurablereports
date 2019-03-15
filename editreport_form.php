@@ -47,9 +47,8 @@ class report_edit_form extends moodleform {
         }
         $mform->addRule('name', null, 'required', null, 'client');
 
-        $mform->addElement('htmleditor', 'summary', get_string('summary'));
-        $mform->setType('summary', PARAM_RAW);
-
+        $mform->addElement('editor', 'summary_editor', get_string('summary'), null, $this->get_editor_options());
+        $mform->setType('summary_editor', PARAM_RAW);
         $typeoptions = cr_get_report_plugins($this->_customdata['courseid']);
 
         $eloptions = array();
@@ -91,6 +90,27 @@ class report_edit_form extends moodleform {
             $mform->addElement('checkbox', 'export_'.$key, null, $val);
         }
 
+        $mform->addElement('header', 'scheduleoptions', get_string('scheduleoptions', 'block_configurable_reports'));
+
+        $mform->addElement('checkbox', 'enableschedule', get_string('enableschedule', 'block_configurable_reports'),
+                get_string('enableschedule', 'block_configurable_reports'));
+        $runat = array();
+        $runat[] = $mform->createElement('select', 'frequency', null,  block_configurable_reports_frequency_options());
+        $runat[] = $mform->createElement('select', 'at', null, block_configurable_reports_daily_at_options());
+        $mform->addGroup($runat, 'frequencygroup', get_string('frequency', 'block_configurable_reports'),
+                get_string('at', 'block_configurable_reports'), false);
+
+        //$mform->addElement('text', 'customdir', get_string('customdir', 'block_configurable_reports'), 'size = 70');
+        //$mform->setType('customdir', PARAM_PATH);
+        //$mform->disabledIf('customdir', 'enableschedule', 'notchecked');
+        //$mform->addHelpButton('customdir', 'customdir', 'block_configurable_reports');
+
+        $mform->addElement('text', 'emailto', get_string('emailto', 'block_configurable_reports'), 'size = 70');
+        $mform->disabledIf('frequencygroup','enableschedule', 'notchecked');
+        $mform->disabledIf('at', 'frequency', 'ne', 'daily');
+        $mform->disabledIf('emailto', 'enableschedule', 'notchecked');
+        $mform->setType('emailto', PARAM_RAW);
+
         if (isset($this->_customdata['report']->id) && $this->_customdata['report']->id) {
             $mform->addElement('hidden', 'id', $this->_customdata['report']->id);
             $mform->setType('id', PARAM_INT);
@@ -110,5 +130,53 @@ class report_edit_form extends moodleform {
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         return $errors;
+    }
+
+    /**
+     * Used to reformat the data from the editor component.
+     *
+     * @return stdClass
+     */
+    function get_data() {
+        $data = parent::get_data();
+
+        if ($data !== null and isset($data->summary_editor)) {
+            $data->summaryformat = $data->summary_editor['format'];
+            $data->summary = $data->summary_editor['text'];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Load in existing data as form defaults.
+     *
+     * @param stdClass|array $default_values object or array of default values.
+     */
+    function set_data($default_values) {
+        if (!is_object($default_values)) {
+            // We need object for file_prepare_standard_editor.
+            $default_values = (object)$default_values;
+        }
+        $default_values = file_prepare_standard_editor($default_values, 'summary', $this->get_editor_options());
+
+        parent::set_data($default_values);
+    }
+
+
+    /**
+     * Get editor options for this form.
+     *
+     * @return array An array of options.
+     */
+    function get_editor_options() {
+        $editoroptions = [
+            'subdirs' => 0,
+            'maxbytes' => 0,
+            'maxfiles' => 0,
+            'noclean' => false,
+            'trusttext' => false
+        ];
+        return $editoroptions;
     }
 }

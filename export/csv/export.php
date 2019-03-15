@@ -22,37 +22,57 @@
  * @date: 2009
  */
 
-function export_report($report) {
-    global $DB, $CFG;
-    require_once($CFG->libdir . '/csvlib.class.php');
+require_once($CFG->dirroot.'/lib/csvlib.class.php');
 
-    $table = $report->table;
-    $matrix = array();
-    $filename = 'report';
+class export_csv {
+    function export_report($report, $download = true) {
+        global $DB, $CFG;
+        require_once($CFG->libdir . '/csvlib.class.php');
 
-    if (!empty($table->head)) {
-        $countcols = count($table->head);
-        $keys = array_keys($table->head);
-        $lastkey = end($keys);
-        foreach ($table->head as $key => $heading) {
-            $matrix[0][$key] = str_replace("\n", ' ', htmlspecialchars_decode(strip_tags(nl2br($heading))));
-        }
-    }
+        $table = $report->table;
+        $matrix = array();
+        $filename = 'report.csv';
 
-    if (!empty($table->data)) {
-        foreach ($table->data as $rkey => $row) {
-            foreach ($row as $key => $item) {
-                $matrix[$rkey + 1][$key] = str_replace("\n", ' ', htmlspecialchars_decode(strip_tags(nl2br($item))));
+        if (!empty($table->head)) {
+            $countcols = count($table->head);
+            $keys = array_keys($table->head);
+            $lastkey = end($keys);
+            foreach ($table->head as $key => $heading) {
+                $matrix[0][$key] = str_replace("\n", ' ', htmlspecialchars_decode(strip_tags(nl2br($heading))));
             }
         }
-    }
 
-    $csvexport = new csv_export_writer();
-    $csvexport->set_filename($filename);
+        if (!empty($table->data)) {
+            foreach ($table->data as $rkey => $row) {
+                foreach ($row as $key => $item) {
+                    $matrix[$rkey + 1][$key] = str_replace("\n", ' ', htmlspecialchars_decode(strip_tags(nl2br($item))));
+                }
+            }
+        }
 
-    foreach ($matrix as $ri => $col) {
-        $csvexport->add_data($col);
+        if ($download) {
+            $csvexport = new \csv_export_writer();
+        } else {
+            $csvexport = new ScheduledCsv();
+        }
+
+        $csvexport->set_filename($filename);
+
+        foreach ($matrix as $ri => $col) {
+            $csvexport->add_data($col);
+        }
+
+        if ($download) {
+            $csvexport->download_file();
+            exit;
+        } else {
+            return $csvexport->path;
+        }
     }
-    $csvexport->download_file();
-    exit;
+}
+
+class ScheduledCsv extends csv_export_writer {
+    public function __destruct() {
+        fclose($this->fp);
+    }
 }

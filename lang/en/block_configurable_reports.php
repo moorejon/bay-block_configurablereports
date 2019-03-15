@@ -494,6 +494,40 @@ $string['sessionlimittime'] = 'Limit between clicks (in minutes)';
 $string['sessionlimittime_help'] = 'The limit between clicks defines if two clicks are part of the same session or not';
 
 $string['excludedeletedusers'] = 'Exclude deleted users (only for SQL reports)';
+
+// Privacy provider.
+$string['privacy:metadata:block_configurable_reports'] = 'The configurable reports block contains customizable course reports.';
+$string['privacy:metadata:block_configurable_reports:courseid'] = 'Course ID';
+$string['privacy:metadata:block_configurable_reports:ownerid'] = 'The ID of the user who created the report';
+$string['privacy:metadata:block_configurable_reports:visible'] = 'Whether the report is visible or not';
+$string['privacy:metadata:block_configurable_reports:global'] = 'Whether the report is accessible from all the courses or not';
+$string['privacy:metadata:block_configurable_reports:name'] = 'The name of the report';
+$string['privacy:metadata:block_configurable_reports:summary'] = 'The description of the report';
+$string['privacy:metadata:block_configurable_reports:type'] = 'The type of the report';
+$string['privacy:metadata:block_configurable_reports:components'] = 'The configuration of the report. It contains the query,
+ the filters...';
+$string['privacy:metadata:block_configurable_reports:lastexecutiontime'] = 'Time this report took to run last time it was executed,
+ in milliseconds.';
+
 // BS EDIT.
-$string['label'] = 'Label';
+$string['at'] = 'at';
+$string['automaticallydaily'] = 'Scheduled, daily';
+$string['automaticallymonthly'] = 'Scheduled, on the first day of each month';
+$string['automaticallyquarterly'] = 'Scheduled, on the first day of every third month';
+$string['automaticallyweekly'] = 'Scheduled, on the first day of each week';
+$string['crontask'] = 'Scheduled Configurable Reports';
+$string['customdir'] = 'Export report to path / directory';
+$string['customdir_help'] = 'Files are exported to the file path specified. If a directory is specified the filename format will be reportid-timecreated.';
+$string['datareturned'] = 'The results for the following report have been exported and attached to this email:';
+$string['emailsentfailed'] = 'Failed to send email to {$a}.';
+$string['emailsubject'] = 'Scheduled Report: {$a}';
+$string['emailto'] = 'Automatically email to';
+$string['emailwhat'] = 'What to email';
+$string['enableschedule'] = 'Enable schedule';
+$string['fromname'] = 'Moodle Reports';
+$string['frequency'] = 'Frequency';
+$string['nodatareturned'] = 'The following scheduled report was run, but returned no data:';
+$string['runable'] = 'Run';
+$string['scheduleoptions'] = 'Schedule options';
+$string['typeofresult'] = 'Type of result';
 // END BS EDIT.
