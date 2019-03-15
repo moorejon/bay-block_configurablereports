@@ -165,7 +165,7 @@ if ($reports) {
             foreach ($export as $e) {
                 if ($e) {
                     $download .= '<a href="viewreport.php?id='.$r->id.'&amp;download=1&amp;format='.$e.'">'.
-                        '<img src="'.$CFG->wwwroot.'/blocks/configurable_reports/export/'.$e.'/pix.gif" alt="'.$e.'">'.
+                        '<img src="'.$CFG->wwwroot.'/blocks/configurable_reports/export/'.$e.'/'.$e.'.gif" alt="'.$e.'">'.
                         '&nbsp;'.(strtoupper($e)).'</a>&nbsp;&nbsp;';
                 }
             }

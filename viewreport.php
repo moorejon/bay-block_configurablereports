@@ -115,7 +115,9 @@ if (!$download) {
     $exportplugin = $CFG->dirroot.'/blocks/configurable_reports/export/'.$format.'/export.php';
     if (file_exists($exportplugin)) {
         require_once($exportplugin);
-        export_report($reportclass->finalreport);
+        $classname = 'export_'.$format;
+        $export = new $classname();
+        $export->export_report($reportclass->finalreport);
     }
     die;
 }

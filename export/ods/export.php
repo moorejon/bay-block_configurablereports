@@ -22,45 +22,75 @@
  * @date: 2009
  */
 
-function export_report($report) {
-    global $DB, $CFG;
-    require_once($CFG->dirroot.'/lib/odslib.class.php');
+require_once($CFG->dirroot.'/lib/odslib.class.php');
 
-    $table = $report->table;
-    $matrix = array();
-    $filename = 'report_'.(time()).'.ods';
+class export_ods {
+    function export_report($report, $download = true) {
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/lib/odslib.class.php');
 
-    if (!empty($table->head)) {
-        $countcols = count($table->head);
-        $keys = array_keys($table->head);
-        $lastkey = end($keys);
-        foreach ($table->head as $key => $heading) {
+        $table = $report->table;
+        $matrix = array();
+        $filename = 'report.ods';
+
+        if (!empty($table->head)) {
+            $countcols = count($table->head);
+            $keys = array_keys($table->head);
+            $lastkey = end($keys);
+            foreach ($table->head as $key => $heading) {
                 $matrix[0][$key] = str_replace("\n", ' ', htmlspecialchars_decode(strip_tags(nl2br($heading))));
-        }
-    }
-
-    if (!empty($table->data)) {
-        foreach ($table->data as $rkey => $row) {
-            foreach ($row as $key => $item) {
-                $matrix[$rkey + 1][$key] = str_replace("\n", ' ', htmlspecialchars_decode(strip_tags(nl2br($item))));
             }
         }
-    }
 
-    $downloadfilename = clean_filename($filename);
-    // Creating a workbook.
-    $workbook = new MoodleODSWorkbook("-");
-    // Sending HTTP headers.
-    $workbook->send($downloadfilename);
-    // Adding the worksheet.
-    $myxls =& $workbook->add_worksheet($filename);
+        if (!empty($table->data)) {
+            foreach ($table->data as $rkey => $row) {
+                foreach ($row as $key => $item) {
+                    $matrix[$rkey + 1][$key] = str_replace("\n", ' ', htmlspecialchars_decode(strip_tags(nl2br($item))));
+                }
+            }
+        }
 
-    foreach ($matrix as $ri => $col) {
-        foreach ($col as $ci => $cv) {
-            $myxls->write_string($ri, $ci, $cv);
+        $downloadfilename = clean_filename($filename);
+        // Creating a workbook.
+        if ($download) {
+            $workbook = new MoodleODSWorkbook("-");
+        } else {
+            $workbook = new ScheduledOds("-");
+        }
+
+        $workbook->send($downloadfilename);
+        // Adding the worksheet.
+        $myxls = $workbook->add_worksheet($filename);
+
+        foreach ($matrix as $ri => $col) {
+            foreach ($col as $ci => $cv) {
+                $myxls->write_string($ri, $ci, $cv);
+            }
+        }
+
+        $workbook->close();
+        if ($download) {
+            exit;
+        } else {
+            return $workbook->filelocation;
         }
     }
+}
 
-    $workbook->close();
-    exit;
+class ScheduledOds extends MoodleODSWorkbook {
+
+    public $filelocation = '';
+
+    public function close() {
+        global $CFG;
+        require_once($CFG->libdir . '/filelib.php');
+
+        $tmppath = '/temp';
+        // Create a unique temporary filename to use for this schedule
+        $filename = tempnam($CFG->dataroot.$tmppath, 'export_report_');
+        $writer = new MoodleODSWriter($this->worksheets);
+        $contents = $writer->get_file_content();
+        file_put_contents($filename, $contents);
+        $this->filelocation = $filename;
+    }
 }

@@ -510,5 +510,24 @@ $string['privacy:metadata:block_configurable_reports:lastexecutiontime'] = 'Time
  in milliseconds.';
 
 // BS EDIT.
-$string['label'] = 'Label';
+$string['at'] = 'at';
+$string['automaticallydaily'] = 'Scheduled, daily';
+$string['automaticallymonthly'] = 'Scheduled, on the first day of each month';
+$string['automaticallyquarterly'] = 'Scheduled, on the first day of every third month';
+$string['automaticallyweekly'] = 'Scheduled, on the first day of each week';
+$string['crontask'] = 'Scheduled Configurable Reports';
+$string['customdir'] = 'Export report to path / directory';
+$string['customdir_help'] = 'Files are exported to the file path specified. If a directory is specified the filename format will be reportid-timecreated.';
+$string['datareturned'] = 'The results for the following report have been exported and attached to this email:';
+$string['emailsentfailed'] = 'Failed to send email to {$a}.';
+$string['emailsubject'] = 'Scheduled Report: {$a}';
+$string['emailto'] = 'Automatically email to';
+$string['emailwhat'] = 'What to email';
+$string['enableschedule'] = 'Enable schedule';
+$string['fromname'] = 'Moodle Reports';
+$string['frequency'] = 'Frequency';
+$string['nodatareturned'] = 'The following scheduled report was run, but returned no data:';
+$string['runable'] = 'Run';
+$string['scheduleoptions'] = 'Schedule options';
+$string['typeofresult'] = 'Type of result';
 // END BS EDIT.

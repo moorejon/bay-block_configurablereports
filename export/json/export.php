@@ -22,22 +22,35 @@
  * @date    : 2009
  * @param $report
  */
-function export_report($report){
-    $table = $report->table;
-    $filename = 'report_' . (time()) . '.json';
-    $json = [];
-    $headers = $table->head;
-    foreach ($table->data as $data) {
-        $jsonObject = [];
-        foreach ($data as $index => $value) {
-            $jsonObject[$headers[$index]] = $value;
-        }
-        $json[] = $jsonObject;
-    }
 
-    $downloadfilename = clean_filename($filename);
-    header('Content-disposition: attachment; filename=' . $downloadfilename);
-    header('Content-type: application/json');
-    echo json_encode($json);
-    exit;
+class export_json {
+    function export_report($report, $download = true) {
+        global $CFG;
+
+        $table = $report->table;
+        $filename = 'report.json';
+        $json = [];
+        $headers = $table->head;
+        foreach ($table->data as $data) {
+            $jsonObject = [];
+            foreach ($data as $index => $value) {
+                $jsonObject[$headers[$index]] = $value;
+            }
+            $json[] = $jsonObject;
+        }
+
+        $downloadfilename = clean_filename($filename);
+        if ($download) {
+            header('Content-disposition: attachment; filename=' . $downloadfilename);
+            header('Content-type: application/json');
+            echo json_encode($json);
+            exit;
+        } else {
+            $tmppath = '/temp';
+            // Create a unique temporary filename to use for this schedule
+            $filename = tempnam($CFG->dataroot.$tmppath, 'export_json_');
+            file_put_contents($filename, json_encode($json));
+            return $filename;
+        }
+    }
 }

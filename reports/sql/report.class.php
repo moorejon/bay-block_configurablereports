@@ -88,7 +88,7 @@ class report_sql extends report_base {
     }
 
     public function create_report() {
-        global $DB, $CFG;
+        global $DB, $CFG, $PAGE;
 
         $components = cr_unserialize($this->config->components);
 
@@ -128,7 +128,9 @@ class report_sql extends report_base {
                     }
                     $arrayrow = array_values((array) $row);
                     foreach ($arrayrow as $ii => $cell) {
-                        $cell = format_text($cell, FORMAT_HTML, array('trusted' => true, 'noclean' => true, 'para' => false));
+                        if (isset($PAGE->context)) {
+                            $cell = format_text($cell, FORMAT_HTML, array('trusted' => true, 'noclean' => true, 'para' => false));
+                        }
                         $arrayrow[$ii] = str_replace('[[QUESTIONMARK]]', '?', $cell);
                     }
                     $totalrecords++;
