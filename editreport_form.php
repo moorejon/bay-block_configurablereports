@@ -92,7 +92,7 @@ class report_edit_form extends moodleform {
 
         $mform->addElement('header', 'scheduleoptions', get_string('scheduleoptions', 'block_configurable_reports'));
 
-        $mform->addElement('checkbox', 'enableschedule', get_string('enableschedule', 'block_configurable_reports'),
+        $mform->addElement('advcheckbox', 'enableschedule', get_string('enableschedule', 'block_configurable_reports'),
                 get_string('enableschedule', 'block_configurable_reports'));
         $runat = array();
         $runat[] = $mform->createElement('select', 'frequency', null,  block_configurable_reports_frequency_options());
