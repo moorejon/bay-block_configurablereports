@@ -598,7 +598,7 @@ function block_configurable_reports_email_options() {
 
 function block_configurable_reports_get_ready_to_run_daily_reports($timenow) {
     global $DB;
-    $reports = $DB->get_records_select('block_configurable_reports', "frequency = ?", array('daily'), 'id');
+    $reports = $DB->get_records_select('block_configurable_reports', "enableschedule = 1 AND frequency = ?", array('daily'), 'id');
 
     $reportstorun = array();
     foreach ($reports as $id => $r) {
