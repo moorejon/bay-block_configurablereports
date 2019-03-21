@@ -526,6 +526,7 @@ $string['emailwhat'] = 'What to email';
 $string['enableschedule'] = 'Enable schedule';
 $string['fromname'] = 'Moodle Reports';
 $string['frequency'] = 'Frequency';
+$string['label'] = 'Label';
 $string['nodatareturned'] = 'The following scheduled report was run, but returned no data:';
 $string['runable'] = 'Run';
 $string['scheduleoptions'] = 'Schedule options';
