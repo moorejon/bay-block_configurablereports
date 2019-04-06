@@ -41,7 +41,7 @@ class plugin_sqloptions extends plugin_base {
         $filtersqloptions = optional_param('filter_sql_'.$data->idnumber, 0, PARAM_RAW);
         $filter = clean_param(base64_decode($filtersqloptions), PARAM_RAW);
 
-        $operators = array('=', '<', '>', '<=', '>=', '~');
+        $operators = array('=', '<', '>', '<=', '>=', '~', 'in');
 
         if ($filtersqloptions && preg_match_all("/%%FILTER_SQL_$data->idnumber:([^%]+)%%/i", $finalelements, $output)) {
             for ($i = 0; $i < count($output[1]); $i++) {
@@ -51,6 +51,8 @@ class plugin_sqloptions extends plugin_base {
                 }
                 if ($operator == '~') {
                     $replace = " AND $field LIKE '%$filter%'";
+                } else if ($operator == 'in') {
+                    $replace = " AND  '$filter' IN $field";
                 } else {
                     $replace = " AND $field $operator '$filter'";
                 }
