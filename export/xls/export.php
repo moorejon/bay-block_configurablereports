@@ -63,7 +63,11 @@ class export_xls {
 
         foreach ($matrix as $ri => $col) {
             foreach ($col as $ci => $cv) {
-                $myxls->write_string($ri, $ci, $cv);
+                if (!is_numeric($cv)) {
+                    $myxls->write_string($ri, $ci, $cv);
+                } else {
+                    $myxls->write_number($ri, $ci, $cv);
+                }
             }
         }
 
