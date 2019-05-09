@@ -22,7 +22,7 @@
  * @date: 2009
  */
 
-class block_configurable_reports extends block_list {
+class block_configurable_reports extends block_base {
 
     /**
      * Sets the block name and version number
@@ -81,23 +81,23 @@ class block_configurable_reports extends block_list {
      * Gets the contents of the block (course view)
      *
      * @return object An object with the contents
-     **/
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
     public function get_content() {
-        global $DB, $USER, $CFG, $COURSE;
+        global $DB, $COURSE;
 
         if ($this->content !== null) {
             return $this->content;
         }
 
-        $this->content = new stdClass;
-        $this->content->footer = '';
-        $this->content->icons = array();
-
         if (!isloggedin()) {
-            return $this->content;
+            return (object) [
+                'text' => '',
+                'footer' => ''
+            ];
         }
-
-        require_once($CFG->dirroot."/blocks/configurable_reports/locallib.php");
 
         $course = $DB->get_record('course', array('id' => $COURSE->id));
 
@@ -105,60 +105,13 @@ class block_configurable_reports extends block_list {
             print_error('coursedoesnotexists');
         }
 
-        if ($course->id == SITEID) {
-            $context = context_system::instance();
-        } else {
-            $context = context_course::instance($course->id);
-        }
+        $renderable = new \block_configurable_reports\output\main($course, $this->config);
+        $renderer = $this->page->get_renderer('block_configurable_reports');
 
-        // Site (Shared) reports.
-        if (!empty($this->config->displayglobalreports)) {
-            $reports = $DB->get_records('block_configurable_reports', array('global' => 1), 'name ASC');
-
-            if ($reports) {
-                foreach ($reports as $report) {
-                    if ($report->visible && cr_check_report_permissions($report, $USER->id, $context)) {
-                        $rname = format_string($report->name);
-                        $params = ['id' => $report->id, 'courseid' => $course->id];
-                        $url = new \moodle_url('/blocks/configurable_reports/viewreport.php', $params);
-                        $attrs = ['alt' => $rname];
-                        $this->content->items[] = \html_writer::link($url, $rname, $attrs);
-                    }
-                }
-                if (!empty($this->content->items)) {
-                    $this->content->items[] = '========';
-                }
-            }
-        }
-
-        // Course reports.
-        if (!property_exists($this, 'config')
-            or !isset($this->config->displayreportslist)
-            or $this->config->displayreportslist) {
-            $reports = $DB->get_records('block_configurable_reports', array('courseid' => $course->id), 'name ASC');
-
-            if ($reports) {
-                foreach ($reports as $report) {
-                    if (!$report->global && $report->visible && cr_check_report_permissions($report, $USER->id, $context)) {
-                        $rname = format_string($report->name);
-                        $params = ['id' => $report->id, 'courseid' => $course->id];
-                        $url = new \moodle_url('/blocks/configurable_reports/viewreport.php', $params);
-                        $attrs = ['alt' => $rname];
-                        $this->content->items[] = \html_writer::link($url, $rname, $attrs);
-                    }
-                }
-                if (!empty($this->content->items)) {
-                    $this->content->items[] = '========';
-                }
-            }
-        }
-
-        if (has_capability('block/configurable_reports:managereports', $context)
-            || has_capability('block/configurable_reports:manageownreports', $context)) {
-            $url = new \moodle_url('/blocks/configurable_reports/managereport.php', ['courseid' => $course->id]);
-            $linktext = get_string('managereports', 'block_configurable_reports');
-            $this->content->items[] = \html_writer::link($url, $linktext);
-        }
+        $this->content = (object) [
+            'text' => $renderer->render($renderable),
+            'footer' => ''
+        ];
 
         return $this->content;
     }
