@@ -32,6 +32,7 @@ require_once($CFG->dirroot.'/blocks/configurable_reports/plugin.class.php');
 $id = required_param('id', PARAM_INT);
 $comp = required_param('comp', PARAM_ALPHA);
 $courseid = optional_param('courseid', null, PARAM_INT);
+$embedded = optional_param('embedded', 0, PARAM_INT);
 
 if (!$report = $DB->get_record('block_configurable_reports', ['id' => $id])) {
     print_error('reportdoesnotexists');
@@ -58,7 +59,12 @@ if ($course->id == SITEID) {
 
 $PAGE->set_url('/blocks/configurable_reports/editreport.php', ['id' => $id, 'comp' => $comp]);
 $PAGE->set_context($context);
-$PAGE->set_pagelayout('incourse');
+
+if ($embedded) {
+    $PAGE->set_pagelayout(get_config('block_configurable_reports', 'iframelayout'));
+} else {
+    $PAGE->set_pagelayout('incourse');
+}
 
 $PAGE->requires->js('/blocks/configurable_reports/js/configurable_reports.js');
 
@@ -94,7 +100,7 @@ if ($compclass->form) {
     $editform = new $classname('editcomp.php?id='.$id.'&comp='.$comp, compact('compclass', 'comp', 'id', 'report', 'reportclass', 'elements'));
 
     if ($editform->is_cancelled()) {
-        redirect($CFG->wwwroot.'/blocks/configurable_reports/editcomp.php?id='.$id.'&amp;comp='.$comp);
+        redirect($CFG->wwwroot.'/blocks/configurable_reports/editcomp.php?id='.$id.'&amp;comp='.$comp.'&amp;embedded='.$embedded);
     } else if ($data = $editform->get_data()) {
         $compclass->form_process_data($editform);
         cr_add_to_log($courseid, 'configurable_reports', 'edit', '', $report->name);
@@ -159,25 +165,25 @@ if ($elements) {
         $editcell = '';
 
         if ($pluginclass->form) {
-            $editcell .= '<a href="editplugin.php?id='.$id.'&comp='.$comp.'&pname='.$e['pluginname'].'&cid='.$e['id'].'">'.
+            $editcell .= '<a href="editplugin.php?id='.$id.'&comp='.$comp.'&pname='.$e['pluginname'].'&embedded='.$embedded.'&cid='.$e['id'].'">'.
                          $OUTPUT->pix_icon('t/edit', get_string('edit')).
                          '</a>';
         }
 
         $editcell .= '<a href="editplugin.php?id='.$id.'&comp='.$comp.'&pname='.$e['pluginname'].
-                     '&cid='.$e['id'].'&delete=1&amp;sesskey='.sesskey().'">'.
+                     '&cid='.$e['id'].'&delete=1&embedded='.$embedded.'&amp;sesskey='.sesskey().'">'.
                      $OUTPUT->pix_icon('t/delete', get_string('delete')).
                      '</a>';
 
         if ($compclass->ordering && $i != 0 && count($elements) > 1) {
             $editcell .= '<a href="editplugin.php?id='.$id.'&comp='.$comp.'&pname='.$e['pluginname'].'&cid='.$e['id'].
-                         '&moveup=1&amp;sesskey='.sesskey().'">'.
+                         '&moveup=1&embedded='.$embedded.'&amp;sesskey='.sesskey().'">'.
                          $OUTPUT->pix_icon('t/up', get_string('moveup')).
                          '</a>';
         }
         if ($compclass->ordering && $i != count($elements) - 1) {
             $editcell .= '<a href="editplugin.php?id='.$id.'&comp='.$comp.'&pname='.$e['pluginname'].'&cid='.$e['id'].
-                         '&movedown=1&amp;sesskey='.sesskey().'">'.
+                         '&movedown=1&embedded='.$embedded.'&amp;sesskey='.sesskey().'">'.
                          $OUTPUT->pix_icon('t/down', get_string('movedown')).
                          '</a>';
         }
@@ -201,7 +207,7 @@ if ($compclass->plugins) {
     $attributes = ['id' => 'menuplugin'];
 
     echo \html_writer::select($optionsplugins, 'plugin', '', ['' => get_string('choose')], $attributes);
-    $OUTPUT->add_action_handler(new component_action('change', 'menuplugin', ['url' => "editplugin.php?id=".$id."&comp=".$comp."&pname="]), 'menuplugin');
+    $OUTPUT->add_action_handler(new component_action('change', 'menuplugin', ['url' => "editplugin.php?id=".$id."&comp=".$comp."&embedded=".$embedded."&pname="]), 'menuplugin');
     echo '</p>';
     echo '</div>';
 }

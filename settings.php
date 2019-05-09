@@ -47,4 +47,15 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configtext('block_configurable_reports/reportlimit', get_string('reportlimit', 'block_configurable_reports'),
         get_string('reportlimitinfo', 'block_configurable_reports'), '5000', PARAM_INT, 6));
+
+    // Iframe layout selector.
+    $themeconfig = theme_config::load($CFG->theme);
+
+    $layouts = array();
+    foreach (array_keys($themeconfig->layouts) as $layout) {
+        $layouts[$layout] = $layout;
+    }
+
+    $settings->add(new admin_setting_configselect('block_configurable_reports/iframelayout', get_string('iframelayout', 'block_configurable_reports'),
+            get_string('iframelayoutinfo', 'block_configurable_reports'), 'embedded', $layouts));
 }
