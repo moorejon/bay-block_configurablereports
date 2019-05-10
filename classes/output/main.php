@@ -98,7 +98,7 @@ class main implements renderable, templatable {
      * @throws \moodle_exception
      */
     private function get_course_reports($course, $context) {
-        global $DB, $USER;
+        global $DB, $PAGE, $USER;
         if (!property_exists($this, 'config')
             or !isset($this->config->displayreportslist)
             or $this->config->displayreportslist) {
@@ -110,7 +110,14 @@ class main implements renderable, templatable {
                         $rname = format_string($report->name);
                         $params = ['id' => $report->id, 'courseid' => $course->id];
                         $url = new \moodle_url('/blocks/configurable_reports/viewreport.php', $params);
-                        $this->items[] = (object) ['url' => $url, 'name' => $rname];
+                        $urlid = $PAGE->url->get_param('id');
+                        $selected = ($PAGE->url->compare($url, URL_MATCH_BASE)
+                            && !empty($urlid) && $urlid == $report->id) ? true : false;
+                        $this->items[] = (object) [
+                            'url' => $url,
+                            'name' => $rname,
+                            'selected' => $selected
+                        ];
                     }
                 }
             }
@@ -126,11 +133,18 @@ class main implements renderable, templatable {
      * @throws \moodle_exception
      */
     private function get_manage_link($course, $context) {
+        global $PAGE;
         if (has_capability('block/configurable_reports:managereports', $context)
             || has_capability('block/configurable_reports:manageownreports', $context)) {
             $url = new \moodle_url('/blocks/configurable_reports/managereport.php', ['courseid' => $course->id]);
             $linktext = get_string('managereports', 'block_configurable_reports');
-            $this->items[] = (object) ['url' => $url, 'name' => $linktext, 'divider' => !empty($this->items) ? true : false];
+            $selected = $PAGE->pagetype === 'blocks-configurable_reports-managereport' ? true : false;
+            $this->items[] = (object) [
+                'url' => $url,
+                'name' => $linktext,
+                'divider' => !empty($this->items) ? true : false,
+                'selected' => $selected
+            ];
         }
     }
 
