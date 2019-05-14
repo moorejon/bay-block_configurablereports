@@ -124,7 +124,7 @@ $string['filterusers_summary'] = 'Filter a user (by id) from system user list';
 $string['filterenrolledstudents'] = 'Enrolled course students';
 $string['filterenrolledstudents_summary'] = 'Filter a user (by id) from enrolled course students';
 $string['filtersql_summary'] = 'Create a select dropdown filter using a custom sql statement';
-$string['noconfigidordisplay'] = 'Select statement must return configid and configdisplay.';
+$string['noconfigidordisplay'] = 'Select statement must return configid (and optionally configdisplay).';
 $string['student'] = 'Student';
 $string['sqloptions'] = 'SQL Options';
 
