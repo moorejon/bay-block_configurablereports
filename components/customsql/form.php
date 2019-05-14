@@ -46,6 +46,9 @@ class customsql_form extends moodleform {
         $mform->addElement('hidden', 'courseid', $COURSE->id);
         $mform->setType('courseid', PARAM_INT);
 
+        $mform->addElement('hidden', 'embedded', optional_param('embedded', 0, PARAM_INT));
+        $mform->setType('embedded', PARAM_INT);
+
         $this->add_action_buttons();
 
         $mform->addElement('static', 'note', '', get_string('listofsqlreports', 'block_configurable_reports'));

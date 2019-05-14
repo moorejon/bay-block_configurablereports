@@ -40,6 +40,9 @@ class permissions_form extends moodleform {
         $mform->addHelpButton('conditionexpr', 'conditionexpr_permissions', 'block_configurable_reports');
         $mform->setType('conditionexpr', PARAM_RAW);
 
+        $mform->addElement('hidden', 'embedded', optional_param('embedded', 0, PARAM_INT));
+        $mform->setType('embedded', PARAM_INT);
+
         // Buttons.
         $this->add_action_buttons(true, get_string('update'));
     }

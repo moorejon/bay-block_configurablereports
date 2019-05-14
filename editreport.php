@@ -33,6 +33,7 @@ $confirm = optional_param('confirm', 0, PARAM_BOOL);
 $show = optional_param('show', 0, PARAM_BOOL);
 $hide = optional_param('hide', 0, PARAM_BOOL);
 $duplicate = optional_param('duplicate', 0, PARAM_BOOL);
+$embedded = optional_param('embedded', 0, PARAM_INT);
 
 $report = null;
 
@@ -59,7 +60,11 @@ if (!$hasmanagereportcap && !has_capability('block/configurable_reports:manageow
 }
 
 $PAGE->set_context($context);
-$PAGE->set_pagelayout('incourse');
+if ($embedded) {
+    $PAGE->set_pagelayout(get_config('block_configurable_reports', 'iframelayout'));
+} else {
+    $PAGE->set_pagelayout('incourse');
+}
 
 
 if ($id) {
@@ -249,7 +254,11 @@ if ($editform->is_cancelled()) {
 $PAGE->set_context($context);
 
 
-$PAGE->set_pagelayout('incourse');
+if ($embedded) {
+    $PAGE->set_pagelayout(get_config('block_configurable_reports', 'iframelayout'));
+} else {
+    $PAGE->set_pagelayout('incourse');
+}
 
 
 $PAGE->set_title($title);

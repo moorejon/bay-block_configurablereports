@@ -531,4 +531,6 @@ $string['nodatareturned'] = 'The following scheduled report was run, but returne
 $string['runable'] = 'Run';
 $string['scheduleoptions'] = 'Schedule options';
 $string['typeofresult'] = 'Type of result';
+$string['iframelayout'] = 'Iframe Layout';
+$string['iframelayoutinfo'] = '';
 // END BS EDIT.
