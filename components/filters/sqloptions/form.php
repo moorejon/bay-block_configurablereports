@@ -93,7 +93,7 @@ class sqloptions_form extends moodleform {
                 $errors['querysql'] = get_string('queryfailed', 'block_configurable_reports', $e->error );
             }
             if (!$rs->valid()) {
-                $errors['querysql'] = get_string('norowsreturned', 'block_configurable_reports');
+                //$errors['querysql'] = get_string('norowsreturned', 'block_configurable_reports');
             } else if (!array_key_exists('configid', $rs->current())) {
                 $errors['querysql'] = get_string('noconfigidordisplay', 'block_configurable_reports');
             }
@@ -127,7 +127,7 @@ class sqloptions_form extends moodleform {
             if (!$rs) {
                 $errors['querysql'] = get_string('queryfailed', 'block_configurable_reports', $db->ErrorMsg());
             } else if (!$rs->valid()) {
-                $errors['querysql'] = get_string('norowsreturned', 'block_configurable_reports');
+                //$errors['querysql'] = get_string('norowsreturned', 'block_configurable_reports');
             } else if (!array_key_exists('configid', $rs->current())) {
                 $errors['querysql'] = get_string('noconfigidordisplay', 'block_configurable_reports');
             }
