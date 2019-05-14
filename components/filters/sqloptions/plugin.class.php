@@ -77,7 +77,11 @@ class plugin_sqloptions extends plugin_base {
         $results = $DB->get_records_sql($sql);
 
         foreach ($results as $result) {
-            $filteroptions[base64_encode($result->configid)] = $result->configdisplay;
+            if (empty($result->configdisplay)) {
+                $filteroptions[base64_encode($result->configid)] = $result->configid;
+            } else {
+                $filteroptions[base64_encode($result->configid)] = $result->configdisplay;
+            }
         }
 
         if (!empty($data->label)) {

@@ -98,7 +98,7 @@ class sqloptions_form extends moodleform {
                 }
             }
 
-            if (!array_key_exists('configid', $rs->current()) || !array_key_exists('configdisplay', $rs->current())) {
+            if ($rs->current() && !array_key_exists('configid', $rs->current())) {
                 $errors['querysql'] = get_string('noconfigidordisplay', 'block_configurable_reports');
             }
 
@@ -136,7 +136,7 @@ class sqloptions_form extends moodleform {
                 }
             }
 
-            if (!array_key_exists('configid', $rs->current()) || !array_key_exists('configdisplay', $rs->current())) {
+            if ($rs->current() && !array_key_exists('configid', $rs->current())) {
                 $errors['querysql'] = get_string('noconfigidordisplay', 'block_configurable_reports');
             }
 
