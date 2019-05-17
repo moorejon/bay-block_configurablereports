@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/configurable_reports/db" VERSION="20190228" COMMENT="XMLDB file for Moodle blocks/configurable_reports"
+<XMLDB PATH="blocks/configurable_reports/db" VERSION="20190517" COMMENT="XMLDB file for Moodle blocks/configurable_reports"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -28,6 +28,7 @@
         <FIELD NAME="frequency" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="daily" SEQUENCE="false"/>
         <FIELD NAME="runat" TYPE="char" LENGTH="16" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="lastrun" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="for tracking last scheduled run of the report"/>
+        <FIELD NAME="lastexport" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
