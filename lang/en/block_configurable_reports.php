@@ -509,7 +509,7 @@ $string['privacy:metadata:block_configurable_reports:components'] = 'The configu
 $string['privacy:metadata:block_configurable_reports:lastexecutiontime'] = 'Time this report took to run last time it was executed,
  in milliseconds.';
 
-// BS EDIT.
+// MLC EDIT.
 $string['at'] = 'at';
 $string['automaticallydaily'] = 'Scheduled, daily';
 $string['automaticallymonthly'] = 'Scheduled, on the first day of each month';
@@ -527,10 +527,11 @@ $string['enableschedule'] = 'Enable schedule';
 $string['fromname'] = 'Moodle Reports';
 $string['frequency'] = 'Frequency';
 $string['label'] = 'Label';
+$string['lastexported'] = 'Last exported on: ';
 $string['nodatareturned'] = 'The following scheduled report was run, but returned no data:';
 $string['runable'] = 'Run';
 $string['scheduleoptions'] = 'Schedule options';
 $string['typeofresult'] = 'Type of result';
 $string['iframelayout'] = 'Iframe Layout';
 $string['iframelayoutinfo'] = '';
-// END BS EDIT.
+// END MLC EDIT.

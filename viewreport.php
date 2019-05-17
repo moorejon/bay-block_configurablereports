@@ -121,6 +121,9 @@ if (!$download) {
     raise_memory_limit(MEMORY_EXTRA);
     $exportplugin = $CFG->dirroot.'/blocks/configurable_reports/export/'.$format.'/export.php';
     if (file_exists($exportplugin)) {
+        $report->lastexport = time();
+        $DB->update_record('block_configurable_reports', $report);
+
         require_once($exportplugin);
         $classname = 'export_'.$format;
         $export = new $classname();

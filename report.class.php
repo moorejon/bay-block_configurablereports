@@ -214,7 +214,7 @@ class report_base {
 
 
     public function print_export_options($return = false) {
-        global $CFG;
+        global $CFG, $USER;
 
         $wwwpath = $CFG->wwwroot;
         $request = array_merge($_POST, $_GET);
@@ -238,7 +238,14 @@ class report_base {
         }
 
         $output = '';
+        $lastexport = '';
         $export = explode(',', $this->config->export);
+        if (!empty($this->config->lastexport)) {
+            $timeoflastexport = new DateTime();
+            $timeoflastexport->setTimestamp((int)$this->config->lastexport);
+            $timeoflastexport->setTimezone(new DateTimeZone(\core_date::get_user_timezone($USER)));
+            $lastexport = get_string('lastexported', 'block_configurable_reports') . $timeoflastexport->format('M d, Y g:ia');
+        }
         if (!empty($this->config->export)) {
             $output .= '<br /><div class="centerpara">';
             $output .= get_string('downloadreport', 'block_configurable_reports').': ';
@@ -248,6 +255,9 @@ class report_base {
                 }
             }
             $output .= '</div>';
+            if ($lastexport) {
+                $output .= '<br /><div class="centerpara">' . $lastexport . '</div>';
+            }
         }
 
         if ($return) {
