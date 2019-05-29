@@ -534,4 +534,8 @@ $string['scheduleoptions'] = 'Schedule options';
 $string['typeofresult'] = 'Type of result';
 $string['iframelayout'] = 'Iframe Layout';
 $string['iframelayoutinfo'] = '';
+$string['filter_htmllabel'] = 'HTML Label';
+$string['htmllabel'] = 'HTML Label';
+$string['html'] = 'HTML';
+$string['filter_htmllabel_summary'] = 'Display HTML Label';
 // END MLC EDIT.
