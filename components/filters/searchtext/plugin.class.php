@@ -58,7 +58,7 @@ class plugin_searchtext extends plugin_base{
                     if ($operator == '~') {
                         $replace = " AND " . $field . " LIKE '%" . $filtersearchtext . "%'";
                     } else if ($operator == '~ci') {
-                        $replace = " AND LOWER(" . $field . ") LIKE LOWER('%" . $filtersearchtext . "%)'";
+                        $replace = " AND LOWER(" . $field . ") LIKE LOWER('%" . $filtersearchtext . "%')";
                     } else if ($operator == 'in') {
                         $processeditems = array();
                         // Accept comma-separated values, allowing for '\,' as a literal comma.
