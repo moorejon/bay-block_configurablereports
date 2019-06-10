@@ -39,7 +39,7 @@ class plugin_searchtext extends plugin_base{
     public function execute($finalelements, $data) {
 
         $filtersearchtext = optional_param('filter_searchtext_'.$data->idnumber, '', PARAM_RAW); // BS EDIT.
-        $operators = array('=', '<', '>', '<=', '>=', '~', 'in');
+        $operators = array('=', '<', '>', '<=', '>=', '~', '~ci', 'in');
 
         // BS EDIT.
         /*if (!$filtersearchtext) {
@@ -57,6 +57,8 @@ class plugin_searchtext extends plugin_base{
                     }
                     if ($operator == '~') {
                         $replace = " AND " . $field . " LIKE '%" . $filtersearchtext . "%'";
+                    } else if ($operator == '~ci') {
+                        $replace = " AND LOWER(" . $field . ") LIKE LOWER('%" . $filtersearchtext . "%)'";
                     } else if ($operator == 'in') {
                         $processeditems = array();
                         // Accept comma-separated values, allowing for '\,' as a literal comma.
