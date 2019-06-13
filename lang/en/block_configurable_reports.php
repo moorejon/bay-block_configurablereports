@@ -79,6 +79,7 @@ $string['operator'] = "Operator";
 $string['value'] = "Value";
 
 // Filter
+$string['defaulttimeframe'] = 'Default timeframe';
 $string['filter'] = "Filter";
 $string['nofilteryet'] = "No filters yet";
 $string['courses'] = "Courses";
@@ -88,6 +89,7 @@ $string['filter_apply'] = 'Apply';
 $string['filter_searchtext'] = 'Search text';
 $string['searchtext'] = 'Search text';
 $string['filter_searchtext_summary'] = 'Free text filter';
+$string['filter_sql'] = 'SQL Filter';
 $string['years'] = 'Year (Numeric)';
 $string['filteryears'] = 'Year (Numeric)';
 $string['filteryears_summary'] = 'Filter by years (numeric representation, 2012...)';
@@ -121,7 +123,10 @@ $string['enrolledstudents'] = 'Enrolled students';
 $string['filterusers_summary'] = 'Filter a user (by id) from system user list';
 $string['filterenrolledstudents'] = 'Enrolled course students';
 $string['filterenrolledstudents_summary'] = 'Filter a user (by id) from enrolled course students';
+$string['filtersql_summary'] = 'Create a select dropdown filter using a custom sql statement';
+$string['noconfigidordisplay'] = 'Select statement must return configid (and optionally configdisplay).';
 $string['student'] = 'Student';
+$string['sqloptions'] = 'SQL Options';
 
 // Calcs
 $string['nocalcsyet'] = "No calculations yet";
@@ -504,3 +509,34 @@ $string['privacy:metadata:block_configurable_reports:components'] = 'The configu
  the filters...';
 $string['privacy:metadata:block_configurable_reports:lastexecutiontime'] = 'Time this report took to run last time it was executed,
  in milliseconds.';
+
+// MLC EDIT.
+$string['at'] = 'at';
+$string['automaticallydaily'] = 'Scheduled, daily';
+$string['automaticallymonthly'] = 'Scheduled, on the first day of each month';
+$string['automaticallyquarterly'] = 'Scheduled, on the first day of every third month';
+$string['automaticallyweekly'] = 'Scheduled, on the first day of each week';
+$string['crontask'] = 'Scheduled Configurable Reports';
+$string['customdir'] = 'Export report to path / directory';
+$string['customdir_help'] = 'Files are exported to the file path specified. If a directory is specified the filename format will be reportid-timecreated.';
+$string['datareturned'] = 'The results for the following report have been exported and attached to this email:';
+$string['emailsentfailed'] = 'Failed to send email to {$a}.';
+$string['emailsubject'] = 'Scheduled Report: {$a}';
+$string['emailto'] = 'Automatically email to';
+$string['emailwhat'] = 'What to email';
+$string['enableschedule'] = 'Enable schedule';
+$string['fromname'] = 'Moodle Reports';
+$string['frequency'] = 'Frequency';
+$string['label'] = 'Label';
+$string['lastexported'] = 'Last exported on: ';
+$string['nodatareturned'] = 'The following scheduled report was run, but returned no data:';
+$string['runable'] = 'Run';
+$string['scheduleoptions'] = 'Schedule options';
+$string['typeofresult'] = 'Type of result';
+$string['iframelayout'] = 'Iframe Layout';
+$string['iframelayoutinfo'] = '';
+$string['filter_htmllabel'] = 'HTML Label';
+$string['htmllabel'] = 'HTML Label';
+$string['html'] = 'HTML';
+$string['filter_htmllabel_summary'] = 'Display HTML Label';
+// END MLC EDIT.

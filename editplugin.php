@@ -35,9 +35,10 @@ $pname = optional_param('pname', '', PARAM_ALPHA);
 $moveup = optional_param('moveup', 0, PARAM_INT);
 $movedown = optional_param('movedown', 0, PARAM_INT);
 $delete = optional_param('delete', 0, PARAM_INT);
+$embedded = optional_param('embedded', 0, PARAM_INT);
 
 if (!$pname) {
-    redirect(new \moodle_url('/blocks/configurable_reports/editcomp.php', ['id' => $id, 'comp' => $comp]));
+    redirect(new \moodle_url('/blocks/configurable_reports/editcomp.php', ['id' => $id, 'comp' => $comp, 'embedded' => $embedded]));
     exit;
 }
 
@@ -78,8 +79,12 @@ if (!in_array($comp, $reportclass->components)) {
 }
 
 $PAGE->set_context($context);
-$PAGE->set_pagelayout('incourse');
-$PAGE->set_url('/blocks/configurable_reports/editplugin.php', ['id' => $id, 'comp' => $comp, 'cid' => $cid, 'pname' => $pname]);
+if ($embedded) {
+    $PAGE->set_pagelayout(get_config('block_configurable_reports', 'iframelayout'));
+} else {
+    $PAGE->set_pagelayout('incourse');
+}
+$PAGE->set_url('/blocks/configurable_reports/editplugin.php', ['id' => $id, 'comp' => $comp, 'cid' => $cid, 'pname' => $pname, 'embedded' => $embedded]);
 
     $cdata = null;
     $plugin = '';
@@ -118,7 +123,7 @@ if (!$cid) {
         $components[$comp]['elements'] = $elements;
         $report->components = cr_serialize($components);
         $DB->update_record('block_configurable_reports', $report);
-        redirect(new moodle_url('/blocks/configurable_reports/editcomp.php', ['id' => $id, 'comp' => $comp]));
+        redirect(new moodle_url('/blocks/configurable_reports/editcomp.php', ['id' => $id, 'comp' => $comp, 'embedded' => $embedded]));
         exit;
     }
 }
@@ -141,7 +146,7 @@ if (isset($pluginclass->form) && $pluginclass->form) {
     require_once($CFG->dirroot.'/blocks/configurable_reports/components/'.$comp.'/'.$pname.'/form.php');
     $classname = $pname.'_form';
 
-    $formurlparams = array('id' => $id, 'comp' => $comp, 'pname' => $pname);
+    $formurlparams = array('id' => $id, 'comp' => $comp, 'pname' => $pname, 'embedded' => $embedded);
     if ($cid) {
         $formurlparams['cid'] = $cid;
     }
@@ -154,7 +159,7 @@ if (isset($pluginclass->form) && $pluginclass->form) {
 
     if ($editform->is_cancelled()) {
         if (!empty($report)) {
-            redirect($CFG->wwwroot.'/blocks/configurable_reports/editreport.php?id='.$report->id);
+            redirect($CFG->wwwroot.'/blocks/configurable_reports/editreport.php?id='.$report->id.'&embedded='.$embedded);
         } else {
             redirect($CFG->wwwroot.'/blocks/configurable_reports/editreport.php');
         }
@@ -182,7 +187,7 @@ if (isset($pluginclass->form) && $pluginclass->form) {
             if (!$DB->update_record('block_configurable_reports', $report)) {
                 print_error('errorsaving');
             } else {
-                redirect(new moodle_url('/blocks/configurable_reports/editcomp.php', array('id' => $id, 'comp' => $comp)));
+                redirect(new moodle_url('/blocks/configurable_reports/editcomp.php', array('id' => $id, 'comp' => $comp, 'embedded' => $embedded)));
                 exit;
             }
 
@@ -208,7 +213,7 @@ if (isset($pluginclass->form) && $pluginclass->form) {
             if (!$DB->update_record('block_configurable_reports', $report)) {
                 print_error('errorsaving');
             } else {
-                redirect(new moodle_url('/blocks/configurable_reports/editcomp.php', array('id' => $id, 'comp' => $comp)));
+                redirect(new moodle_url('/blocks/configurable_reports/editcomp.php', array('id' => $id, 'comp' => $comp, 'embedded' => $embedded)));
                 exit;
             }
         }

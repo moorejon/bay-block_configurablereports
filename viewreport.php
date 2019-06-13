@@ -29,6 +29,7 @@ $id = required_param('id', PARAM_INT);
 $download = optional_param('download', false, PARAM_BOOL);
 $format = optional_param('format', '', PARAM_ALPHA);
 $courseid = optional_param('courseid', null, PARAM_INT);
+$embedded = optional_param('embedded', 0, PARAM_INT);
 
 if (!$report = $DB->get_record('block_configurable_reports', ['id' => $id])) {
     print_error('reportdoesnotexists', 'block_configurable_reports');
@@ -64,9 +65,16 @@ if (!$reportclass->check_permissions($USER->id, $context)) {
 }
 
 $PAGE->set_context($context);
-$PAGE->set_pagelayout('incourse');
+
+if ($embedded) {
+    $PAGE->set_pagelayout(get_config('block_configurable_reports', 'iframelayout'));
+} else {
+    $PAGE->set_pagelayout('incourse');
+}
+
 $PAGE->set_url('/blocks/configurable_reports/viewreport.php', ['id' => $id]);
 $PAGE->requires->jquery();
+$PAGE->requires->js_call_amd('block_configurable_reports/view_report', 'init');
 
 $reportclass->create_report();
 
@@ -113,8 +121,13 @@ if (!$download) {
     raise_memory_limit(MEMORY_EXTRA);
     $exportplugin = $CFG->dirroot.'/blocks/configurable_reports/export/'.$format.'/export.php';
     if (file_exists($exportplugin)) {
+        $report->lastexport = time();
+        $DB->update_record('block_configurable_reports', $report);
+
         require_once($exportplugin);
-        export_report($reportclass->finalreport);
+        $classname = 'export_'.$format;
+        $export = new $classname();
+        $export->export_report($reportclass->finalreport);
     }
     die;
 }

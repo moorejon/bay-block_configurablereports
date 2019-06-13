@@ -26,8 +26,8 @@ require_once($CFG->dirroot.'/blocks/configurable_reports/plugin.class.php');
 class plugin_searchtext extends plugin_base{
 
     public function init() {
-        $this->form = false;
-        $this->unique = true;
+        $this->form = true; // BS EDIT.
+        $this->unique = false; // BS EDIT.
         $this->fullname = get_string('filter_searchtext', 'block_configurable_reports');
         $this->reporttypes = array('searchtext', 'sql');
     }
@@ -38,55 +38,74 @@ class plugin_searchtext extends plugin_base{
 
     public function execute($finalelements, $data) {
 
-        $filtersearchtext = optional_param('filter_searchtext', '', PARAM_RAW);
-        $operators = array('=', '<', '>', '<=', '>=', '~', 'in');
+        $filtersearchtext = optional_param('filter_searchtext_'.$data->idnumber, '', PARAM_RAW); // BS EDIT.
+        $operators = array('=', '<', '>', '<=', '>=', '~', '~ci', 'in');
 
-        if (!$filtersearchtext) {
+        // BS EDIT.
+        /*if (!$filtersearchtext) {
             return $finalelements;
-        }
+        }*/
 
         if ($this->report->type != 'sql') {
             return array($filtersearchtext);
         } else {
-            if (preg_match("/%%FILTER_SEARCHTEXT:([^%]+)%%/i", $finalelements, $output)) {
-                list($field, $operator) = preg_split('/:/', $output[1]);
-                if (!in_array($operator, $operators)) {
-                    print_error('nosuchoperator');
-                }
-                if ($operator == '~') {
-                    $replace = " AND ".$field." LIKE '%".$filtersearchtext."%'";
-                } else if ($operator == 'in') {
-                    $processeditems = array();
-                    // Accept comma-separated values, allowing for '\,' as a literal comma.
-                    foreach (preg_split("/(?<!\\\\),/", $filtersearchtext) as $searchitem) {
-                        // Strip leading/trailing whitespace and quotes (we'll add our own quotes later).
-                        $searchitem = trim($searchitem);
-                        $searchitem = trim($searchitem, '"\'');
-
-                        // We can also safely remove escaped commas now.
-                        $searchitem = str_replace('\\,', ',', $searchitem);
-
-                        // Escape and quote strings...
-                        if (!is_numeric($searchitem)) {
-                            $searchitem = "'".addslashes($searchitem)."'";
-                        }
-                        $processeditems[] = "$field like $searchitem";
+            if (preg_match_all("/%%FILTER_SEARCHTEXT_$data->idnumber:([^%]+)%%/i", $finalelements, $output) && $filtersearchtext) { // BS EDIT.
+                for ($i = 0; $i < count($output[1]); $i++) {
+                    list($field, $operator) = preg_split('/:/', $output[1][$i]);
+                    if (!in_array($operator, $operators)) {
+                        print_error('nosuchoperator');
                     }
-                    // Despite the name, by not actually using in() we can support wildcards, and maybe be more portable as well.
-                    $replace = " AND (".implode(" OR ", $processeditems).")";
-                } else {
-                    $replace = ' AND '.$field.' '.$operator.' '.$filtersearchtext;
+                    if ($operator == '~') {
+                        $replace = " AND " . $field . " LIKE '%" . $filtersearchtext . "%'";
+                    } else if ($operator == '~ci') {
+                        $replace = " AND LOWER(" . $field . ") LIKE LOWER('%" . $filtersearchtext . "%')";
+                    } else if ($operator == 'in') {
+                        $processeditems = array();
+                        // Accept comma-separated values, allowing for '\,' as a literal comma.
+                        foreach (preg_split("/(?<!\\\\),/", $filtersearchtext) as $searchitem) {
+                            // Strip leading/trailing whitespace and quotes (we'll add our own quotes later).
+                            $searchitem = trim($searchitem);
+                            $searchitem = trim($searchitem, '"\'');
+
+                            // We can also safely remove escaped commas now.
+                            $searchitem = str_replace('\\,', ',', $searchitem);
+
+                            // Escape and quote strings...
+                            if (!is_numeric($searchitem)) {
+                                $searchitem = "'" . addslashes($searchitem) . "'";
+                            }
+                            $processeditems[] = "$field like $searchitem";
+                        }
+                        // Despite the name, by not actually using in() we can support wildcards, and maybe be more portable as well.
+                        $replace = " AND (" . implode(" OR ", $processeditems) . ")";
+                    } else {
+                        $replace = ' AND ' . $field . ' ' . $operator . ' ' . $filtersearchtext;
+                    }
+                    $finalelements = str_replace('%%FILTER_SEARCHTEXT_' . $data->idnumber . ':' . $output[1][$i] . '%%', $replace,
+                            $finalelements);
                 }
-                return str_replace('%%FILTER_SEARCHTEXT:'.$output[1].'%%', $replace, $finalelements);
+            } else if ($output) {
+                for ($i = 0; $i < count($output[1]); $i++) {
+                    $finalelements = str_replace('%%FILTER_SEARCHTEXT_' . $data->idnumber . ':' . $output[1][$i] . '%%', '',
+                            $finalelements); // BS EDIT.
+                }
             }
         }
         return $finalelements;
     }
 
-    public function print_filter(&$mform) {
-        $filtersearchtext = optional_param('filter_searchtext', '', PARAM_RAW);
-        $mform->addElement('text', 'filter_searchtext', get_string('filter'));
-        $mform->setType('filter_searchtext', PARAM_RAW);
-        $mform->setDefault('filter_searchtext', $filtersearchtext);
+    public function print_filter(&$mform, $data) {
+        // BS EDIT.
+        if (isset($data->label)) {
+            $filterlabel = $data->label;
+        } else {
+            $filterlabel = get_string('filter');
+        }
+
+        $filtersearchtext = optional_param('filter_searchtext_'.$data->idnumber, '', PARAM_RAW);
+        $mform->addElement('text', 'filter_searchtext_'.$data->idnumber, $filterlabel);
+        $mform->setType('filter_searchtext_'.$data->idnumber, PARAM_RAW);
+        $mform->setDefault('filter_searchtext_'.$data->idnumber, $filtersearchtext);
+        // END BS EDIT.
     }
 }

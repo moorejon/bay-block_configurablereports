@@ -22,45 +22,83 @@
  * @date: 2009
  */
 
-function export_report($report) {
-    global $DB, $CFG;
-    require_once($CFG->dirroot.'/lib/excellib.class.php');
+require_once($CFG->dirroot . '/lib/excellib.class.php');
 
-    $table = $report->table;
-    $matrix = array();
-    $filename = 'report_'.(time()).'.xls';
+class export_xls {
+    function export_report($report, $download = true) {
+        global $DB, $CFG;
 
-    if (!empty($table->head)) {
-        $countcols = count($table->head);
-        $keys = array_keys($table->head);
-        $lastkey = end($keys);
-        foreach ($table->head as $key => $heading) {
+        $table = $report->table;
+        $matrix = array();
+        $filename = 'report_excel.xls';
+
+        if (!empty($table->head)) {
+            $countcols = count($table->head);
+            $keys = array_keys($table->head);
+            $lastkey = end($keys);
+            foreach ($table->head as $key => $heading) {
                 $matrix[0][$key] = str_replace("\n", ' ', htmlspecialchars_decode(strip_tags(nl2br($heading))));
-        }
-    }
-
-    if (!empty($table->data)) {
-        foreach ($table->data as $rkey => $row) {
-            foreach ($row as $key => $item) {
-                $matrix[$rkey + 1][$key] = str_replace("\n", ' ', htmlspecialchars_decode(strip_tags(nl2br($item))));
             }
         }
-    }
 
-    $downloadfilename = clean_filename($filename);
-    // Creating a workbook.
-    $workbook = new MoodleExcelWorkbook("-");
-    // Sending HTTP headers.
-    $workbook->send($downloadfilename);
-    // Adding the worksheet.
-    $myxls = $workbook->add_worksheet($filename);
+        if (!empty($table->data)) {
+            foreach ($table->data as $rkey => $row) {
+                foreach ($row as $key => $item) {
+                    $matrix[$rkey + 1][$key] = str_replace("\n", ' ', htmlspecialchars_decode(strip_tags(nl2br($item))));
+                }
+            }
+        }
 
-    foreach ($matrix as $ri => $col) {
-        foreach ($col as $ci => $cv) {
-            $myxls->write_string($ri, $ci, $cv);
+        $downloadfilename = clean_filename($filename);
+        // Creating a workbook.
+        if ($download) {
+            $workbook = new \MoodleExcelWorkbook("-");
+        } else {
+            $workbook = new ScheduledWorkbook("-");
+        }
+        // Sending HTTP headers.
+        $workbook->send($downloadfilename);
+        // Adding the worksheet.
+        $myxls = $workbook->add_worksheet($filename);
+
+        foreach ($matrix as $ri => $col) {
+            foreach ($col as $ci => $cv) {
+                if (!is_numeric($cv)) {
+                    $myxls->write_string($ri, $ci, $cv);
+                } else {
+                    $myxls->write_number($ri, $ci, $cv);
+                }
+            }
+        }
+
+        $workbook->close();
+        if ($download) {
+            exit;
+        } else {
+            return $workbook->filelocation;
         }
     }
-
-    $workbook->close();
-    exit;
 }
+
+class ScheduledWorkbook extends MoodleExcelWorkbook {
+
+    public $filelocation = '';
+
+    public function close() {
+        global $CFG;
+
+        foreach ($this->objPHPExcel->getAllSheets() as $sheet){
+            $sheet->setSelectedCells('A1');
+        }
+        $this->objPHPExcel->setActiveSheetIndex(0);
+
+        $tmppath = '/temp';
+        // Create a unique temporary filename to use for this schedule
+        $filename = tempnam($CFG->dataroot.$tmppath, 'export_report_');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, $this->type);
+        $objWriter->save($filename);
+        $this->filelocation = $filename;
+    }
+}
+

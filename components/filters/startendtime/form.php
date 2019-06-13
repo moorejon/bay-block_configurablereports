@@ -29,40 +29,18 @@ if (!defined('MOODLE_INTERNAL')) {
 
 require_once($CFG->libdir.'/formslib.php');
 
-class fuserfield_form extends moodleform {
+class startendtime_form extends moodleform {
 
     public function definition() {
-
-        global $remotedb;
-
         $mform =& $this->_form;
 
-        $mform->addElement('header',  'crformheader', get_string('fuserfield', 'block_configurable_reports'), '');
+        $mform->addElement('header',  'crformheader', get_string('startendtime', 'block_configurable_reports'), '');
 
         $this->_customdata['compclass']->add_form_elements($mform, $this);
 
-        $columns = $remotedb->get_columns('user');
-
-        $usercolumns = array();
-        foreach ($columns as $c) {
-            $usercolumns[$c->name] = $c->name;
-        }
-
-        if ($profile = $remotedb->get_records('user_info_field')) {
-            foreach ($profile as $p) {
-                $usercolumns['profile_'.$p->shortname] = $p->name;
-            }
-        }
-
-        unset($usercolumns['password']);
-        unset($usercolumns['sesskey']);
-
-        $mform->addElement('text', 'label', get_string('label', 'block_configurable_reports'));
-        $mform->setType('label', PARAM_RAW);
-
-        $mform->addElement('select', 'field', get_string('field', 'block_configurable_reports'), $usercolumns);
-
-        $mform->addElement('advcheckbox', 'excludedeletedusers', get_string('excludedeletedusers', 'block_configurable_reports'));
+        $mform->addElement('text', 'defaulttimeframe', get_string('defaulttimeframe', 'block_configurable_reports'));
+        $mform->setType('defaulttimeframe', PARAM_RAW);
+        $mform->setDefault('defaulttimeframe', '1 month');
 
         // Buttons.
         $this->add_action_buttons(true, get_string('add'));

@@ -29,40 +29,20 @@ if (!defined('MOODLE_INTERNAL')) {
 
 require_once($CFG->libdir.'/formslib.php');
 
-class fuserfield_form extends moodleform {
+class searchtext_form extends moodleform {
 
     public function definition() {
-
-        global $remotedb;
-
         $mform =& $this->_form;
 
-        $mform->addElement('header',  'crformheader', get_string('fuserfield', 'block_configurable_reports'), '');
+        $mform->addElement('header',  'crformheader', get_string('filter_searchtext', 'block_configurable_reports'), '');
 
-        $this->_customdata['compclass']->add_form_elements($mform, $this);
-
-        $columns = $remotedb->get_columns('user');
-
-        $usercolumns = array();
-        foreach ($columns as $c) {
-            $usercolumns[$c->name] = $c->name;
-        }
-
-        if ($profile = $remotedb->get_records('user_info_field')) {
-            foreach ($profile as $p) {
-                $usercolumns['profile_'.$p->shortname] = $p->name;
-            }
-        }
-
-        unset($usercolumns['password']);
-        unset($usercolumns['sesskey']);
+        $mform->addElement('text', 'idnumber', get_string('idnumber'));
+        $mform->setType('idnumber', PARAM_RAW);
+        $mform->addRule('idnumber', null, 'required', null, 'client');
 
         $mform->addElement('text', 'label', get_string('label', 'block_configurable_reports'));
         $mform->setType('label', PARAM_RAW);
-
-        $mform->addElement('select', 'field', get_string('field', 'block_configurable_reports'), $usercolumns);
-
-        $mform->addElement('advcheckbox', 'excludedeletedusers', get_string('excludedeletedusers', 'block_configurable_reports'));
+        $mform->addRule('label', null, 'required', null, 'client');
 
         // Buttons.
         $this->add_action_buttons(true, get_string('add'));

@@ -46,9 +46,11 @@ class plugin_subcategories extends plugin_base {
         if ($this->report->type != 'sql') {
             return array($filtersubcategories);
         } else {
-            if (preg_match("/%%FILTER_SUBCATEGORIES:([^%]+)%%/i", $finalelements, $output)) {
-                $replace = ' AND '.$output[1].' LIKE CONCAT( \'%/\', '.$filtersubcategories.', \'%\' ) ';
-                return str_replace('%%FILTER_SUBCATEGORIES:'.$output[1].'%%', $replace, $finalelements);
+            if (preg_match_all("/%%FILTER_SUBCATEGORIES:([^%]+)%%/i", $finalelements, $output)) {
+                for ($i = 0; $i < count($output[1]); $i++) {
+                    $replace = ' AND '.$output[1][$i].' LIKE CONCAT( \'%/\', '.$filtersubcategories.', \'%\' ) ';
+                    $finalelements = str_replace('%%FILTER_SUBCATEGORIES:'.$output[1][$i].'%%', $replace, $finalelements);
+                }
             }
         }
         return $finalelements;
@@ -86,6 +88,20 @@ class plugin_subcategories extends plugin_base {
                 require_once($CFG->libdir. '/coursecatlib.php');
                 $subcategorieslist = coursecat::make_categories_list();
             }
+
+            // BS EDIT.
+            foreach ($subcategorieslist as $index => $item) {
+                $arr = explode('##', $item);
+                $count = count($arr);
+                if ($count > 1) {
+                    for ($i = 0; $i < $count-1; $i++) {
+                        $arr[$i] = '--';
+                    }
+                    $item = implode(' ', $arr);
+                    $subcategorieslist[$index] = $item;
+                }
+            }
+            // END BS EDIT.
 
             if (!empty($subcategorieslist)) {
                 $courseoptions += $subcategorieslist;

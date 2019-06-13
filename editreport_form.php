@@ -90,6 +90,27 @@ class report_edit_form extends moodleform {
             $mform->addElement('checkbox', 'export_'.$key, null, $val);
         }
 
+        $mform->addElement('header', 'scheduleoptions', get_string('scheduleoptions', 'block_configurable_reports'));
+
+        $mform->addElement('advcheckbox', 'enableschedule', get_string('enableschedule', 'block_configurable_reports'),
+                get_string('enableschedule', 'block_configurable_reports'));
+        $runat = array();
+        $runat[] = $mform->createElement('select', 'frequency', null,  block_configurable_reports_frequency_options());
+        $runat[] = $mform->createElement('select', 'at', null, block_configurable_reports_daily_at_options());
+        $mform->addGroup($runat, 'frequencygroup', get_string('frequency', 'block_configurable_reports'),
+                get_string('at', 'block_configurable_reports'), false);
+
+        //$mform->addElement('text', 'customdir', get_string('customdir', 'block_configurable_reports'), 'size = 70');
+        //$mform->setType('customdir', PARAM_PATH);
+        //$mform->disabledIf('customdir', 'enableschedule', 'notchecked');
+        //$mform->addHelpButton('customdir', 'customdir', 'block_configurable_reports');
+
+        $mform->addElement('text', 'emailto', get_string('emailto', 'block_configurable_reports'), 'size = 70');
+        $mform->disabledIf('frequencygroup','enableschedule', 'notchecked');
+        $mform->disabledIf('at', 'frequency', 'ne', 'daily');
+        $mform->disabledIf('emailto', 'enableschedule', 'notchecked');
+        $mform->setType('emailto', PARAM_RAW);
+
         if (isset($this->_customdata['report']->id) && $this->_customdata['report']->id) {
             $mform->addElement('hidden', 'id', $this->_customdata['report']->id);
             $mform->setType('id', PARAM_INT);
@@ -101,6 +122,9 @@ class report_edit_form extends moodleform {
             $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
             $mform->setType('courseid', PARAM_INT);
         }
+
+        $mform->addElement('hidden', 'embedded', optional_param('embedded', 0, PARAM_INT));
+        $mform->setType('embedded', PARAM_INT);
 
         // Buttons.
         $this->add_action_buttons(true, get_string('add'));

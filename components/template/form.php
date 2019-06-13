@@ -107,6 +107,9 @@ class template_form extends moodleform {
         $mform->setType('record', PARAM_RAW);
         $mform->setType('footer', PARAM_RAW);
 
+        $mform->addElement('hidden', 'embedded', optional_param('embedded', 0, PARAM_INT));
+        $mform->setType('embedded', PARAM_INT);
+
         $this->add_action_buttons();
     }
 

@@ -15,15 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Configurable Reports
- * A Moodle block for creating customizable reports
- * @package blocks
- * @author: Juan leyva <http://www.twitter.com/jleyvadelgado>
- * @date: 2009
+ * Custom SQL select filter
+ *
+ * @package    block_configurable_reports
+ * @copyright  2019 MLC - David Saylor <david@mylearningconsultants.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-// Based on Custom SQL Reports Plugin
-// See http://moodle.org/mod/data/view.php?d=13&rid=2884.
 
 if (!defined('MOODLE_INTERNAL')) {
     //  It must be included from a Moodle page.
@@ -32,54 +29,28 @@ if (!defined('MOODLE_INTERNAL')) {
 
 require_once($CFG->libdir.'/formslib.php');
 
-class customsql_form extends moodleform {
+class sqloptions_form extends moodleform {
 
     public function definition() {
         global $DB, $CFG, $COURSE;
 
         $mform =& $this->_form;
 
+        $mform->addElement('header',  'crformheader', get_string('filter_sql', 'block_configurable_reports'), '');
+
+        $mform->addElement('text', 'idnumber', get_string('idnumber'));
+        $mform->setType('idnumber', PARAM_RAW);
+        $mform->addRule('idnumber', null, 'required', null, 'client');
+
+        $mform->addElement('text', 'label', get_string('label', 'block_configurable_reports'));
+        $mform->setType('label', PARAM_RAW);
+        $mform->addRule('label', null, 'required', null, 'client');
+
         $mform->addElement('textarea', 'querysql', get_string('querysql', 'block_configurable_reports'), 'rows="35" cols="80"');
         $mform->addRule('querysql', get_string('required'), 'required', null, 'client');
         $mform->setType('querysql', PARAM_RAW);
 
-        $mform->addElement('hidden', 'courseid', $COURSE->id);
-        $mform->setType('courseid', PARAM_INT);
-
-        $mform->addElement('hidden', 'embedded', optional_param('embedded', 0, PARAM_INT));
-        $mform->setType('embedded', PARAM_INT);
-
         $this->add_action_buttons();
-
-        $mform->addElement('static', 'note', '', get_string('listofsqlreports', 'block_configurable_reports'));
-
-        if ($userandrepo = get_config('block_configurable_reports', 'sharedsqlrepository')) {
-
-            $github = new \block_configurable_reports\github;
-            $github->set_repo($userandrepo);
-            $res = $github->get('/contents');
-            $res = json_decode($res);
-
-            if (is_array($res)) {
-                $reportcategories = array(get_string('choose'));
-                foreach ($res as $item) {
-                    if ($item->type == 'dir') {
-                        $reportcategories[$item->path] = $item->path;
-                    }
-                }
-
-                $reportcatstr = get_string('reportcategories', 'block_configurable_reports');
-                $reportcatattrs = ['onchange' => 'M.block_configurable_reports.onchange_reportcategories(this,"'.sesskey().'")'];
-                $mform->addElement('select', 'reportcategories', $reportcatstr, $reportcategories, $reportcatattrs);
-
-                $reportsincatstr = get_string('reportsincategory', 'block_configurable_reports');
-                $reportsincatattrs = ['onchange' => 'M.block_configurable_reports.onchange_reportsincategory(this,"'.sesskey().'")'];
-                $mform->addElement('select', 'reportsincategory', $reportsincatstr, $reportcategories, $reportsincatattrs);
-
-                $mform->addElement('textarea', 'remotequerysql', get_string('remotequerysql', 'block_configurable_reports'),
-                    'rows="15" cols="90"');
-            }
-        }
     }
 
     public function validation($data, $files) {
@@ -121,10 +92,10 @@ class customsql_form extends moodleform {
             } catch (dml_read_exception $e) {
                 $errors['querysql'] = get_string('queryfailed', 'block_configurable_reports', $e->error );
             }
-            if ($rs && !empty($data['singlerow'])) {
-                if (rs_EOF($rs)) {
-                    $errors['querysql'] = get_string('norowsreturned', 'block_configurable_reports');
-                }
+            if (!$rs->valid()) {
+                //$errors['querysql'] = get_string('norowsreturned', 'block_configurable_reports');
+            } else if (!array_key_exists('configid', $rs->current())) {
+                $errors['querysql'] = get_string('noconfigidordisplay', 'block_configurable_reports');
             }
 
             if ($rs) {
@@ -155,10 +126,10 @@ class customsql_form extends moodleform {
             $rs = $this->_customdata['reportclass']->execute_query($sql, 2);
             if (!$rs) {
                 $errors['querysql'] = get_string('queryfailed', 'block_configurable_reports', $db->ErrorMsg());
-            } else if (!empty($data['singlerow'])) {
-                if (rs_EOF($rs)) {
-                    $errors['querysql'] = get_string('norowsreturned', 'block_configurable_reports');
-                }
+            } else if (!$rs->valid()) {
+                //$errors['querysql'] = get_string('norowsreturned', 'block_configurable_reports');
+            } else if (!array_key_exists('configid', $rs->current())) {
+                $errors['querysql'] = get_string('noconfigidordisplay', 'block_configurable_reports');
             }
 
             if ($rs) {
