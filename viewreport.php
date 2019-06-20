@@ -30,6 +30,7 @@ $download = optional_param('download', false, PARAM_BOOL);
 $format = optional_param('format', '', PARAM_ALPHA);
 $courseid = optional_param('courseid', null, PARAM_INT);
 $embedded = optional_param('embedded', 0, PARAM_INT);
+$chartonly = optional_param('chartonly', 0, PARAM_INT);
 
 if (!$report = $DB->get_record('block_configurable_reports', ['id' => $id])) {
     print_error('reportdoesnotexists', 'block_configurable_reports');

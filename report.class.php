@@ -729,6 +729,10 @@ class report_base {
 
             echo "<div id=\"printablediv\">\n";
             $this->print_graphs();
+            if (optional_param('chartonly', 0, PARAM_INT)) {
+                echo "</div>";
+                return true;
+            }
 
             if ($this->config->jsordering) {
                 $this->add_jsordering($moodlepage);
