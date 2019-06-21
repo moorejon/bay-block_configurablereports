@@ -724,12 +724,15 @@ class report_base {
         echo format_text($this->config->summary);
         echo '</div>';
 
-        $this->print_filters();
+        $chartonly = optional_param('chartonly', 0, PARAM_INT);
+        if (!$chartonly) {
+            $this->print_filters();
+        }
         if ($this->finalreport->table && !empty($this->finalreport->table->data[0])) {
 
             echo "<div id=\"printablediv\">\n";
             $this->print_graphs();
-            if (optional_param('chartonly', 0, PARAM_INT)) {
+            if ($chartonly) {
                 echo "</div>";
                 return true;
             }
