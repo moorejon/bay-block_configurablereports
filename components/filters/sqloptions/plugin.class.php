@@ -42,6 +42,7 @@ class plugin_sqloptions extends plugin_base {
 
         $filtersqloptions = optional_param('filter_sql_'.$data->idnumber, '', PARAM_RAW);
 
+        $filter = 0;
         if ($filtersqloptions && $filtersqloptions != '%%all%%') {
             $filter = clean_param(base64_decode($filtersqloptions), PARAM_RAW);
         } else {
@@ -52,11 +53,8 @@ class plugin_sqloptions extends plugin_base {
                 if ($result = $DB->get_record_sql($sql, null, IGNORE_MULTIPLE)) {
                     $filter = $result->configid;
                 }
-            } else {
-                $filter = 0;
             }
         }
-
 
         $operators = array('=', '<', '>', '<=', '>=', '~', 'in');
 
