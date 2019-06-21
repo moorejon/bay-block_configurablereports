@@ -38,12 +38,29 @@ class plugin_sqloptions extends plugin_base {
     }
 
     public function execute($finalelements, $data) {
-        $filtersqloptions = optional_param('filter_sql_'.$data->idnumber, 0, PARAM_RAW);
-        $filter = clean_param(base64_decode($filtersqloptions), PARAM_RAW);
+        global $DB;
+
+        $filtersqloptions = optional_param('filter_sql_'.$data->idnumber, '', PARAM_RAW);
+
+        if ($filtersqloptions && $filtersqloptions != '%%all%%') {
+            $filter = clean_param(base64_decode($filtersqloptions), PARAM_RAW);
+        } else {
+            if ($filtersqloptions != '%%all%%' && !empty($data->defaultsql)) {
+                $reportclassname = 'report_'.$this->report->type;
+                $reportclass = new $reportclassname($this->report);
+                $sql = $reportclass->prepare_sql($data->defaultsql);
+                if ($result = $DB->get_record_sql($sql, null, IGNORE_MULTIPLE)) {
+                    $filter = $result->configid;
+                }
+            } else {
+                $filter = 0;
+            }
+        }
+
 
         $operators = array('=', '<', '>', '<=', '>=', '~', 'in');
 
-        if ($filtersqloptions && preg_match_all("/%%FILTER_SQL_$data->idnumber:([^%]+)%%/i", $finalelements, $output)) {
+        if ($filter && preg_match_all("/%%FILTER_SQL_$data->idnumber:([^%]+)%%/i", $finalelements, $output)) {
             for ($i = 0; $i < count($output[1]); $i++) {
                 list($field, $operator) = preg_split('/:/', $output[1][$i]);
                 if (!in_array($operator, $operators)) {
@@ -52,7 +69,7 @@ class plugin_sqloptions extends plugin_base {
                 if ($operator == '~') {
                     $replace = " AND $field LIKE '%$filter%'";
                 } else if ($operator == 'in') {
-                    $replace = " AND  '$filter' IN $field";
+                    $replace = " AND '$filter' IN $field";
                 } else {
                     $replace = " AND $field $operator '$filter'";
                 }
@@ -68,7 +85,7 @@ class plugin_sqloptions extends plugin_base {
         global $DB, $CFG;
 
         $filteroptions = array();
-        $filteroptions[''] = get_string('filter_all', 'block_configurable_reports');
+        $filteroptions['%%all%%'] = get_string('filter_all', 'block_configurable_reports');
 
         $reportclassname = 'report_'.$this->report->type;
         $reportclass = new $reportclassname($this->report);
@@ -88,7 +105,17 @@ class plugin_sqloptions extends plugin_base {
             $selectname = $data->label;
         }
 
-        $mform->addElement('select', 'filter_sql_'.$data->idnumber, $selectname, $filteroptions);
+        $select = $mform->addElement('select', 'filter_sql_'.$data->idnumber, $selectname, $filteroptions);
         $mform->setType('filter_sql_'.$data->idnumber, PARAM_BASE64);
+
+        if (!empty($data->defaultsql)) {
+            $sql = $reportclass->prepare_sql($data->defaultsql);
+            if ($result = $DB->get_record_sql($sql, null, IGNORE_MULTIPLE)) {
+                $default = base64_encode($result->configid);
+                if (array_key_exists($default, $filteroptions)) {
+                    $select->setSelected($default);
+                }
+            }
+        }
     }
 }

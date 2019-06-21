@@ -520,6 +520,7 @@ $string['crontask'] = 'Scheduled Configurable Reports';
 $string['customdir'] = 'Export report to path / directory';
 $string['customdir_help'] = 'Files are exported to the file path specified. If a directory is specified the filename format will be reportid-timecreated.';
 $string['datareturned'] = 'The results for the following report have been exported and attached to this email:';
+$string['defaultsql'] = 'SQL for default selection';
 $string['emailsentfailed'] = 'Failed to send email to {$a}.';
 $string['emailsubject'] = 'Scheduled Report: {$a}';
 $string['emailto'] = 'Automatically email to';

@@ -50,6 +50,9 @@ class sqloptions_form extends moodleform {
         $mform->addRule('querysql', get_string('required'), 'required', null, 'client');
         $mform->setType('querysql', PARAM_RAW);
 
+        $mform->addElement('textarea', 'defaultsql', get_string('defaultsql', 'block_configurable_reports'), 'rows="35" cols="80"');
+        $mform->setType('defaultsql', PARAM_RAW);
+
         $this->add_action_buttons();
     }
 
@@ -66,22 +69,39 @@ class sqloptions_form extends moodleform {
 
         $errors = parent::validation($data, $files);
 
-        $sql = $data['querysql'];
-        $sql = trim($sql);
+        $querysql = $data['querysql'];
+        $querysql = trim($querysql);
 
+        if ($querysqlerrors = $this->check_sql_high_security($querysql)) {
+            $errors['querysql'] = $querysqlerrors;
+        }
+
+        if ($data['defaultsql']) {
+            $defaultsql = $data['defaultsql'];
+            $defaultsql = trim($defaultsql);
+
+            if ($defaultsqlerrors = $this->check_sql_high_security($defaultsql)) {
+                $errors['defaultsql'] = $defaultsqlerrors;
+            }
+        }
+
+        return $errors;
+    }
+
+    public function check_sql_high_security($sql, $allowempty = true) {
+        global $CFG;
+
+        $errors = '';
         // Simple test to avoid evil stuff in the SQL.
         $regex = '/\b(ALTER|CREATE|DELETE|DROP|GRANT|INSERT|INTO|TRUNCATE|UPDATE|SET|VACUUM|REINDEX|DISCARD|LOCK)\b/i';
         if (preg_match($regex, $sql)) {
-            $errors['querysql'] = get_string('notallowedwords', 'block_configurable_reports');
-
+            $errors = get_string('notallowedwords', 'block_configurable_reports');
         } else if (strpos($sql, ';') !== false) {
             // Do not allow any semicolons.
-            $errors['querysql'] = get_string('nosemicolon', 'report_customsql');
-
+            $errors = get_string('nosemicolon', 'report_customsql');
         } else if ($CFG->prefix != '' && preg_match('/\b' . $CFG->prefix . '\w+/i', $sql)) {
             // Make sure prefix is prefix_, not explicit.
-            $errors['querysql'] = get_string('noexplicitprefix', 'block_configurable_reports');
-
+            $errors = get_string('noexplicitprefix', 'block_configurable_reports');
         } else {
             // Now try running the SQL, and ensure it runs without errors.
 
@@ -90,14 +110,16 @@ class sqloptions_form extends moodleform {
             try {
                 $rs = $this->_customdata['reportclass']->execute_query($sql, 2);
             } catch (dml_read_exception $e) {
-                $errors['querysql'] = get_string('queryfailed', 'block_configurable_reports', $e->error );
+                $errors = get_string('queryfailed', 'block_configurable_reports', $e->error );
+                return $errors;
             }
             if (!$rs->valid()) {
-                //$errors['querysql'] = get_string('norowsreturned', 'block_configurable_reports');
+                if (!$allowempty) {
+                    $errors = get_string('norowsreturned', 'block_configurable_reports');
+                }
             } else if (!array_key_exists('configid', $rs->current())) {
-                $errors['querysql'] = get_string('noconfigidordisplay', 'block_configurable_reports');
+                $errors = get_string('noconfigidordisplay', 'block_configurable_reports');
             }
-
             if ($rs) {
                 $rs->close();
             }
@@ -111,25 +133,51 @@ class sqloptions_form extends moodleform {
 
         $errors = parent::validation($data, $files);
 
-        $sql = $data['querysql'];
-        $sql = trim($sql);
+        $querysql = $data['querysql'];
+        $querysql = trim($querysql);
 
+        if ($querysqlerrors = $this->check_sql_low_security($querysql)) {
+            $errors['querysql'] = $querysqlerrors;
+        }
+
+        if ($data['defaultsql']) {
+            $defaultsql = $data['defaultsql'];
+            $defaultsql = trim($defaultsql);
+
+            if ($defaultsqlerrors = $this->check_sql_low_security($defaultsql)) {
+                $errors['defaultsql'] = $defaultsqlerrors;
+            }
+        }
+
+        return $errors;
+    }
+
+    public function check_sql_low_security($sql, $allowempty = true) {
+        global $CFG;
+
+        $errors = '';
         if (empty($this->_customdata['report']->runstatistics) OR $this->_customdata['report']->runstatistics == 0) {
             // Simple test to avoid evil stuff in the SQL.
             // Allow cron SQL queries to run CREATE|INSERT|INTO queries.
             if (preg_match('/\b(ALTER|DELETE|DROP|GRANT|TRUNCATE|UPDATE|SET|VACUUM|REINDEX|DISCARD|LOCK)\b/i', $sql)) {
-                $errors['querysql'] = get_string('notallowedwords', 'block_configurable_reports');
+                $errors = get_string('notallowedwords', 'block_configurable_reports');
             }
         } else {
             // Now try running the SQL, and ensure it runs without errors.
             $sql = $this->_customdata['reportclass']->prepare_sql($sql);
             $rs = $this->_customdata['reportclass']->execute_query($sql, 2);
-            if (!$rs) {
-                $errors['querysql'] = get_string('queryfailed', 'block_configurable_reports', $db->ErrorMsg());
-            } else if (!$rs->valid()) {
-                //$errors['querysql'] = get_string('norowsreturned', 'block_configurable_reports');
+            try {
+                $rs = $this->_customdata['reportclass']->execute_query($sql, 2);
+            } catch (dml_read_exception $e) {
+                $errors = get_string('queryfailed', 'block_configurable_reports', $e->error );
+                return $errors;
+            }
+            if (!$rs->valid()) {
+                if (!$allowempty) {
+                    $errors = get_string('norowsreturned', 'block_configurable_reports');
+                }
             } else if (!array_key_exists('configid', $rs->current())) {
-                $errors['querysql'] = get_string('noconfigidordisplay', 'block_configurable_reports');
+                $errors = get_string('noconfigidordisplay', 'block_configurable_reports');
             }
 
             if ($rs) {
