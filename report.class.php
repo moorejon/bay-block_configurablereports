@@ -788,7 +788,8 @@ class report_base {
 
             $this->print_export_options();
         } else {
-            echo '<div class="centerpara">'.get_string('norecordsfound', 'block_configurable_reports').'</div>';
+            $displaystring = empty($this->config->noresultdisplay) ? get_string('norecordsfound', 'block_configurable_reports') : $this->config->noresultdisplay;
+            echo '<div class="centerpara">'.$displaystring.'</div>';
         }
 
         echo '<div class="centerpara"><br />';

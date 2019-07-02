@@ -83,6 +83,16 @@ class report_edit_form extends moodleform {
         $mform->addHelpButton('remote', 'remote', 'block_configurable_reports');
         $mform->setDefault('remote', 0);
 
+        $mform->addElement('text', 'noresultdisplay', get_string('noresultdisplay', 'block_configurable_reports'));
+        $mform->setDefault('noresultdisplay', '');
+        $mform->addHelpButton('noresultdisplay', 'noresultdisplay', 'block_configurable_reports');
+
+        if (!empty($CFG->formatstringstriptags)) {
+            $mform->setType('noresultdisplay', PARAM_TEXT);
+        } else {
+            $mform->setType('noresultdisplay', PARAM_NOTAGS);
+        }
+
         $mform->addElement('header', 'exportoptions', get_string('exportoptions', 'block_configurable_reports'));
         $options = cr_get_export_plugins();
 
