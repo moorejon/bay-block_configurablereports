@@ -699,7 +699,7 @@ class report_base {
         echo "</div>\n";
     }
 
-    public function print_report_page(\moodle_page $moodlepage) {
+    public function print_report_page(\moodle_page $moodlepage, $displaychartonly=0) {
         global $DB, $CFG, $OUTPUT, $USER;
 
         cr_print_js_function();
@@ -724,7 +724,7 @@ class report_base {
         echo format_text($this->config->summary);
         echo '</div>';
 
-        $chartonly = optional_param('chartonly', 0, PARAM_INT);
+        $chartonly = optional_param('chartonly', $displaychartonly, PARAM_INT);
         if (!$chartonly) {
             $this->print_filters();
         }

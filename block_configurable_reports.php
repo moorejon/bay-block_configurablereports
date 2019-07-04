@@ -153,9 +153,12 @@ class block_configurable_reports extends block_base {
             $reportclass->check_filters_request();
             $reportclass->create_report();
 
+            if (empty($this->config->displayfilter)) {
+                $reportclass->filterform = null;
+            }
             ob_start();
             // Print the report HTML.
-            $reportclass->print_report_page($this->page, true);
+            $reportclass->print_report_page($this->page, !empty($this->config->displaychartonly));
             $output = ob_get_contents();
             ob_end_clean();
 
