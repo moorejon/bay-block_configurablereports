@@ -75,7 +75,7 @@ class block_configurable_reports extends block_base {
      * @return boolean
      **/
     public function instance_allow_multiple() {
-        return false;
+        return true;
     }
 
     /**
@@ -87,7 +87,7 @@ class block_configurable_reports extends block_base {
      * @throws moodle_exception
      */
     public function get_content() {
-        global $DB, $COURSE;
+        global $CFG, $DB, $COURSE, $USER, $OUTPUT;
 
         if ($this->content !== null) {
             return $this->content;
@@ -109,10 +109,76 @@ class block_configurable_reports extends block_base {
         $renderable = new \block_configurable_reports\output\main($course, $this->config);
         $renderer = $this->page->get_renderer('block_configurable_reports');
 
-        $this->content = (object) [
-            'text' => $renderer->render($renderable),
-            'footer' => ''
-        ];
+        if (!empty($this->config->displaysinglereport)) {
+            $download = optional_param('download', false, PARAM_BOOL);
+            $format = optional_param('format', '', PARAM_ALPHA);
+            $courseid = optional_param('courseid', null, PARAM_INT);
+
+            // Single report view.
+            if (!$report = $DB->get_record('block_configurable_reports', ['id' => $this->config->displaysinglereport])) {
+                $this->content = (object) [
+                    'text' => get_string('reportdoesnotexists', 'block_configurable_reports'),
+                    'footer' => ''
+                ];
+                return $this->content;
+            }
+
+            if ($courseid && $report->global) {
+                $report->courseid = $courseid;
+            } else {
+                $courseid = $report->courseid;
+            }
+
+            // Force user login in course (SITE or Course).
+            if ($course->id == SITEID) {
+                $context = context_system::instance();
+            } else {
+                $context = context_course::instance($course->id);
+            }
+
+            require_once($CFG->dirroot.'/blocks/configurable_reports/locallib.php');
+            require_once($CFG->dirroot.'/blocks/configurable_reports/report.class.php');
+            require_once($CFG->dirroot.'/blocks/configurable_reports/reports/'.$report->type.'/report.class.php');
+
+            $reportclassname = 'report_'.$report->type;
+            $reportclass = new $reportclassname($report);
+
+            if (!$reportclass->check_permissions($USER->id, $context)) {
+                $this->content = (object) [
+                    'text' => get_string('badpermissions', 'block_configurable_reports'),
+                    'footer' => ''
+                ];
+                return $this->content;
+            }
+            $reportclass->check_filters_request();
+            $reportclass->create_report();
+
+            ob_start();
+            // Print the report HTML.
+            $reportclass->print_report_page($this->page, true);
+            $output = ob_get_contents();
+            ob_end_clean();
+
+            $main = $renderable->export_for_template($OUTPUT);
+            $lastitem = end($main['items']);
+            $managereporturl = $lastitem->url;
+
+            if ($managereporturl->get_path() == "/blocks/configurable_reports/managereport.php") {
+                $output .= html_writer::div(
+                    html_writer::link($managereporturl, $lastitem->name),
+                    'centerpara'
+                );
+            }
+            $this->content = (object) [
+                'text' => $output,
+                'footer' => ''
+            ];
+        } else {
+            $this->content = (object) [
+                'text' => $renderer->render($renderable),
+                'footer' => ''
+            ];
+        }
 
         return $this->content;
     }

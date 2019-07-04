@@ -542,4 +542,6 @@ $string['filter_htmllabel'] = 'HTML Label';
 $string['htmllabel'] = 'HTML Label';
 $string['html'] = 'HTML';
 $string['filter_htmllabel_summary'] = 'Display HTML Label';
+$string['displaysinglereport'] = 'Display single report';
+$string['reportdoesnotexists'] = 'Report no longer available';
 // END MLC EDIT.

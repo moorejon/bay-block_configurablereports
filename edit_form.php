@@ -36,5 +36,9 @@ class block_configurable_reports_edit_form extends block_edit_form {
 
         $mform->addElement('selectyesno', 'config_displayglobalreports', get_string('displayglobalreports', 'block_configurable_reports'));
         $mform->setDefault('config_displayglobalreports', 1);
+
+        $reports = $DB->get_records_menu('block_configurable_reports', null, 'name ASC', 'id,name');
+        $reports = array(0 => get_string('none')) + $reports;
+        $mform->addElement('select', 'config_displaysinglereport', get_string('displaysinglereport', 'block_configurable_reports'), $reports);
     }
 }
