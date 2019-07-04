@@ -197,10 +197,13 @@ class report_base {
         $output = '';
         $graphs = $this->get_graphs($this->finalreport->table->data);
 
+        $url = new moodle_url('/blocks/configurable_reports/viewreport.php',
+                array('id' => $this->config->id, 'courseid' => $this->currentcourseid));
+
         if ($graphs) {
             foreach ($graphs as $g) {
                 $output .= '<div class="centerpara">';
-                $output .= ' <img src="'.$g.'" alt="'.$this->config->name.'"><br />';
+                $output .= '<a href="'.$url->out().'"><img src="'.$g.'" alt="'.$this->config->name.'"></a><br />';
                 $output .= '</div>';
             }
         }
