@@ -203,7 +203,7 @@ class report_base {
         if ($graphs) {
             foreach ($graphs as $g) {
                 $output .= '<div class="centerpara">';
-                $output .= '<a href="'.$url->out().'"><img src="'.$g.'" alt="'.$this->config->name.'"></a><br />';
+                $output .= '<a target="_parent" href="'.$url->out().'"><img src="'.$g.'" alt="'.$this->config->name.'"></a><br />';
                 $output .= '</div>';
             }
         }
