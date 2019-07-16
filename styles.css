@@ -300,7 +300,7 @@ table.dataTable tr.even td.sorting_3 { background-color: #F9F9FF; }
 
 .sorting_asc_disabled { background: url([[pix:block_configurable_reports|datatable/sort_asc_disabled]]) no-repeat center right; }
 .sorting_desc_disabled { background: url([[pix:block_configurable_reports|datatable/sort_desc_disabled]]) no-repeat center right; }
- 
+
 table.dataTable thead th:active,
 table.dataTable thead td:active {
     outline: none;
@@ -668,3 +668,8 @@ div.CodeMirror-dragcursors {
 
 /* Help users use markselection to safely style text background */
 span.CodeMirror-selectedtext { background: none; }
+
+/* Scroller for single report view mode */
+.block_configurable_reports #reporttable_wrapper {
+    overflow: auto;
+}

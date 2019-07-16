@@ -24,6 +24,7 @@
 
 class block_configurable_reports_edit_form extends block_edit_form {
     protected function specific_definition($mform) {
+        global $DB;
 
         $mform->addElement('header', 'configheader', get_string('blocksettings', 'block'));
 
@@ -36,5 +37,15 @@ class block_configurable_reports_edit_form extends block_edit_form {
 
         $mform->addElement('selectyesno', 'config_displayglobalreports', get_string('displayglobalreports', 'block_configurable_reports'));
         $mform->setDefault('config_displayglobalreports', 1);
+
+        $reports = $DB->get_records_menu('block_configurable_reports', null, 'name ASC', 'id,name');
+        $reports = array(0 => get_string('none')) + $reports;
+        $mform->addElement('select', 'config_displaysinglereport', get_string('displaysinglereport', 'block_configurable_reports'), $reports);
+
+        $mform->addElement('selectyesno', 'config_displayfilter', get_string('displayfilter', 'block_configurable_reports'));
+        $mform->setDefault('config_displayfilter', 1);
+
+        $mform->addElement('selectyesno', 'config_displaychartonly', get_string('displaychartonly', 'block_configurable_reports'));
+        $mform->setDefault('config_displaychartonly', 0);
     }
 }
