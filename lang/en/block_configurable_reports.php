@@ -546,4 +546,5 @@ $string['displaysinglereport'] = 'Display single report';
 $string['reportdoesnotexists'] = 'Report no longer available';
 $string['displayfilter'] = 'Display with the filters';
 $string['displaychartonly'] = 'View just the charts in the block';
+$string['reportfatalerrormsg'] = 'Report has encountered an error and was unable to load results.';
 // END MLC EDIT.

@@ -731,6 +731,12 @@ class report_base {
         if (!$chartonly) {
             $this->print_filters();
         }
+
+        // Print fatal query error message.
+        if (!empty($this->errormesage)) {
+            echo '<div class="centerpara alert alert-danger">'.get_string('reportfatalerrormsg', 'block_configurable_reports').'</div>';
+        }
+
         if ($this->finalreport->table && !empty($this->finalreport->table->data[0])) {
 
             echo "<div id=\"printablediv\">\n";

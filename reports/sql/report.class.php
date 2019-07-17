@@ -26,6 +26,8 @@ defined('BLOCK_CONFIGURABLE_REPORTS_MAX_RECORDS') || define('BLOCK_CONFIGURABLE_
 
 class report_sql extends report_base {
 
+    public $errormesage = '';
+
     public function init() {
         $this->components = array('customsql', 'filters', 'template', 'permissions', 'calcs', 'plot');
     }
@@ -70,20 +72,23 @@ class report_sql extends report_base {
 
         $starttime = microtime(true);
 
-        if (preg_match('/\b(INSERT|INTO|CREATE)\b/i', $sql)) {
-            // Run special (dangerous) queries directly.
-            $results = $remotedb->execute($sql);
-        } else {
-            $results = $remotedb->get_recordset_sql($sql, null, 0, $reportlimit);
+        try {
+            if (preg_match('/\b(INSERT|INTO|CREATE)\b/i', $sql)) {
+                // Run special (dangerous) queries directly.
+                $results = $remotedb->execute($sql);
+            } else {
+                $results = $remotedb->get_recordset_sql($sql, null, 0, $reportlimit);
+            }
+
+            // Update the execution time in the DB.
+            $updaterecord = $DB->get_record('block_configurable_reports', array('id' => $this->config->id));
+            $updaterecord->lastexecutiontime = round((microtime(true) - $starttime) * 1000);
+            $this->config->lastexecutiontime = $updaterecord->lastexecutiontime;
+
+            $DB->update_record('block_configurable_reports', $updaterecord);
+        } catch (dml_read_exception $e) {
+            return $e;
         }
-
-        // Update the execution time in the DB.
-        $updaterecord = $DB->get_record('block_configurable_reports', array('id' => $this->config->id));
-        $updaterecord->lastexecutiontime = round((microtime(true) - $starttime) * 1000);
-        $this->config->lastexecutiontime = $updaterecord->lastexecutiontime;
-
-        $DB->update_record('block_configurable_reports', $updaterecord);
-
         return $results;
     }
 
@@ -119,7 +124,14 @@ class report_sql extends report_base {
 
             $sql = $this->prepare_sql($sql);
 
-            if ($rs = $this->execute_query($sql)) {
+            $rs = $this->execute_query($sql);
+	    
+            if (get_class($rs) == 'dml_read_exception') {
+                $this->errormesage = $rs->error;
+                $rs = null;
+            }
+	    
+            if ($rs) {
                 foreach ($rs as $row) {
                     if (empty($finaltable)) {
                         foreach ($row as $colname => $value) {
