@@ -550,4 +550,5 @@ $string['legendheader'] = 'Legend label order and colors';
 $string['label'] = 'Label - {$a}';
 $string['labelcolor'] = 'Label color - {$a}';
 $string['invalidcolorcode'] = 'Invalid color code';
+$string['legendbelowchart'] = 'Display legend below chart ';
 // END MLC EDIT.

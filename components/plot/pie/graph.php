@@ -74,6 +74,7 @@ if (!$reportclass->check_permissions($USER->id, $context)) {
                 $class = new $classname($report);
                 $series = $class->get_series($g['formdata']);
                 $colors = $class->get_color_palette($g['formdata']);
+                $legendbelowchart = required_param('legendbelowchart', PARAM_BOOL);
                 break;
             }
         }
@@ -97,10 +98,17 @@ if (!$reportclass->check_permissions($USER->id, $context)) {
             $dataset->SetAbsciseLabelSerie("Serie2");
 
             // Initialise the graph.
-            $test = new pChart(450, 200 + (count($series[0]) * 10));
-            $test->drawFilledRoundedRectangle(7, 7, 293, 193, 5, 240, 240, 240);
-            $test->drawRoundedRectangle(5, 5, 295, 195, 5, 230, 230, 230);
-            $test->createColorGradientPalette(195, 204, 56, 223, 110, 41, 5);
+            if ($legendbelowchart) {
+                $test = new pChart(300, 250 + (count($series[0]) * 10));
+                $test->drawFilledRoundedRectangle(7, 7, 293, 193, 5, 240, 240, 240);
+                $test->drawRoundedRectangle(5, 5, 295, 195, 5, 230, 230, 230);
+                $test->createColorGradientPalette(195, 204, 56, 223, 110, 41, 5);
+            } else {
+                $test = new pChart(450, 200 + (count($series[0]) * 10));
+                $test->drawFilledRoundedRectangle(7, 7, 293, 193, 5, 240, 240, 240);
+                $test->drawRoundedRectangle(5, 5, 295, 195, 5, 230, 230, 230);
+                $test->createColorGradientPalette(195, 204, 56, 223, 110, 41, 5);
+            }
 
             // Custom colors.
             if ($colors) {
@@ -113,7 +121,11 @@ if (!$reportclass->check_permissions($USER->id, $context)) {
             $test->setFontProperties($CFG->dirroot."/blocks/configurable_reports/lib/Fonts/tahoma.ttf", 8);
             $test->AntialiasQuality = 0;
             $test->drawPieGraph($dataset->GetData(), $dataset->GetDataDescription(), 150, 90, 110, PIE_PERCENTAGE, true, 50, 20, 5);
-            $test->drawPieLegend(300, 15, $dataset->GetData(), $dataset->GetDataDescription(), 250, 250, 250);
+            if ($legendbelowchart) {
+                $test->drawPieLegend(5, 210, $dataset->GetData(), $dataset->GetDataDescription(), 250, 250, 250);
+            } else {
+                $test->drawPieLegend(300, 15, $dataset->GetData(), $dataset->GetDataDescription(), 250, 250, 250);
+            }
 
             ob_clean(); // Hack to clear output and send only IMAGE data to browser.
             $test->Stroke();

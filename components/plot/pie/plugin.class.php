@@ -109,8 +109,10 @@ class plugin_pie extends plugin_base{
         $serie0 = base64_encode(strip_tags(implode(',', $serie0sorted)));
         $serie1 = base64_encode(implode(',', $serie1sorted));
         $colorpalette = base64_encode(implode(',', $colors));
+        $legendbelowchart = !empty($this->report->blockinstancecfg['legendbelowchart']);
 
-        return $CFG->wwwroot.'/blocks/configurable_reports/components/plot/pie/graph.php?reportid='.$this->report->id.'&id='.$id.'&serie0='.$serie0.'&serie1='.$serie1.'&colorpalette='.$colorpalette;
+        return $CFG->wwwroot.'/blocks/configurable_reports/components/plot/pie/graph.php?reportid='. $this->report->id.
+            '&id='.$id.'&serie0='.$serie0.'&serie1='.$serie1.'&colorpalette='.$colorpalette.'&legendbelowchart='.$legendbelowchart;
     }
 
     public function get_series($data) {
@@ -119,7 +121,7 @@ class plugin_pie extends plugin_base{
 
         return array(explode(',', base64_decode($serie0)), explode(',', base64_decode($serie1)));
     }
-    
+
     public function get_color_palette($data) {
         if ($colorpalette = optional_param('colorpalette', '', PARAM_RAW)) {
             $colorpalette = explode(',', base64_decode($colorpalette));

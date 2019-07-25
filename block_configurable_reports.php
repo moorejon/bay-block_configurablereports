@@ -156,9 +156,14 @@ class block_configurable_reports extends block_base {
             if (empty($this->config->displayfilter)) {
                 $reportclass->filterform = null;
             }
+
+            $blockinstancecfg = array(
+                'displaychartonly' => !empty($this->config->displaychartonly),
+                'legendbelowchart' => !empty($this->config->legendbelowchart),
+            );
             ob_start();
             // Print the report HTML.
-            $reportclass->print_report_page($this->page, !empty($this->config->displaychartonly));
+            $reportclass->print_report_page($this->page, $blockinstancecfg);
             $output = ob_get_contents();
             ob_end_clean();
 

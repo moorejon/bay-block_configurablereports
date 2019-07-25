@@ -47,5 +47,8 @@ class block_configurable_reports_edit_form extends block_edit_form {
 
         $mform->addElement('selectyesno', 'config_displaychartonly', get_string('displaychartonly', 'block_configurable_reports'));
         $mform->setDefault('config_displaychartonly', 0);
+
+        $mform->addElement('selectyesno', 'config_legendbelowchart', get_string('legendbelowchart', 'block_configurable_reports'));
+        $mform->setDefault('config_legendbelowchart', 0);
     }
 }
