@@ -674,7 +674,7 @@ span.CodeMirror-selectedtext { background: none; }
     overflow: auto;
 }
 
-.block_configurable_reports .plot-image {
+section[data-block="configurable_reports"] img.plot-image {
     width: 100%;
     max-width: 450px;
 }
