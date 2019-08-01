@@ -144,10 +144,6 @@ class block_configurable_reports extends block_base {
             $reportclass = new $reportclassname($report);
 
             if (!$reportclass->check_permissions($USER->id, $context)) {
-                $this->content = (object) [
-                    'text' => get_string('badpermissions', 'block_configurable_reports'),
-                    'footer' => ''
-                ];
                 return $this->content;
             }
             $reportclass->check_filters_request();
