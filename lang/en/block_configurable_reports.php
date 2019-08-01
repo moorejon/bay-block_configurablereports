@@ -516,6 +516,7 @@ $string['automaticallydaily'] = 'Scheduled, daily';
 $string['automaticallymonthly'] = 'Scheduled, on the first day of each month';
 $string['automaticallyquarterly'] = 'Scheduled, on the first day of every third month';
 $string['automaticallyweekly'] = 'Scheduled, on the first day of each week';
+$string['comparison'] = 'Comparison operator';
 $string['crontask'] = 'Scheduled Configurable Reports';
 $string['customdir'] = 'Export report to path / directory';
 $string['customdir_help'] = 'Files are exported to the file path specified. If a directory is specified the filename format will be reportid-timecreated.';

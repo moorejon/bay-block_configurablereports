@@ -40,7 +40,7 @@ class plugin_puserfield extends plugin_base {
             $name = $DB->get_field('user_info_field', 'name', array('shortname' => str_replace('profile_', '', $data->field)));
             return $name .' = '.$data->value;
         }
-        return $data->field.' = '.$data->value;
+        return $data->field.' '.$data->comparison.' '.$data->value;
     }
 
     public function execute($userid, $context, $data) {
@@ -61,10 +61,38 @@ class plugin_puserfield extends plugin_base {
             }
         }
 
-        if (isset($user->{$data->field}) && $user->{$data->field} == $data->value) {
-            return true;
-        }
+        switch ($data->comparison) {
+            case '=':
+                return (isset($user->{$data->field}) && $user->{$data->field} == $data->value);
+            case '!=':
+                if ($data->value = '') {
+                    return (isset($user->{$data->field}) && $user->{$data->field} != $data->value);
+                } else {
+                    return (!isset($user->{$data->field}) || $user->{$data->field} != $data->value);
+                }
+            case '<':
+                if (is_numeric($data->value) && isset($user->{$data->field}) && is_numeric($user->{$data->field})) {
+                    return ($user->{$data->field} < $data->value);
+                }
+                return false;
+            case '<=':
+                if (is_numeric($data->value) && isset($user->{$data->field}) && is_numeric($user->{$data->field})) {
+                    return ($user->{$data->field} <= $data->value);
+                }
+                return false;
+            case '>':
+                if (is_numeric($data->value) && isset($user->{$data->field}) && is_numeric($user->{$data->field})) {
+                    return ($user->{$data->field} > $data->value);
+                }
+                return false;
+            case '>=':
+                if (is_numeric($data->value) && isset($user->{$data->field}) && is_numeric($user->{$data->field})) {
+                    return ($user->{$data->field} >= $data->value);
+                }
+                return false;
+            default:
+                return false;
 
-        return false;
+        }
     }
 }

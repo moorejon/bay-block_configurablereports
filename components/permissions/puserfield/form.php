@@ -53,8 +53,16 @@ class puserfield_form extends moodleform {
         unset($usercolumns['password']);
         unset($usercolumns['secret']);
 
+        $operators = [
+            '=' => '=',
+            '!=' => '!=',
+            '<' => '<',
+            '<=' => '<=',
+            '>' => '>',
+            '>=' => '>=',
+        ];
         $mform->addElement('select', 'field', get_string('column', 'block_configurable_reports'), $usercolumns);
-
+        $mform->addElement('select', 'comparison', get_string('comparison', 'block_configurable_reports'), $operators);
         $mform->addElement('text', 'value', get_string('value', 'block_configurable_reports'));
         $mform->setType('value', PARAM_RAW);
         $mform->addRule('value', get_string('required'), 'required');

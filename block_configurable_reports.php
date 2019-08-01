@@ -123,6 +123,10 @@ class block_configurable_reports extends block_base {
                 return $this->content;
             }
 
+            if (!$this->config->displayglobalreports && $report->global) {
+                return $this->content;
+            }
+
             if ($courseid && $report->global) {
                 $report->courseid = $courseid;
             } else {
