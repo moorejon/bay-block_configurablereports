@@ -38,7 +38,7 @@ class plugin_puserfield extends plugin_base {
 
         if (strpos($data->field, 'profile_') === 0) {
             $name = $DB->get_field('user_info_field', 'name', array('shortname' => str_replace('profile_', '', $data->field)));
-            return $name .' = '.$data->value;
+            return $data->field.' '.$data->comparison.' '.$data->value;
         }
         return $data->field.' '.$data->comparison.' '.$data->value;
     }
@@ -65,7 +65,7 @@ class plugin_puserfield extends plugin_base {
             case '=':
                 return (isset($user->{$data->field}) && $user->{$data->field} == $data->value);
             case '!=':
-                if ($data->value = '') {
+                if ($data->value == '') {
                     return (isset($user->{$data->field}) && $user->{$data->field} != $data->value);
                 } else {
                     return (!isset($user->{$data->field}) || $user->{$data->field} != $data->value);
@@ -92,7 +92,6 @@ class plugin_puserfield extends plugin_base {
                 return false;
             default:
                 return false;
-
         }
     }
 }
