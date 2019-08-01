@@ -68,10 +68,51 @@ class plugin_pie extends plugin_base{
             }
         }
 
-        $serie0 = base64_encode(strip_tags(implode(',', $series[0])));
-        $serie1 = base64_encode(implode(',', $series[1]));
+        // Custom sort.
+        $sortorder = [];
+        $colors = [];
 
-        return $CFG->wwwroot.'/blocks/configurable_reports/components/plot/pie/graph.php?reportid='.$this->report->id.'&id='.$id.'&serie0='.$serie0.'&serie1='.$serie1;
+        for ($i = 0; $i < 5; $i++) {
+            if (!empty($data->{'label'.$i})) {
+                $target = $data->{'label'.$i};
+                $colorcode = ltrim($data->{'labelcolor'.$i}, '#');
+                $sortorder[$target] = $colorcode;
+            }
+        }
+
+        $serie0sorted = [];
+        $serie1sorted = [];
+        $i = 0;
+
+        foreach ($sortorder as $item => $color) {
+            foreach ($series[0] as $index => $serie) {
+                $serie = strip_tags($serie);
+                if ($item == $serie) {
+                    $serie0sorted[] = $serie;
+                    $serie1sorted[] = $series[1][$index];
+                    unset($series[0][$index]);
+                    unset($series[1][$index]);
+
+                    $colors[$i] = implode('|', array_map(function($c){return hexdec(str_pad($c, 2, $c));}, str_split($color, strlen($color) > 4 ? 2 : 1)));
+                    $i++;
+                }
+            }
+        }
+
+        if (!empty($series[0])) {
+            foreach ($series[0] as $index => $serie) {
+                $serie0sorted[] = strip_tags($series[0][$index]);
+                $serie1sorted[] = $series[1][$index];
+            }
+        }
+
+        $serie0 = base64_encode(strip_tags(implode(',', $serie0sorted)));
+        $serie1 = base64_encode(implode(',', $serie1sorted));
+        $colorpalette = base64_encode(implode(',', $colors));
+        $legendbelowchart = !empty($this->report->blockinstancecfg['legendbelowchart']);
+
+        return $CFG->wwwroot.'/blocks/configurable_reports/components/plot/pie/graph.php?reportid='. $this->report->id.
+            '&id='.$id.'&serie0='.$serie0.'&serie1='.$serie1.'&colorpalette='.$colorpalette.'&legendbelowchart='.$legendbelowchart;
     }
 
     public function get_series($data) {
@@ -79,5 +120,16 @@ class plugin_pie extends plugin_base{
         $serie1 = required_param('serie1', PARAM_RAW);
 
         return array(explode(',', base64_decode($serie0)), explode(',', base64_decode($serie1)));
+    }
+
+    public function get_color_palette($data) {
+        if ($colorpalette = optional_param('colorpalette', '', PARAM_RAW)) {
+            $colorpalette = explode(',', base64_decode($colorpalette));
+            foreach ($colorpalette as $index => $item) {
+                $colorpalette[$index] = explode('|', $item);
+            }
+            return $colorpalette;
+        }
+        return null;
     }
 }

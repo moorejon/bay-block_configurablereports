@@ -203,7 +203,7 @@ class report_base {
         if ($graphs) {
             foreach ($graphs as $g) {
                 $output .= '<div class="centerpara">';
-                $output .= '<a target="_parent" href="'.$url->out().'"><img src="'.$g.'" alt="'.$this->config->name.'"></a><br />';
+                $output .= '<a target="_parent" href="'.$url->out().'"><img class="plot-image"src="'.$g.'" alt="'.$this->config->name.'"></a><br />';
                 $output .= '</div>';
             }
         }
@@ -702,7 +702,7 @@ class report_base {
         echo "</div>\n";
     }
 
-    public function print_report_page(\moodle_page $moodlepage, $displaychartonly=0) {
+    public function print_report_page(\moodle_page $moodlepage, $blockinstancecfg=null) {
         global $DB, $CFG, $OUTPUT, $USER;
 
         cr_print_js_function();
@@ -727,7 +727,8 @@ class report_base {
         echo format_text($this->config->summary);
         echo '</div>';
 
-        $chartonly = optional_param('chartonly', $displaychartonly, PARAM_INT);
+        $this->config->blockinstancecfg = $blockinstancecfg;
+        $chartonly = optional_param('chartonly', !empty($blockinstancecfg['displaychartonly']), PARAM_INT);
         if (!$chartonly) {
             $this->print_filters();
         }

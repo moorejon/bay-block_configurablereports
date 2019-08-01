@@ -547,4 +547,9 @@ $string['reportdoesnotexists'] = 'Report no longer available';
 $string['displayfilter'] = 'Display with the filters';
 $string['displaychartonly'] = 'View just the charts in the block';
 $string['reportfatalerrormsg'] = 'Report has encountered an error and was unable to load results.';
+$string['legendheader'] = 'Legend label order and colors';
+$string['label'] = 'Label - {$a}';
+$string['labelcolor'] = 'Label color - {$a}';
+$string['invalidcolorcode'] = 'Invalid color code';
+$string['legendbelowchart'] = 'Display legend below chart ';
 // END MLC EDIT.
