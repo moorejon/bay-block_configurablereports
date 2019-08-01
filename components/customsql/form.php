@@ -113,15 +113,12 @@ class customsql_form extends moodleform {
 
         } else {
             // Now try running the SQL, and ensure it runs without errors.
-
             $sql = $this->_customdata['reportclass']->prepare_sql($sql);
-            $rs = null;
-            try {
-                $rs = $this->_customdata['reportclass']->execute_query($sql, 2);
-            } catch (dml_read_exception $e) {
-                $errors['querysql'] = get_string('queryfailed', 'block_configurable_reports', $e->error );
-            }
-            if ($rs && !empty($data['singlerow'])) {
+            $rs = $this->_customdata['reportclass']->execute_query($sql, 2);
+            if (get_class($rs) == 'dml_read_exception') {
+                $errors['querysql'] = get_string('queryfailed', 'block_configurable_reports', $rs->error);
+                $rs = null;
+            } else if (!empty($data['singlerow'])) {
                 if (rs_EOF($rs)) {
                     $errors['querysql'] = get_string('norowsreturned', 'block_configurable_reports');
                 }
@@ -153,8 +150,9 @@ class customsql_form extends moodleform {
             // Now try running the SQL, and ensure it runs without errors.
             $sql = $this->_customdata['reportclass']->prepare_sql($sql);
             $rs = $this->_customdata['reportclass']->execute_query($sql, 2);
-            if (!$rs) {
-                $errors['querysql'] = get_string('queryfailed', 'block_configurable_reports', $db->ErrorMsg());
+            if (get_class($rs) == 'dml_read_exception') {
+                $errors['querysql'] = get_string('queryfailed', 'block_configurable_reports', $rs->error);
+                $rs = null;
             } else if (!empty($data['singlerow'])) {
                 if (rs_EOF($rs)) {
                     $errors['querysql'] = get_string('norowsreturned', 'block_configurable_reports');
