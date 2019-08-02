@@ -88,6 +88,7 @@ class sqloptions_form extends moodleform {
         return $errors;
     }
 
+    // TODO: This function is duplicated in other places in the code, should move to a central location
     public function check_sql_high_security($sql, $allowempty = true) {
         global $CFG;
 
@@ -104,23 +105,19 @@ class sqloptions_form extends moodleform {
             $errors = get_string('noexplicitprefix', 'block_configurable_reports');
         } else {
             // Now try running the SQL, and ensure it runs without errors.
-
             $sql = $this->_customdata['reportclass']->prepare_sql($sql);
-            $rs = null;
-            try {
-                $rs = $this->_customdata['reportclass']->execute_query($sql, 2);
-            } catch (dml_read_exception $e) {
-                $errors = get_string('queryfailed', 'block_configurable_reports', $e->error );
-                return $errors;
-            }
-            if (!$rs->valid()) {
-                if (!$allowempty) {
-                    $errors = get_string('norowsreturned', 'block_configurable_reports');
+            $rs = $this->_customdata['reportclass']->execute_query($sql, 2);
+            if (get_class($rs) == 'dml_read_exception') {
+                $errors = get_string('queryfailed', 'block_configurable_reports', $rs->error);
+                $rs = null;
+            } else {
+                if (!$rs->valid()) {
+                    if (!$allowempty) {
+                        $errors = get_string('norowsreturned', 'block_configurable_reports');
+                    }
+                } else if (!array_key_exists('configid', $rs->current())) {
+                    $errors = get_string('noconfigidordisplay', 'block_configurable_reports');
                 }
-            } else if (!array_key_exists('configid', $rs->current())) {
-                $errors = get_string('noconfigidordisplay', 'block_configurable_reports');
-            }
-            if ($rs) {
                 $rs->close();
             }
         }
@@ -166,21 +163,17 @@ class sqloptions_form extends moodleform {
             // Now try running the SQL, and ensure it runs without errors.
             $sql = $this->_customdata['reportclass']->prepare_sql($sql);
             $rs = $this->_customdata['reportclass']->execute_query($sql, 2);
-            try {
-                $rs = $this->_customdata['reportclass']->execute_query($sql, 2);
-            } catch (dml_read_exception $e) {
-                $errors = get_string('queryfailed', 'block_configurable_reports', $e->error );
-                return $errors;
-            }
-            if (!$rs->valid()) {
-                if (!$allowempty) {
-                    $errors = get_string('norowsreturned', 'block_configurable_reports');
+            if (get_class($rs) == 'dml_read_exception') {
+                $errors = get_string('queryfailed', 'block_configurable_reports', $rs->error);
+                $rs = null;
+            } else {
+                if (!$rs->valid()) {
+                    if (!$allowempty) {
+                        $errors = get_string('norowsreturned', 'block_configurable_reports');
+                    }
+                } else if (!array_key_exists('configid', $rs->current())) {
+                    $errors = get_string('noconfigidordisplay', 'block_configurable_reports');
                 }
-            } else if (!array_key_exists('configid', $rs->current())) {
-                $errors = get_string('noconfigidordisplay', 'block_configurable_reports');
-            }
-
-            if ($rs) {
                 $rs->close();
             }
         }
