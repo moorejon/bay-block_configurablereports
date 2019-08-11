@@ -54,6 +54,7 @@ class report_sql extends report_base {
         $sql = str_replace(array('%%STARTTIME%%', '%%ENDTIME%%'), array('0', '2145938400'), $sql);
         $sql = str_replace('%%WWWROOT%%', $CFG->wwwroot, $sql);
         $sql = preg_replace('/%{2}[^%]+%{2}/i', '', $sql);
+        $sql = preg_replace('/\bprefix_(?=\w+)/i', $CFG->prefix, $sql);
 
         $sql = str_replace('?', '[[QUESTIONMARK]]', $sql);
 
@@ -62,8 +63,6 @@ class report_sql extends report_base {
 
     public function execute_query($sql, $limitnum = BLOCK_CONFIGURABLE_REPORTS_MAX_RECORDS) {
         global $remotedb, $DB, $CFG;
-
-        $sql = preg_replace('/\bprefix_(?=\w+)/i', $CFG->prefix, $sql);
 
         $reportlimit = get_config('block_configurable_reports', 'reportlimit');
         if (empty($reportlimit) or $reportlimit == '0') {
