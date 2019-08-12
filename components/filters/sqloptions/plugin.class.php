@@ -56,7 +56,7 @@ class plugin_sqloptions extends plugin_base {
             }
         }
 
-        $operators = array('=', '<', '>', '<=', '>=', '~', 'in');
+        $operators = array('=', '<', '>', '<=', '>=', '~', 'in', 'rin');
 
         if ($filter && preg_match_all("/%%FILTER_SQL_$data->idnumber:([^%]+)%%/i", $finalelements, $output)) {
             for ($i = 0; $i < count($output[1]); $i++) {
@@ -68,6 +68,21 @@ class plugin_sqloptions extends plugin_base {
                     $replace = " AND $field LIKE '%$filter%'";
                 } else if ($operator == 'in') {
                     $replace = " AND '$filter' IN $field";
+                } else if ($operator == 'rin') {
+                    // Reverse IN
+                    // Checks if defined column value is in value(s) selected in the filter
+                    $possibles = explode(',', $filter);
+                    $length = count($possibles);
+                    $filtersql = "(";
+                    for ($j = 0; $j < $length; $j++) {
+                        $filtersql .= "'$possibles[$j]'";
+                        if ($j < ($length - 1)) {
+                            $filtersql .= ",";
+                        } else {
+                            $filtersql .= ")";
+                        }
+                    }
+                    $replace = " AND $field IN $filtersql";
                 } else {
                     $replace = " AND $field $operator '$filter'";
                 }
