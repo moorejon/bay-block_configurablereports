@@ -43,10 +43,10 @@ class plugin_sqloptions extends plugin_base {
         $filtersqloptions = optional_param('filter_sql_'.$data->idnumber, '', PARAM_RAW);
 
         $filter = 0;
-        if ($filtersqloptions && $filtersqloptions != '%%all%%') {
+        if ($filtersqloptions && $filtersqloptions != '%all%') {
             $filter = clean_param(base64_decode($filtersqloptions), PARAM_RAW);
         } else {
-            if ($filtersqloptions != '%%all%%' && !empty($data->defaultsql)) {
+            if ($filtersqloptions != '%all%' && !empty($data->defaultsql)) {
                 $reportclassname = 'report_'.$this->report->type;
                 $reportclass = new $reportclassname($this->report);
                 $sql = $reportclass->prepare_sql($data->defaultsql);
@@ -56,7 +56,7 @@ class plugin_sqloptions extends plugin_base {
             }
         }
 
-        $operators = array('=', '<', '>', '<=', '>=', '~', 'in');
+        $operators = array('=', '<', '>', '<=', '>=', '~', 'in', 'rin');
 
         if ($filter && preg_match_all("/%%FILTER_SQL_$data->idnumber:([^%]+)%%/i", $finalelements, $output)) {
             for ($i = 0; $i < count($output[1]); $i++) {
@@ -68,6 +68,21 @@ class plugin_sqloptions extends plugin_base {
                     $replace = " AND $field LIKE '%$filter%'";
                 } else if ($operator == 'in') {
                     $replace = " AND '$filter' IN $field";
+                } else if ($operator == 'rin') {
+                    // Reverse IN
+                    // Checks if defined column value is in value(s) selected in the filter
+                    $possibles = explode(',', $filter);
+                    $length = count($possibles);
+                    $filtersql = "(";
+                    for ($j = 0; $j < $length; $j++) {
+                        $filtersql .= "'$possibles[$j]'";
+                        if ($j < ($length - 1)) {
+                            $filtersql .= ",";
+                        } else {
+                            $filtersql .= ")";
+                        }
+                    }
+                    $replace = " AND $field IN $filtersql";
                 } else {
                     $replace = " AND $field $operator '$filter'";
                 }
@@ -83,7 +98,7 @@ class plugin_sqloptions extends plugin_base {
         global $DB, $CFG;
 
         $filteroptions = array();
-        $filteroptions['%%all%%'] = get_string('filter_all', 'block_configurable_reports');
+        $filteroptions['%all%'] = get_string('filter_all', 'block_configurable_reports');
 
         $reportclassname = 'report_'.$this->report->type;
         $reportclass = new $reportclassname($this->report);
