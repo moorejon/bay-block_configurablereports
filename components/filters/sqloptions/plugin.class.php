@@ -42,7 +42,7 @@ class plugin_sqloptions extends plugin_base {
 
         $filtersqloptions = optional_param('filter_sql_'.$data->idnumber, '', PARAM_RAW);
 
-        $filter = 0;
+        $filter = '%all%';
         if ($filtersqloptions && $filtersqloptions != '%all%') {
             $filter = clean_param(base64_decode($filtersqloptions), PARAM_RAW);
         } else {
@@ -58,7 +58,7 @@ class plugin_sqloptions extends plugin_base {
 
         $operators = array('=', '<', '>', '<=', '>=', '~', 'in', 'rin');
 
-        if ($filter && preg_match_all("/%%FILTER_SQL_$data->idnumber:([^%]+)%%/i", $finalelements, $output)) {
+        if ($filter != '%all%' && preg_match_all("/%%FILTER_SQL_$data->idnumber:([^%]+)%%/i", $finalelements, $output)) {
             for ($i = 0; $i < count($output[1]); $i++) {
                 list($field, $operator) = preg_split('/:/', $output[1][$i]);
                 if (!in_array($operator, $operators)) {
