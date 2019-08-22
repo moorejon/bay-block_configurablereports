@@ -198,5 +198,18 @@ function xmldb_block_configurable_reports_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2019060301, 'configurable_reports');
     }
 
+    if ($oldversion < 2019082202) {
+        $table = new xmldb_table('block_configurable_reports');
+        $field = new xmldb_field('datatableperpage', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'noresultdisplay');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $DB->execute("UPDATE {block_configurable_reports} SET datatableperpage = 100");
+
+        upgrade_block_savepoint(true, 2019082202, 'configurable_reports');
+    }
+
     return true;
 }

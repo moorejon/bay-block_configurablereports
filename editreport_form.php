@@ -66,6 +66,11 @@ class report_edit_form extends moodleform {
         $mform->setDefault('pagination', 0);
         $mform->addHelpButton('pagination', 'pagination', 'block_configurable_reports');
 
+        if (get_config('block_configurable_reports', 'reporttableui') == 'datatables') {
+            $mform->addElement('select', 'datatableperpage', get_string('datatableperpage', 'block_configurable_reports'), [10 => 10, 25 => 25, 50 => 50, 100 => 100]);
+            $mform->setDefault('datatableperpage', 100);
+        }
+
         $mform->addElement('checkbox', 'global', get_string('global', 'block_configurable_reports'), get_string('enableglobal', 'block_configurable_reports'));
         $mform->addHelpButton('global', 'global', 'block_configurable_reports');
         $mform->setDefault('global', 0);

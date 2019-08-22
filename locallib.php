@@ -47,10 +47,11 @@ function cr_print_js_function() {
 <?php
 }
 
-function cr_add_jsdatatables($cssid, \moodle_page $page) {
+function cr_add_jsdatatables($cssid, \moodle_page $page, $datatableperpage = 100) {
     global $OUTPUT;
     $data = array();
     $data['selector'] = $cssid;
+    $data['perpage'] = $datatableperpage;
 
     $page->requires->string_for_js('thousandssep', 'langconfig');
     $page->requires->strings_for_js(

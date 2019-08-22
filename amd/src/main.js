@@ -26,6 +26,7 @@ define(
         },
         add_jsdatatables: function (params) {
             $(params.selector).dataTable({
+                'iDisplayLength': params.perpage,
                 'bAutoWidth': false,
                 'sPaginationType': 'full_numbers',
                 'fixedHeader': true,
