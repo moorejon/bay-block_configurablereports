@@ -165,7 +165,7 @@ class run_reports extends \core\task\scheduled_task {
         // Construct subject.
         $subject = get_string('emailsubject', 'block_configurable_reports',
                 $report->name);
-        $url = new \moodle_url('/blocks/configurable_reports/view.php', array('id' => $report->id));
+        $url = new \moodle_url('/blocks/configurable_reports/viewreport.php', array('id' => $report->id));
         $link = \html_writer::tag('a', $url, array('href' => $url));
         $fullmessage = \html_writer::tag('p', get_string('nodatareturned', 'block_configurable_reports') . ' ' . $link);
         $fullmessagehtml = $fullmessage;
@@ -182,7 +182,7 @@ class run_reports extends \core\task\scheduled_task {
         // Construct subject.
         $subject = get_string('emailsubject', 'block_configurable_reports',
                 $report->name);
-        $url = new \moodle_url('/blocks/configurable_reports/view.php', array('id' => $report->id));
+        $url = new \moodle_url('/blocks/configurable_reports/viewreport.php', array('id' => $report->id));
         $link = \html_writer::tag('a', $url, array('href' => $url));
         $fullmessage = \html_writer::tag('p', get_string('datareturned', 'block_configurable_reports') . ' ' . $link);
         $fullmessagehtml = $fullmessage;
@@ -198,9 +198,8 @@ class run_reports extends \core\task\scheduled_task {
     function get_temp_path($filename) {
         global $CFG;
 
-        $tmppath = '/temp';
         // Create a unique temporary filename to use for this schedule
-        $path = tempnam($CFG->dataroot.$tmppath, $filename);
+        $path = tempnam($CFG->tempdir, $filename);
         return $path;
     }
 }
