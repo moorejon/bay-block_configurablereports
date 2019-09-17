@@ -41,8 +41,9 @@ define(['jquery', 'core/templates', 'core/notification'], function ($, templates
         /**
          * Called when a category is selected
          */
-        getCourses: function () {
+        getCourses: function() {
             var self = this;
+            var selectedcourseid = $('#id_filter_courses').val();
             $('#id_filter_courses').html('');
 
             var selectedCategoryId = $("#id_filter_subcategories").val();
@@ -52,14 +53,19 @@ define(['jquery', 'core/templates', 'core/notification'], function ($, templates
                 type: "GET",
                 url: 'get_courses_in_category.php?category=' + selectedCategoryId,
                 success: function (data) {
-                    self.replaceTemplate('#id_filter_courses', 'block_configurable_reports/courses', data);
+                    self.replaceTemplate('#id_filter_courses', 'block_configurable_reports/courses', data, selectedcourseid);
                 }
             });
         },
-        replaceTemplate: function (selector, template, data) {
-            templates.render(template, data).done(function (html, js) {
+        replaceTemplate: function(selector, template, data, selectedcourseid) {
+            templates.render(template, data).done(function(html, js) {
                 $(selector).html(html);
                 templates.runTemplateJS(js);
+                if (selectedcourseid) {
+                    if ($("#id_filter_courses option[value='" + selectedcourseid + "']").length !== 0 ) {
+                        $('#id_filter_courses').val(selectedcourseid);
+                    }
+                }
             }).fail(notification.exception);
         }
     };
