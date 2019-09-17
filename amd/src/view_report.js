@@ -29,6 +29,9 @@ define(['jquery', 'core/templates', 'core/notification'], function ($, templates
             var self = this;
 
             $(document).ready(function() {
+                if ($('#id_filter_subcategories').val() > 0) {
+                    self.getCourses();
+                }
                 $(document).on('change', '#id_filter_subcategories', function (event) {
                     event.preventDefault();
                     self.getCourses();
