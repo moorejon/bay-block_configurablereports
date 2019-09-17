@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/templates', 'core/notification'], function ($, templates, notification) {
+define(['jquery', 'core/templates', 'core/notification', 'core/ajax',], function ($, templates, notification, ajax) {
 
     return {
         init: function () {
@@ -36,6 +36,73 @@ define(['jquery', 'core/templates', 'core/notification'], function ($, templates
                     event.preventDefault();
                     self.getCourses();
                 });
+
+                $('#id_prefsave').click(function(event) {
+                    event.preventDefault();
+
+                    var form = $(this).closest("form");
+                    var prefname = $('input[name=prefname]');
+                    var presaved = $('select[name=presaved]');
+
+                    // Ajax parameters.
+                    var id = prefname.data('id');
+                    var reportid = $('input[name=id]').val();
+                    var name =  prefname.val();
+                    var parameters = [];
+
+                    var disregard = ['id', 'courseid', 'embedded', 'sesskey', '_qf__report_edit_form',
+                        'mform_isexpanded_id_general', 'prefname', 'presaved'];
+                    var formelements = form.serializeArray();
+
+                    $.each(formelements, function(index, field) {
+                        if ($.inArray(field.name, disregard) === -1) {
+                            parameters.push(field);
+                        }
+                    });
+
+                    ajax.call([{
+                        methodname: 'block_configurable_reports_update_filter_preferences',
+                        args: {
+                            id: id,
+                            reportid: reportid,
+                            name: name,
+                            parameters: JSON.stringify(parameters)
+                        }
+                    }])[0].done(function(data) {
+                        if (data == true) {
+                            presaved.append('<option value="" selected="selected">' + name + '</option>');
+                            $('#id_presaved').show().removeAttr('hidden');
+                        } else {
+                            notification.alert(null, 'Error!');
+                        }
+                    }).fail(notification.exception);
+                });
+
+                $('#id_presaved').change(function() {
+                    var preferenceid = $(this).val();
+
+                    if (preferenceid > 0) {
+                        ajax.call([{
+                            methodname: 'block_configurable_reports_get_filter_preferences',
+                            args: {
+                                id: preferenceid,
+                            }
+                        }])[0].done(function(data) {
+                            if (data === false) {
+                                notification.alert(null, 'Error!');
+                            } else {
+                                var filter = JSON.parse(data.filter);
+                                $.each(filter, function(index, field) {
+                                    var elem = $('#id_' + field.name);
+                                    if (elem.length > 0) {
+                                        elem.val(field.value);
+                                    }
+                                });
+                            }
+                        }).fail(notification.exception);
+                    }
+                });
+
             });
         },
         /**

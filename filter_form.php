@@ -41,5 +41,25 @@ class report_edit_form extends moodleform {
 
         // Buttons.
         $this->add_action_buttons(true, get_string('filter_apply', 'block_configurable_reports'));
+
+        // Filter preference save
+        $preferences = array();
+        $preferences[] =& $mform->createElement('text', 'prefname', get_string('savechanges'),
+            ['placeholder' => get_string('savepreferences', 'block_configurable_reports'), 'data-id' => 0]);
+        $preferences[] =& $mform->createElement('submit', 'prefsave', get_string('save'));
+
+        if ($preferencesmenu = $DB->get_records_menu('block_configurable_reports_p',
+            ['userid' => $USER->id, 'reportid' => $this->_customdata->config->id])) {
+
+            $preferencesmenu = ['' => get_string('load', 'block_configurable_reports')] + $preferencesmenu;
+            $preferences[] =& $mform->createElement('select', 'presaved', '',   $preferencesmenu);
+        } else {
+            $preferencesmenu = ['' => get_string('load', 'block_configurable_reports')];
+            $preferences[] =& $mform->createElement('select', 'presaved', '',   $preferencesmenu , ['style' => 'display: none;', 'hidden' =>'hidden']);
+            //$mform->hideIf('presaved', 'id', 'noteq', '-10'); // It will hide it when there is no saved preferences/
+        }
+
+        $mform->setType('prefname', PARAM_TEXT);
+        $mform->addGroup($preferences, 'preferencesarr', '', array(' '), false);
     }
 }

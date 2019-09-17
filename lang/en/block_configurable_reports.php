@@ -554,4 +554,6 @@ $string['labelcolor'] = 'Label color - {$a}';
 $string['invalidcolorcode'] = 'Invalid color code';
 $string['legendbelowchart'] = 'Display legend below chart ';
 $string['datatableperpage'] = 'JS Datatable number of results per page';
+$string['savepreferences'] = 'Save preferences';
+$string['load'] = 'Load';
 // END MLC EDIT.
