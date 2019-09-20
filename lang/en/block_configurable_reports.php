@@ -556,4 +556,5 @@ $string['legendbelowchart'] = 'Display legend below chart ';
 $string['datatableperpage'] = 'JS Datatable number of results per page';
 $string['savepreferences'] = 'Save preferences';
 $string['load'] = 'Load';
+$string['multiselect'] = 'Multi select';
 // END MLC EDIT.
