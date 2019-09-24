@@ -37,6 +37,8 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax',], function
                     self.getCourses();
                 });
 
+                var defaultfilter = $('input[name=defaultfilter]').val();
+
                 $('#id_prefsave').click(function(event) {
                     event.preventDefault();
 
@@ -47,11 +49,17 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax',], function
                     // Ajax parameters.
                     var id = prefname.data('id');
                     var reportid = $('input[name=id]').val();
+                    var defaultfilter = 0;
+
+                    if ($('input[name=defaultfilter]').is(":checked")) {
+                        defaultfilter = 1;
+                    }
+
                     var name =  prefname.val();
                     var parameters = [];
 
                     var disregard = ['id', 'courseid', 'embedded', 'sesskey', '_qf__report_edit_form',
-                        'mform_isexpanded_id_general', 'prefname', 'presaved'];
+                        'mform_isexpanded_id_general', 'prefname', 'presaved', 'defaultfilter'];
                     var formelements = form.serializeArray();
 
                     $.each(formelements, function(index, field) {
@@ -66,7 +74,8 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax',], function
                             id: id,
                             reportid: reportid,
                             name: name,
-                            parameters: JSON.stringify(parameters)
+                            parameters: JSON.stringify(parameters),
+                            defaultfilter: defaultfilter
                         }
                     }])[0].done(function(data) {
                         if (data == true) {

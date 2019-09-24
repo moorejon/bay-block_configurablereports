@@ -47,16 +47,25 @@ class report_edit_form extends moodleform {
         $preferences[] =& $mform->createElement('text', 'prefname', get_string('savechanges'),
             ['placeholder' => get_string('savepreferences', 'block_configurable_reports'), 'data-id' => 0]);
         $preferences[] =& $mform->createElement('submit', 'prefsave', get_string('save'));
+        $preferences[] =& $mform->createElement('advcheckbox', 'defaultfilter', get_string('default'), '', array('group' => 1), array(0, 1));
 
-        if ($preferencesmenu = $DB->get_records_menu('block_configurable_reports_p',
+        if ($records = $DB->get_records('block_configurable_reports_p',
             ['userid' => $USER->id, 'reportid' => $this->_customdata->config->id])) {
+
+            $preferencesmenu = [];
+            foreach ($records as $record) {
+                if ($record->defaultfilter) {
+                    $preferencesmenu[$record->id] = $record->name . ' ('.get_string('default').')';
+                } else {
+                    $preferencesmenu[$record->id] = $record->name;
+                }
+            }
 
             $preferencesmenu = ['' => get_string('load', 'block_configurable_reports')] + $preferencesmenu;
             $preferences[] =& $mform->createElement('select', 'presaved', '',   $preferencesmenu);
         } else {
             $preferencesmenu = ['' => get_string('load', 'block_configurable_reports')];
             $preferences[] =& $mform->createElement('select', 'presaved', '',   $preferencesmenu , ['style' => 'display: none;', 'hidden' =>'hidden']);
-            //$mform->hideIf('presaved', 'id', 'noteq', '-10'); // It will hide it when there is no saved preferences/
         }
 
         $mform->setType('prefname', PARAM_TEXT);

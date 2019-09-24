@@ -39,7 +39,8 @@ class plugin_fcoursefield extends plugin_base {
 
     public function execute($finalelements, $data) {
         global $remotedb;
-        $filterfcoursefield = optional_param('filter_fcoursefield_'.$data->field, 0, PARAM_RAW);
+        $defaultfiltervalue = (isset($this->defaultfilter->{'filter_fcoursefield_'.$data->field})) ? $this->defaultfilter->{'filter_fcoursefield_'.$data->field} : 0;
+        $filterfcoursefield = optional_param('filter_fcoursefield_'.$data->field, $defaultfiltervalue, PARAM_RAW);
         if ($filterfcoursefield) {
             // Function addslashes is done in clean param.
             $filter = clean_param(base64_decode($filterfcoursefield), PARAM_CLEAN);
@@ -59,6 +60,7 @@ class plugin_fcoursefield extends plugin_base {
         $columns = $remotedb->get_columns('course');
         $filteroptions = array();
         $filteroptions[''] = get_string('filter_all', 'block_configurable_reports');
+        $defaultfiltervalue = (isset($this->defaultfilter->{'filter_fcoursefield_'.$data->field})) ? $this->defaultfilter->{'filter_fcoursefield_'.$data->field} : 0;
 
         $coursecolumns = array();
         foreach ($columns as $c) {
@@ -91,5 +93,6 @@ class plugin_fcoursefield extends plugin_base {
 
         $mform->addElement('select', 'filter_fcoursefield_'.$data->field, get_string($data->field), $filteroptions);
         $mform->setType('filter_courses', PARAM_BASE64);
+        $mform->setDefault('filter_courses', $defaultfiltervalue);
     }
 }

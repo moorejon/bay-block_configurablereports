@@ -40,17 +40,19 @@ class block_configurable_reports_external extends external_api {
                 'reportid' => new external_value(PARAM_INT, '', VALUE_REQUIRED),
                 'name' => new external_value(PARAM_TEXT, '', VALUE_REQUIRED),
                 'parameters' => new external_value(PARAM_RAW, '', VALUE_REQUIRED),
+                'defaultfilter' => new external_value(PARAM_RAW, '', VALUE_OPTIONAL, '0')
             )
         );
     }
 
-    public static function update_filter_preferences($id, $reportid, $name, $parameters) {
+    public static function update_filter_preferences($id, $reportid, $name, $parameters, $defaultfilter = 0) {
         global $DB, $USER;
         $params = self::validate_parameters(self::update_filter_preferences_parameters(), array(
             'id' => $id,
             'reportid' => $reportid,
             'name' => $name,
-            'parameters' => $parameters
+            'parameters' => $parameters,
+            'defaultfilter' => $defaultfilter
         ));
 
         $report = $DB->get_record('block_configurable_reports', ['id' => $params['reportid']], '*', MUST_EXIST);
@@ -71,6 +73,14 @@ class block_configurable_reports_external extends external_api {
             $preference->name = $params['name'];
             $preference->reportid = $params['reportid'];
             $preference->filter = $params['parameters'];
+            $preference->defaultfilter = $params['defaultfilter'];
+
+            if ($preference->defaultfilter) {
+                $DB->execute("UPDATE {block_configurable_reports_p} SET defaultfilter = 0 WHERE userid = ? AND reportid = ?",
+                    [$USER->id, $params['reportid']]
+                );
+            }
+
             $DB->insert_record('block_configurable_reports_p', $preference);
         }
 

@@ -39,11 +39,11 @@ class plugin_sqloptions extends plugin_base {
 
     public function execute($finalelements, $data) {
         global $DB;
-
+        $defaultvalue = (isset($this->defaultfilter->{'filter_sql_'.$data->idnumber})) ? $this->defaultfilter->{'filter_sql_'.$data->idnumber} : '';
         if ($data->multiselect) {
-            $filtersqloptions = optional_param_array('filter_sql_'.$data->idnumber, '', PARAM_RAW);
+            $filtersqloptions = optional_param_array('filter_sql_'.$data->idnumber, $defaultvalue, PARAM_RAW);
         } else {
-            $filtersqloptions = optional_param('filter_sql_'.$data->idnumber, '', PARAM_RAW);
+            $filtersqloptions = optional_param('filter_sql_'.$data->idnumber, $defaultvalue, PARAM_RAW);
         }
 
         $filter = '%all%';
@@ -137,6 +137,7 @@ class plugin_sqloptions extends plugin_base {
 
         $filteroptions = array();
         $filteroptions['%all%'] = get_string('filter_all', 'block_configurable_reports');
+        $defaultvalue = (isset($this->defaultfilter->{'filter_sql_'.$data->idnumber})) ? $this->defaultfilter->{'filter_sql_'.$data->idnumber} : '';
 
         $reportclassname = 'report_'.$this->report->type;
         $reportclass = new $reportclassname($this->report);
@@ -159,10 +160,18 @@ class plugin_sqloptions extends plugin_base {
         $select = $mform->addElement('select', 'filter_sql_'.$data->idnumber, $selectname, $filteroptions);
         if ($data->multiselect) {
             $select->setMultiple(true);
-            $select->setSelected('%all%');
+            if ($defaultvalue) {
+                $select->setSelected($defaultvalue);
+            } else {
+                $select->setSelected('%all%');
+            }
+        } else {
+            if ($defaultvalue) {
+                $select->setSelected($defaultvalue);
+            }
         }
 
-        if (!empty($data->defaultsql)) {
+        if (!$defaultvalue && !empty($data->defaultsql)) {
             $sql = $reportclass->prepare_sql($data->defaultsql);
             if ($result = $DB->get_record_sql($sql, null, IGNORE_MULTIPLE)) {
                 $default = base64_encode($result->configid);
