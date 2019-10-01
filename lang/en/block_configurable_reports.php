@@ -557,4 +557,8 @@ $string['datatableperpage'] = 'JS Datatable number of results per page';
 $string['savepreferences'] = 'Save preferences';
 $string['load'] = 'Load';
 $string['multiselect'] = 'Multi select';
+$string['filterwithsamename'] = 'Filter with same name already exists.';
+$string['filternotdelete'] = 'Failed to delete filter';
+$string['filternotupdate'] = 'Failed to update filter';
+$string['setasdefault'] = 'Set as default';
 // END MLC EDIT.

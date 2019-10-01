@@ -40,51 +40,87 @@ class block_configurable_reports_external extends external_api {
                 'reportid' => new external_value(PARAM_INT, '', VALUE_REQUIRED),
                 'name' => new external_value(PARAM_TEXT, '', VALUE_REQUIRED),
                 'parameters' => new external_value(PARAM_RAW, '', VALUE_REQUIRED),
-                'defaultfilter' => new external_value(PARAM_RAW, '', VALUE_OPTIONAL, '0')
+                'defaultfilter' => new external_value(PARAM_RAW, '', VALUE_OPTIONAL, '0'),
+                'action' => new external_value(PARAM_TEXT, '', VALUE_OPTIONAL, 'update')
             )
         );
     }
 
-    public static function update_filter_preferences($id, $reportid, $name, $parameters, $defaultfilter = 0) {
+    public static function update_filter_preferences($id, $reportid, $name, $parameters, $defaultfilter = 0, $action = 'update') {
         global $DB, $USER;
+
+        $result = array();
+
         $params = self::validate_parameters(self::update_filter_preferences_parameters(), array(
             'id' => $id,
             'reportid' => $reportid,
             'name' => $name,
             'parameters' => $parameters,
-            'defaultfilter' => $defaultfilter
+            'defaultfilter' => $defaultfilter,
+            'action' => $action,
         ));
 
         $report = $DB->get_record('block_configurable_reports', ['id' => $params['reportid']], '*', MUST_EXIST);
-        if ($id) {
-            $preference = $DB->get_record('block_configurable_reports_p', ['id' => $params['id']], '*', MUST_EXIST);
-        }
 
         $context = context_course::instance($report->courseid);
         self::validate_context($context);
 
         if (!has_capability('block/configurable_reports:viewreports', $context)) {
-            return false;
+            $result['success'] = false;
+            $result['msg'] = get_string('nopermissions', 'error', '');
+            return $result;
         }
 
-        if (!$preference) {
-            $preference = new \stdClass();
-            $preference->userid = $USER->id;
-            $preference->name = $params['name'];
-            $preference->reportid = $params['reportid'];
-            $preference->filter = $params['parameters'];
-            $preference->defaultfilter = $params['defaultfilter'];
+        if ($params['id']) {
+            $preference = $DB->get_record('block_configurable_reports_p', ['id' => $params['id']], '*', MUST_EXIST);
+        }
 
-            if ($preference->defaultfilter) {
-                $DB->execute("UPDATE {block_configurable_reports_p} SET defaultfilter = 0 WHERE userid = ? AND reportid = ?",
-                    [$USER->id, $params['reportid']]
-                );
+        if ($params['action'] == 'setdefault') {
+            $DB->execute("UPDATE {block_configurable_reports_p} SET defaultfilter = 0 WHERE userid = ? AND reportid = ?",
+                [$USER->id, $params['reportid']]
+            );
+
+            $data = new stdClass();
+            $data->id = $preference->id;
+            $data->defaultfilter = 1;
+
+            if ($result['success'] = $DB->update_record('block_configurable_reports_p', $data)) {
+                $result['msg'] = '';
+            } else {
+                $result['msg'] = get_string('filternotupdate', 'block_configurable_reports');
             }
+            return $result;
+        } else if ($params['action'] == 'delete') {
+            if ($result['success'] = $DB->delete_records('block_configurable_reports_p', ['id' => $params['id']])) {
+                $result['msg'] = '';
+            } else {
+                $result['msg'] = get_string('filternotdelete', 'block_configurable_reports');
+            }
+            return $result;
+        } else {
+            // Check duplicate name.
+            if (empty($preference)) {
+                if ($duplicate = $DB->get_record('block_configurable_reports_p', ['name' => $params['name'], 'reportid' => $params['reportid'], 'userid' => $USER->id])) {
+                    $result['success'] = false;
+                    $result['msg'] = get_string('filterwithsamename', 'block_configurable_reports');
+                    return $result;
+                }
 
-            $DB->insert_record('block_configurable_reports_p', $preference);
+                $preference = new \stdClass();
+                $preference->userid = $USER->id;
+                $preference->name = $params['name'];
+                $preference->reportid = $params['reportid'];
+                $preference->filter = $params['parameters'];
+                $preference->defaultfilter = $params['defaultfilter'];
+
+                $DB->insert_record('block_configurable_reports_p', $preference);
+            }
         }
 
-        return true;
+        $result = array();
+        $result['success'] = true;
+        $result['msg'] = '';
+        return $result;
     }
 
     /**
@@ -93,7 +129,12 @@ class block_configurable_reports_external extends external_api {
      * @return \external_value
      */
     public static function update_filter_preferences_returns() {
-        return new external_value(PARAM_BOOL, 'True if the update was successful.');
+        return new external_single_structure(
+            array(
+                'success' => new external_value(PARAM_BOOL, '', VALUE_OPTIONAL),
+                'msg' => new external_value(PARAM_TEXT, '', VALUE_OPTIONAL)
+            )
+        );
     }
 
     /**

@@ -47,28 +47,32 @@ class report_edit_form extends moodleform {
         $preferences[] =& $mform->createElement('text', 'prefname', get_string('savechanges'),
             ['placeholder' => get_string('savepreferences', 'block_configurable_reports'), 'data-id' => 0]);
         $preferences[] =& $mform->createElement('submit', 'prefsave', get_string('save'));
-        $preferences[] =& $mform->createElement('advcheckbox', 'defaultfilter', get_string('default'), '', array('group' => 1), array(0, 1));
 
+        $preferencesmenu = [];
+        $defaultfilterid = 0;
         if ($records = $DB->get_records('block_configurable_reports_p',
             ['userid' => $USER->id, 'reportid' => $this->_customdata->config->id])) {
 
-            $preferencesmenu = [];
             foreach ($records as $record) {
                 if ($record->defaultfilter) {
                     $preferencesmenu[$record->id] = $record->name . ' ('.get_string('default').')';
+                    $defaultfilterid = $record->id;
                 } else {
                     $preferencesmenu[$record->id] = $record->name;
                 }
             }
-
-            $preferencesmenu = ['' => get_string('load', 'block_configurable_reports')] + $preferencesmenu;
+            $preferencesmenu = [0 => ''] + $preferencesmenu;
             $preferences[] =& $mform->createElement('select', 'presaved', '',   $preferencesmenu);
+            $preferences[] =& $mform->createElement('submit', 'prefdelete', get_string('delete'));
+            $preferences[] =& $mform->createElement('submit', 'prefdefault', get_string('setasdefault', 'block_configurable_reports'));
         } else {
-            $preferencesmenu = ['' => get_string('load', 'block_configurable_reports')];
-            $preferences[] =& $mform->createElement('select', 'presaved', '',   $preferencesmenu , ['style' => 'display: none;', 'hidden' =>'hidden']);
+            $preferences[] =& $mform->createElement('select', 'presaved', '',   $preferencesmenu, ['style' => 'display: none;', 'hidden' =>'hidden']);
+            $preferences[] =& $mform->createElement('submit', 'prefdelete', get_string('delete'), ['style' => 'display: none;', 'hidden' =>'hidden']);
+            $preferences[] =& $mform->createElement('submit', 'prefdefault', get_string('setasdefault', 'block_configurable_reports'), ['style' => 'display: none;', 'hidden' =>'hidden']);
         }
 
         $mform->setType('prefname', PARAM_TEXT);
         $mform->addGroup($preferences, 'preferencesarr', '', array(' '), false);
+        $mform->setDefault('presaved', $defaultfilterid);
     }
 }
