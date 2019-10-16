@@ -28,11 +28,49 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
 
             var self = this;
 
+            var updatefilterpreferences = function(form, id, reportid, name, preflistelem) {
+                var disregard = ['id', 'courseid', 'embedded', 'sesskey', '_qf__report_edit_form',
+                    'mform_isexpanded_id_general', 'prefname', 'presaved', 'prefdelete', 'prefdefault'];
+                var formelements = form.serializeArray();
+                var parameters = [];
+                var defaultfilter = 0;
+
+                $.each(formelements, function(index, field) {
+                    if ($.inArray(field.name, disregard) === -1) {
+                        parameters.push(field);
+                    }
+                });
+
+                ajax.call([{
+                    methodname: 'block_configurable_reports_update_filter_preferences',
+                    args: {
+                        id: id,
+                        reportid: reportid,
+                        name: name,
+                        parameters: JSON.stringify(parameters),
+                        defaultfilter: defaultfilter,
+                        action: 'update',
+                    }
+                }])[0].done(function(data) {
+                    if (data.success === true) {
+                        if (preflistelem !== null) {
+                            preflistelem.append('<option value="' + data.id + '" selected="selected">' + name + '</option>');
+                        }
+                        $('#id_presaved').show().removeAttr('hidden');
+                        $('#id_prefupdate').show().removeAttr('hidden');
+                        $('#id_prefdelete').show().removeAttr('hidden');
+                        $('#id_prefdefault').show().removeAttr('hidden');
+                    } else {
+                        notification.alert(null, data.msg);
+                    }
+                }).fail(notification.exception);
+            };
+
             $(document).ready(function() {
                 if ($('#id_filter_subcategories').val() > 0) {
                     self.getCourses();
                 }
-                $(document).on('change', '#id_filter_subcategories', function (event) {
+                $(document).on('change', '#id_filter_subcategories', function(event) {
                     event.preventDefault();
                     self.getCourses();
                 });
@@ -46,46 +84,28 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                     var presaved = $('select[name=presaved]');
 
                     // Ajax parameters.
-                    var id = prefname.data('id');
                     var reportid = $('input[name=id]').val();
-                    var defaultfilter = 0;
-
-                    var name =  prefname.val().trim();
-                    var parameters = [];
+                    var name = prefname.val().trim();
 
                     if (name === '') {
                         return;
                     }
-                    var disregard = ['id', 'courseid', 'embedded', 'sesskey', '_qf__report_edit_form',
-                        'mform_isexpanded_id_general', 'prefname', 'presaved', 'prefdelete', 'prefdefault'];
-                    var formelements = form.serializeArray();
 
-                    $.each(formelements, function(index, field) {
-                        if ($.inArray(field.name, disregard) === -1) {
-                            parameters.push(field);
-                        }
-                    });
+                    updatefilterpreferences(form, 0, reportid, name, presaved);
+                });
 
-                    ajax.call([{
-                        methodname: 'block_configurable_reports_update_filter_preferences',
-                        args: {
-                            id: id,
-                            reportid: reportid,
-                            name: name,
-                            parameters: JSON.stringify(parameters),
-                            defaultfilter: defaultfilter,
-                            action: 'update',
-                        }
-                    }])[0].done(function(data) {
-                        if (data.success === true) {
-                            presaved.append('<option value="" selected="selected">' + name + '</option>');
-                            $('#id_presaved').show().removeAttr('hidden');
-                            $('#id_prefdelete').show().removeAttr('hidden');
-                            $('#id_prefdefault').show().removeAttr('hidden');
-                        } else {
-                            notification.alert(null, data.msg);
-                        }
-                    }).fail(notification.exception);
+                $('#id_prefupdate').click(function(event) {
+                    event.preventDefault();
+
+                    var form = $(this).closest("form");
+                    var prefname = $('input[name=prefname]');
+                    var presaved = $('select[name=presaved]');
+
+                    // Ajax parameters.
+                    var id = presaved.val();
+                    var reportid = $('input[name=id]').val();
+
+                    updatefilterpreferences(form, id, reportid, '', null);
                 });
 
                 $('#id_presaved').change(function() {

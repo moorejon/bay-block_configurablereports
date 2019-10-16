@@ -40,7 +40,7 @@ class plugin_sqloptions extends plugin_base {
     public function execute($finalelements, $data) {
         global $DB;
         $defaultvalue = (isset($this->defaultfilter->{'filter_sql_'.$data->idnumber})) ? $this->defaultfilter->{'filter_sql_'.$data->idnumber} : '';
-        if ($data->multiselect) {
+        if (!empty($data->multiselect)) {
             $filtersqloptions = optional_param_array('filter_sql_'.$data->idnumber, $defaultvalue, PARAM_RAW);
         } else {
             $filtersqloptions = optional_param('filter_sql_'.$data->idnumber, $defaultvalue, PARAM_RAW);
@@ -158,7 +158,7 @@ class plugin_sqloptions extends plugin_base {
         }
 
         $select = $mform->addElement('select', 'filter_sql_'.$data->idnumber, $selectname, $filteroptions);
-        if ($data->multiselect) {
+        if (!empty($data->multiselect)) {
             $select->setMultiple(true);
             if ($defaultvalue) {
                 $select->setSelected($defaultvalue);

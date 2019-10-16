@@ -113,13 +113,17 @@ class block_configurable_reports_external extends external_api {
                 $preference->filter = $params['parameters'];
                 $preference->defaultfilter = $params['defaultfilter'];
 
-                $DB->insert_record('block_configurable_reports_p', $preference);
+                $params['id'] = $DB->insert_record('block_configurable_reports_p', $preference);
+            } else {
+                $preference->filter = $params['parameters'];
+                $DB->update_record('block_configurable_reports_p', $preference);
             }
         }
 
         $result = array();
         $result['success'] = true;
         $result['msg'] = '';
+        $result['id'] = $params['id'];
         return $result;
     }
 
@@ -132,7 +136,8 @@ class block_configurable_reports_external extends external_api {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, '', VALUE_OPTIONAL),
-                'msg' => new external_value(PARAM_TEXT, '', VALUE_OPTIONAL)
+                'msg' => new external_value(PARAM_TEXT, '', VALUE_OPTIONAL),
+                'id' => new external_value(PARAM_INT, '', VALUE_OPTIONAL)
             )
         );
     }

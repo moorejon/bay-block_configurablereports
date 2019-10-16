@@ -46,7 +46,7 @@ class report_edit_form extends moodleform {
         $preferences = array();
         $preferences[] =& $mform->createElement('text', 'prefname', get_string('savechanges'),
             ['placeholder' => get_string('savepreferences', 'block_configurable_reports'), 'data-id' => 0]);
-        $preferences[] =& $mform->createElement('submit', 'prefsave', get_string('save'));
+        $preferences[] =& $mform->createElement('button', 'prefsave', '<i class="fa fa-plus" aria-hidden="true"></i>');
 
         $preferencesmenu = [];
         $defaultfilterid = 0;
@@ -63,12 +63,14 @@ class report_edit_form extends moodleform {
             }
             $preferencesmenu = [0 => ''] + $preferencesmenu;
             $preferences[] =& $mform->createElement('select', 'presaved', '',   $preferencesmenu);
-            $preferences[] =& $mform->createElement('submit', 'prefdelete', get_string('delete'));
-            $preferences[] =& $mform->createElement('submit', 'prefdefault', get_string('setasdefault', 'block_configurable_reports'));
+            $preferences[] =& $mform->createElement('button', 'prefupdate', '<i class="fa fa-floppy-o" aria-hidden="true"></i>');
+            $preferences[] =& $mform->createElement('button', 'prefdelete', '<i class="fa fa-trash-o" aria-hidden="true"></i>');
+            $preferences[] =& $mform->createElement('button', 'prefdefault', '<i class="fa fa-star-o" aria-hidden="true"></i>');
         } else {
             $preferences[] =& $mform->createElement('select', 'presaved', '',   $preferencesmenu, ['style' => 'display: none;', 'hidden' =>'hidden']);
-            $preferences[] =& $mform->createElement('submit', 'prefdelete', get_string('delete'), ['style' => 'display: none;', 'hidden' =>'hidden']);
-            $preferences[] =& $mform->createElement('submit', 'prefdefault', get_string('setasdefault', 'block_configurable_reports'), ['style' => 'display: none;', 'hidden' =>'hidden']);
+            $preferences[] =& $mform->createElement('button', 'prefupdate', '<i class="fa fa-floppy-o" aria-hidden="true"></i>', ['style' => 'display: none;', 'hidden' =>'hidden']);
+            $preferences[] =& $mform->createElement('button', 'prefdelete', '<i class="fa fa-trash-o" aria-hidden="true"></i>', ['style' => 'display: none;', 'hidden' =>'hidden']);
+            $preferences[] =& $mform->createElement('button', 'prefdefault', '<i class="fa fa-star-o" aria-hidden="true"></i>', ['style' => 'display: none;', 'hidden' =>'hidden']);
         }
 
         $mform->setType('prefname', PARAM_TEXT);
