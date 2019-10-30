@@ -561,4 +561,6 @@ $string['filterwithsamename'] = 'Filter with same name already exists.';
 $string['filternotdelete'] = 'Failed to delete filter';
 $string['filternotupdate'] = 'Failed to update filter';
 $string['setasdefault'] = 'Set as default';
+$string['message'] = 'Message';
+$string['saved'] = 'Saved!';
 // END MLC EDIT.

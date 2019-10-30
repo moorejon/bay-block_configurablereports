@@ -56,6 +56,14 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                         if (preflistelem !== null) {
                             preflistelem.append('<option value="' + data.id + '" selected="selected">' + name + '</option>');
                         }
+                        if (id > 0) {
+                            str.get_strings([
+                                {key: 'message', component: 'block_configurable_reports'},
+                                {key: 'saved', component: 'block_configurable_reports'}
+                            ]).done(function(strings) {
+                                notification.alert(strings[0], strings[1]);
+                            }).fail(notification.exception);
+                        }
                         $('#id_presaved').show().removeAttr('hidden');
                         $('#id_prefupdate').show().removeAttr('hidden');
                         $('#id_prefdelete').show().removeAttr('hidden');
@@ -194,8 +202,10 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                                 $('select[name=presaved] option:contains("(' + string + ')")').each(function() {
                                     $(this).text($(this).text().replace(' (' + string + ')', ''));
                                 });
-                                var defaultoption = $('select[name=presaved] option[value=' + id + ']');
-                                defaultoption.text(defaultoption.text() + ' (' + string + ')');
+                                if (data.msg !== 'removed') {
+                                    var defaultoption = $('select[name=presaved] option[value=' + id + ']');
+                                    defaultoption.text(defaultoption.text() + ' (' + string + ')');
+                                }
                             });
 
                         } else {

@@ -76,19 +76,26 @@ class block_configurable_reports_external extends external_api {
         }
 
         if ($params['action'] == 'setdefault') {
-            $DB->execute("UPDATE {block_configurable_reports_p} SET defaultfilter = 0 WHERE userid = ? AND reportid = ?",
-                [$USER->id, $params['reportid']]
-            );
-
             $data = new stdClass();
             $data->id = $preference->id;
-            $data->defaultfilter = 1;
+
+            if ($preference->defaultfilter) {
+                $data->defaultfilter = 0;
+                $message = 'removed';
+            } else {
+                $DB->execute("UPDATE {block_configurable_reports_p} SET defaultfilter = 0 WHERE userid = ? AND reportid = ?",
+                    [$USER->id, $params['reportid']]
+                );
+                $data->defaultfilter = 1;
+                $message = '';
+            }
 
             if ($result['success'] = $DB->update_record('block_configurable_reports_p', $data)) {
-                $result['msg'] = '';
+                $result['msg'] = $message;
             } else {
                 $result['msg'] = get_string('filternotupdate', 'block_configurable_reports');
             }
+
             return $result;
         } else if ($params['action'] == 'delete') {
             if ($result['success'] = $DB->delete_records('block_configurable_reports_p', ['id' => $params['id']])) {
