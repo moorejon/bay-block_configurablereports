@@ -43,6 +43,9 @@ class plugin_startendtime extends plugin_base {
         if ($this->report->type != 'sql') {
             return $finalelements;
         }
+        if (!isset($data->selector)) {
+            $data->selector = 'datetime';
+        }
 
         if ($CFG->version < 2011120100) {
             $filterstarttime = optional_param('filter_starttime', 0, PARAM_RAW);
@@ -59,10 +62,15 @@ class plugin_startendtime extends plugin_base {
                 list($filterstarttime, $filterendtime) = $this->get_start_end_times();
             }
         } else {
-            $filterstarttime = make_timestamp($filterstarttime['year'], $filterstarttime['month'], $filterstarttime['day'],
-                    $filterstarttime['hour'], $filterstarttime['minute']);
-            $filterendtime = make_timestamp($filterendtime['year'], $filterendtime['month'], $filterendtime['day'],
-                    $filterendtime['hour'], $filterendtime['minute']);
+            if ($data->selector == 'datetime') {
+                $filterstarttime = make_timestamp($filterstarttime['year'], $filterstarttime['month'], $filterstarttime['day'],
+                        $filterstarttime['hour'], $filterstarttime['minute']);
+                $filterendtime = make_timestamp($filterendtime['year'], $filterendtime['month'], $filterendtime['day'],
+                        $filterendtime['hour'], $filterendtime['minute']);
+            } else {
+                $filterstarttime = make_timestamp($filterstarttime['year'], $filterstarttime['month'], $filterstarttime['day']);
+                $filterendtime = make_timestamp($filterendtime['year'], $filterendtime['month'], $filterendtime['day']);
+            }
         }
 
         $operators = array('<', '>', '<=', '>=');
@@ -97,7 +105,7 @@ class plugin_startendtime extends plugin_base {
 
     public function print_filter(&$mform, $data) {
         if (!isset($data->selector)) {
-            $data->selector = 'date';
+            $data->selector = 'datetime';
         }
         if ($data->selector == 'datetime') {
             $selector = 'date_time_selector';

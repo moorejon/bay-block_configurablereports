@@ -39,8 +39,8 @@ class startendtime_form extends moodleform {
         $this->_customdata['compclass']->add_form_elements($mform, $this);
 
         $options = [
-            'date' => get_string('date', 'block_configurable_reports'),
-            'datetime' => get_string('datetime', 'block_configurable_reports')
+            'datetime' => get_string('datetime', 'block_configurable_reports'),
+            'date' => get_string('date', 'block_configurable_reports')
         ];
         $mform->addElement('select', 'selector', get_string('selector', 'block_configurable_reports'), $options);
 
