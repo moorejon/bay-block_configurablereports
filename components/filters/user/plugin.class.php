@@ -30,6 +30,7 @@ class plugin_user extends plugin_base {
         $this->unique = true;
         $this->fullname = get_string('filteruser', 'block_configurable_reports');
         $this->reporttypes = array('courses', 'sql');
+        $this->defaultfiltervalue = (isset($this->defaultfilter->filter_user)) ? $this->defaultfilter->filter_user : 0;
     }
 
     public function summary($data) {
@@ -37,7 +38,7 @@ class plugin_user extends plugin_base {
     }
 
     public function execute($finalelements, $data) {
-        $filteruser = optional_param('filter_user', 0, PARAM_INT);
+        $filteruser = optional_param('filter_user', $this->defaultfiltervalue, PARAM_INT);
         if (!$filteruser) {
             return $finalelements;
         }
@@ -82,5 +83,6 @@ class plugin_user extends plugin_base {
 
         $mform->addElement('select', 'filter_user', get_string('user'), $useroptions);
         $mform->setType('filter_user', PARAM_INT);
+        $mform->setDefault('filter_user', $this->defaultfiltervalue);
     }
 }

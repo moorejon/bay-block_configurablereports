@@ -31,6 +31,7 @@ class plugin_courses extends plugin_base{
         $this->unique = true;
         $this->fullname = get_string('filtercourses', 'block_configurable_reports');
         $this->reporttypes = array('courses', 'sql');
+        $this->defaultfiltervalue = (isset($this->defaultfilter->filter_courses)) ? $this->defaultfilter->filter_courses : 0;
     }
 
     public function summary($data) {
@@ -39,7 +40,7 @@ class plugin_courses extends plugin_base{
 
     public function execute($finalelements, $data) {
 
-        $filtercourses = optional_param('filter_courses', 0, PARAM_INT);
+        $filtercourses = optional_param('filter_courses', $this->defaultfiltervalue, PARAM_INT);
         if (!$filtercourses) {
             return $finalelements;
         }
@@ -89,5 +90,6 @@ class plugin_courses extends plugin_base{
 
         $mform->addElement('select', 'filter_courses', get_string('course'), $courseoptions);
         $mform->setType('filter_courses', PARAM_INT);
+        $mform->setDefault('filter_courses', $this->defaultfiltervalue);
     }
 }

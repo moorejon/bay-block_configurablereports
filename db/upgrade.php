@@ -211,5 +211,44 @@ function xmldb_block_configurable_reports_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2019082202, 'configurable_reports');
     }
 
+    if ($oldversion < 2019091701) {
+
+        // Define table block_configurable_reports_p to be created.
+        $table = new xmldb_table('block_configurable_reports_p');
+
+        // Adding fields to table block_configurable_reports_p.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('reportid', XMLDB_TYPE_INTEGER, '11', null, null, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '11', null, null, null, null);
+        $table->add_field('filter', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
+        // Adding keys to table block_configurable_reports_p.
+        $table->add_key('id', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Conditionally launch create table for block_configurable_reports_p.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Configurable_reports savepoint reached.
+        upgrade_block_savepoint(true, 2019091701, 'configurable_reports');
+    }
+
+    if ($oldversion < 2019092301) {
+
+        // Define field default to be added to block_configurable_reports_p.
+        $table = new xmldb_table('block_configurable_reports_p');
+        $field = new xmldb_field('defaultfilter', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'filter');
+
+        // Conditionally launch add field default.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Configurable_reports savepoint reached.
+        upgrade_block_savepoint(true, 2019092301, 'configurable_reports');
+    }
+
     return true;
 }

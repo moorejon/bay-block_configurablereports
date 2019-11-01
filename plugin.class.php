@@ -31,15 +31,29 @@ class plugin_base {
     public $cache = array();
     public $unique = false;
     public $reporttypes = array();
+    public $defaultfilter = null;
+    public $defaultfiltervalue = null;
 
     public function __construct($report) {
-        global $DB, $CFG, $remotedb;
+        global $DB, $CFG, $remotedb, $USER;
 
         if (is_numeric($report)) {
             $this->report = $DB->get_record('block_configurable_reports', array('id' => $report));
         } else {
             $this->report = $report;
         }
+
+        if (!data_submitted()) {
+            if ($defaultfilter = $DB->get_field('block_configurable_reports_p', 'filter',
+                array('reportid' => $this->report->id, 'userid' => $USER->id, 'defaultfilter' => 1))) {
+
+                $this->defaultfilter = new stdClass();
+                foreach (json_decode($defaultfilter) as $item) {
+                    $this->defaultfilter->{$item->name} = $item->value;
+                }
+            }
+        }
+
         $this->init();
     }
 

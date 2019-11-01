@@ -45,7 +45,8 @@ class plugin_fsearchuserfield extends plugin_base{
     }
 
     private function execute_sql($finalelements, $data) {
-        $filterfuserfield = optional_param('filter_fuserfield_'.$data->field, 0, PARAM_RAW);
+        $defaultfiltervalue = (isset($this->defaultfilter->{'filter_fuserfield_'.$data->field})) ? $this->defaultfilter->{'filter_fuserfield_'.$data->field} : 0;
+        $filterfuserfield = optional_param('filter_fuserfield_'.$data->field, $defaultfiltervalue, PARAM_RAW);
         $filter = clean_param(base64_decode($filterfuserfield), PARAM_CLEAN);
 
         if ($filterfuserfield && preg_match("/%%FILTER_USERS:([^%]+)%%/i", $finalelements, $output)) {
@@ -59,7 +60,8 @@ class plugin_fsearchuserfield extends plugin_base{
     private function execute_users($finalelements, $data) {
         global $remotedb, $CFG;
 
-        $filterfuserfield = optional_param('filter_fuserfield_'.$data->field, 0, PARAM_RAW);
+        $defaultfiltervalue = (isset($this->defaultfilter->{'filter_fuserfield_'.$data->field})) ? $this->defaultfilter->{'filter_fuserfield_'.$data->field} : 0;
+        $filterfuserfield = optional_param('filter_fuserfield_'.$data->field, $defaultfiltervalue, PARAM_RAW);
         if ($filterfuserfield) {
             // Function addslashes is done in clean param.
             $filter = clean_param(base64_decode($filterfuserfield), PARAM_CLEAN);
@@ -97,6 +99,7 @@ class plugin_fsearchuserfield extends plugin_base{
         $columns = $remotedb->get_columns('user');
         $filteroptions = array();
         $filteroptions[''] = get_string('filter_all', 'block_configurable_reports');
+        $defaultfiltervalue = (isset($this->defaultfilter->{'filter_fuserfield_'.$data->field})) ? $this->defaultfilter->{'filter_fuserfield_'.$data->field} : 0;
 
         $usercolumns = array();
         foreach ($columns as $c) {
@@ -158,5 +161,6 @@ class plugin_fsearchuserfield extends plugin_base{
 
         $mform->addElement('select', 'filter_fuserfield_'.$data->field, $selectname, $filteroptions);
         $mform->setType('filter_fuserfield_'.$data->field, PARAM_INT);
+        $mform->setDefault('filter_fuserfield_'.$data->field, $defaultfiltervalue);
     }
 }

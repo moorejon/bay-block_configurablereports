@@ -37,8 +37,8 @@ class plugin_searchtext extends plugin_base{
     }
 
     public function execute($finalelements, $data) {
-
-        $filtersearchtext = optional_param('filter_searchtext_'.$data->idnumber, '', PARAM_RAW); // BS EDIT.
+        $defaultfiltervalue = (isset($this->defaultfilter->{'filter_searchtext_'.$data->idnumber})) ? $this->defaultfilter->{'filter_searchtext_'.$data->idnumber} : '';
+        $filtersearchtext = optional_param('filter_searchtext_'.$data->idnumber, $defaultfiltervalue, PARAM_RAW); // BS EDIT.
         $operators = array('=', '<', '>', '<=', '>=', '~', '~ci', 'in');
 
         // BS EDIT.
@@ -101,8 +101,8 @@ class plugin_searchtext extends plugin_base{
         } else {
             $filterlabel = get_string('filter');
         }
-
-        $filtersearchtext = optional_param('filter_searchtext_'.$data->idnumber, '', PARAM_RAW);
+        $defaultfiltervalue = (isset($this->defaultfilter->{'filter_searchtext_'.$data->idnumber})) ? $this->defaultfilter->{'filter_searchtext_'.$data->idnumber} : '';
+        $filtersearchtext = optional_param('filter_searchtext_'.$data->idnumber, $defaultfiltervalue, PARAM_RAW);
         $mform->addElement('text', 'filter_searchtext_'.$data->idnumber, $filterlabel);
         $mform->setType('filter_searchtext_'.$data->idnumber, PARAM_RAW);
         $mform->setDefault('filter_searchtext_'.$data->idnumber, $filtersearchtext);

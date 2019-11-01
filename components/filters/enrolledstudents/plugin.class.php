@@ -31,6 +31,7 @@ class plugin_enrolledstudents extends plugin_base{
         $this->unique = true;
         $this->fullname = get_string('filterenrolledstudents', 'block_configurable_reports');
         $this->reporttypes = array('courses', 'sql');
+        $this->defaultfiltervalue = (isset($this->defaultfilter->filter_enrolledstudents)) ? $this->defaultfilter->filter_enrolledstudents : 0;
     }
 
     public function summary($data) {
@@ -38,7 +39,7 @@ class plugin_enrolledstudents extends plugin_base{
     }
 
     public function execute($finalelements, $data) {
-        $filterenrolledstudents = optional_param('filter_enrolledstudents', 0, PARAM_INT);
+        $filterenrolledstudents = optional_param('filter_enrolledstudents', $this->defaultfiltervalue, PARAM_INT);
         if (!$filterenrolledstudents) {
             return $finalelements;
         }
@@ -92,5 +93,6 @@ class plugin_enrolledstudents extends plugin_base{
         $elestr = get_string('student', 'block_configurable_reports');
         $mform->addElement('select', 'filter_enrolledstudents', $elestr, $enrolledstudentsoptions);
         $mform->setType('filter_enrolledstudents', PARAM_INT);
+        $mform->setDefault('filter_enrolledstudents', $this->defaultfiltervalue);
     }
 }

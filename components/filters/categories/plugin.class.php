@@ -31,6 +31,7 @@ class plugin_categories extends plugin_base {
         $this->unique = true;
         $this->fullname = get_string('filtercategories', 'block_configurable_reports');
         $this->reporttypes = array('categories', 'sql');
+        $this->defaultfiltervalue = (isset($this->defaultfilter->filter_categories)) ? $this->defaultfilter->filter_categories : 0;
     }
 
     public function summary($data) {
@@ -39,7 +40,7 @@ class plugin_categories extends plugin_base {
 
     public function execute($finalelements, $data) {
 
-        $filtercategories = optional_param('filter_categories', 0, PARAM_INT);
+        $filtercategories = optional_param('filter_categories', $this->defaultfiltervalue, PARAM_INT);
         if (!$filtercategories) {
             return $finalelements;
         }
@@ -86,5 +87,6 @@ class plugin_categories extends plugin_base {
 
         $mform->addElement('select', 'filter_categories', get_string('category'), $courseoptions);
         $mform->setType('filter_categories', PARAM_INT);
+        $mform->setDefault('filter_categories', $this->defaultfiltervalue);
     }
 }

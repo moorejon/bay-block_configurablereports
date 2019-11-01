@@ -31,6 +31,7 @@ class plugin_semester extends plugin_base {
         $this->unique = true;
         $this->fullname = get_string('filtersemester', 'block_configurable_reports');
         $this->reporttypes = array('categories', 'sql');
+        $this->defaultfiltervalue = (isset($this->defaultfilter->filter_semester)) ? $this->defaultfilter->filter_semester : '';
     }
 
     public function summary($data) {
@@ -39,7 +40,7 @@ class plugin_semester extends plugin_base {
 
     public function execute($finalelements, $data) {
 
-        $filtersemester = optional_param('filter_semester', '', PARAM_RAW);
+        $filtersemester = optional_param('filter_semester', $this->defaultfiltervalue, PARAM_RAW);
         if (!$filtersemester) {
             return $finalelements;
         }
@@ -88,5 +89,6 @@ class plugin_semester extends plugin_base {
         $elestr = get_string('filtersemester', 'block_configurable_reports');
         $mform->addElement('select', 'filter_semester', $elestr, $semesteroptions);
         $mform->setType('filter_semester', PARAM_RAW);
+        $mform->setDefault('filter_semester', $this->defaultfiltervalue);
     }
 }
