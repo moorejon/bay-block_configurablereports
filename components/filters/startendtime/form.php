@@ -38,6 +38,12 @@ class startendtime_form extends moodleform {
 
         $this->_customdata['compclass']->add_form_elements($mform, $this);
 
+        $options = [
+            'date' => get_string('date', 'block_configurable_reports'),
+            'datetime' => get_string('datetime', 'block_configurable_reports')
+        ];
+        $mform->addElement('select', 'selector', get_string('selector', 'block_configurable_reports'), $options);
+
         $mform->addElement('text', 'defaulttimeframe', get_string('defaulttimeframe', 'block_configurable_reports'));
         $mform->setType('defaulttimeframe', PARAM_RAW);
         $mform->setDefault('defaulttimeframe', '1 month');

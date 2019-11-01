@@ -96,14 +96,23 @@ class plugin_startendtime extends plugin_base {
     }
 
     public function print_filter(&$mform, $data) {
-        $mform->addElement('date_time_selector', 'filter_starttime', get_string('starttime', 'block_configurable_reports'));
+        if (!isset($data->selector)) {
+            $data->selector = 'date';
+        }
+        if ($data->selector == 'datetime') {
+            $selector = 'date_time_selector';
+        } else {
+            $selector = 'date_selector';
+        }
+
+        $mform->addElement($selector, 'filter_starttime', get_string('starttime', 'block_configurable_reports'));
         if (!empty($data->defaulttimeframe)) {
             list($starttime, $endtime) = $this->get_start_end_times($data->defaulttimeframe);
         } else {
             list($starttime, $endtime) = $this->get_start_end_times();
         }
         $mform->setDefault('filter_starttime', $starttime);
-        $mform->addElement('date_time_selector', 'filter_endtime', get_string('endtime', 'block_configurable_reports'));
+        $mform->addElement($selector, 'filter_endtime', get_string('endtime', 'block_configurable_reports'));
         $mform->setDefault('filter_endtime', $endtime);
     }
 
