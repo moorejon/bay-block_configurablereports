@@ -46,6 +46,9 @@ class sqloptions_form extends moodleform {
         $mform->setType('label', PARAM_RAW);
         $mform->addRule('label', null, 'required', null, 'client');
 
+        $mform->addElement('selectyesno', 'multiselect', get_string('multiselect', 'block_configurable_reports'));
+        $mform->setDefault('multiselect', 0);
+
         $mform->addElement('textarea', 'querysql', get_string('querysql', 'block_configurable_reports'), 'rows="35" cols="80"');
         $mform->addRule('querysql', get_string('required'), 'required', null, 'client');
         $mform->setType('querysql', PARAM_RAW);

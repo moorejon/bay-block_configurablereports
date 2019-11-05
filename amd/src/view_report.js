@@ -21,21 +21,199 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/templates', 'core/notification'], function ($, templates, notification) {
+define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'], function ($, templates, notification, ajax, str) {
 
     return {
         init: function () {
 
             var self = this;
 
+            var updatefilterpreferences = function(form, id, reportid, name, preflistelem) {
+                var disregard = ['id', 'courseid', 'embedded', 'sesskey', '_qf__report_edit_form',
+                    'mform_isexpanded_id_general', 'prefname', 'presaved', 'prefdelete', 'prefdefault'];
+                var formelements = form.serializeArray();
+                var parameters = [];
+                var defaultfilter = 0;
+
+                $.each(formelements, function(index, field) {
+                    if ($.inArray(field.name, disregard) === -1) {
+                        parameters.push(field);
+                    }
+                });
+
+                ajax.call([{
+                    methodname: 'block_configurable_reports_update_filter_preferences',
+                    args: {
+                        id: id,
+                        reportid: reportid,
+                        name: name,
+                        parameters: JSON.stringify(parameters),
+                        defaultfilter: defaultfilter,
+                        action: 'update',
+                    }
+                }])[0].done(function(data) {
+                    if (data.success === true) {
+                        if (preflistelem !== null) {
+                            preflistelem.append('<option value="' + data.id + '" selected="selected">' + name + '</option>');
+                        }
+                        if (id > 0) {
+                            str.get_strings([
+                                {key: 'message', component: 'block_configurable_reports'},
+                                {key: 'saved', component: 'block_configurable_reports'}
+                            ]).done(function(strings) {
+                                notification.alert(strings[0], strings[1]);
+                            }).fail(notification.exception);
+                        }
+                        $('#id_presaved').show().removeAttr('hidden');
+                        $('#id_prefupdate').show().removeAttr('hidden');
+                        $('#id_prefdelete').show().removeAttr('hidden');
+                        $('#id_prefdefault').show().removeAttr('hidden');
+                    } else {
+                        notification.alert(null, data.msg);
+                    }
+                }).fail(notification.exception);
+            };
+
             $(document).ready(function() {
                 if ($('#id_filter_subcategories').val() > 0) {
                     self.getCourses();
                 }
-                $(document).on('change', '#id_filter_subcategories', function (event) {
+                $(document).on('change', '#id_filter_subcategories', function(event) {
                     event.preventDefault();
                     self.getCourses();
                 });
+
+
+                $('#id_prefsave').click(function(event) {
+                    event.preventDefault();
+
+                    var form = $(this).closest("form");
+                    var prefname = $('input[name=prefname]');
+                    var presaved = $('select[name=presaved]');
+
+                    // Ajax parameters.
+                    var reportid = $('input[name=id]').val();
+                    var name = prefname.val().trim();
+
+                    if (name === '') {
+                        return;
+                    }
+
+                    updatefilterpreferences(form, 0, reportid, name, presaved);
+                });
+
+                $('#id_prefupdate').click(function(event) {
+                    event.preventDefault();
+
+                    var form = $(this).closest("form");
+                    var prefname = $('input[name=prefname]');
+                    var presaved = $('select[name=presaved]');
+
+                    // Ajax parameters.
+                    var id = presaved.val();
+                    var reportid = $('input[name=id]').val();
+
+                    updatefilterpreferences(form, id, reportid, '', null);
+                });
+
+                $('#id_presaved').change(function() {
+                    var form = $(this).closest("form");
+                    var preferenceid = $(this).val();
+
+                    if (preferenceid > 0) {
+                        ajax.call([{
+                            methodname: 'block_configurable_reports_get_filter_preferences',
+                            args: {
+                                id: preferenceid,
+                            }
+                        }])[0].done(function(data) {
+                            if (data === false) {
+                                notification.alert(null, 'Error!');
+                            } else {
+                                var filter = JSON.parse(data.filter);
+                                $.each(filter, function(index, field) {
+                                    var elem = $('#id_' + field.name);
+                                    if (elem.length > 0) {
+                                        elem.val(field.value);
+                                    }
+                                });
+                            }
+
+                            form.submit();
+
+                        }).fail(notification.exception);
+                    }
+                });
+
+                $('#id_prefdelete').click(function(event) {
+                    event.preventDefault();
+
+                    var id = $('select[name=presaved]').val();
+                    var reportid = $('input[name=id]').val();
+                    var name = $('select[name=presaved] option:selected').text().trim();
+
+                    if (!id) {
+                        return;
+                    }
+
+                    ajax.call([{
+                        methodname: 'block_configurable_reports_update_filter_preferences',
+                        args: {
+                            id: id,
+                            reportid: reportid,
+                            name: name,
+                            parameters: '',
+                            defaultfilter: 0,
+                            action: 'delete'
+                        }
+                    }])[0].done(function(data) {
+                        if (data.success === true) {
+                            $('select[name=presaved] option[value=' + id + ']').remove();
+                        } else {
+                            notification.alert(null, data.msg);
+                        }
+                    }).fail(notification.exception);
+                });
+
+                $('#id_prefdefault').click(function(event) {
+                    event.preventDefault();
+
+                    var id = $('select[name=presaved]').val();
+                    var reportid = $('input[name=id]').val();
+                    var name = $('select[name=presaved] option:selected').text().trim();
+
+                    if (!id) {
+                        return;
+                    }
+
+                    ajax.call([{
+                        methodname: 'block_configurable_reports_update_filter_preferences',
+                        args: {
+                            id: id,
+                            reportid: reportid,
+                            name: name,
+                            parameters: '',
+                            defaultfilter: 1,
+                            action: 'setdefault'
+                        }
+                    }])[0].done(function(data) {
+                        if (data.success === true) {
+                            str.get_string('default').done(function(string) {
+                                $('select[name=presaved] option:contains("(' + string + ')")').each(function() {
+                                    $(this).text($(this).text().replace(' (' + string + ')', ''));
+                                });
+                                if (data.msg !== 'removed') {
+                                    var defaultoption = $('select[name=presaved] option[value=' + id + ']');
+                                    defaultoption.text(defaultoption.text() + ' (' + string + ')');
+                                }
+                            });
+
+                        } else {
+                            notification.alert(null, data.msg);
+                        }
+                    }).fail(notification.exception);
+                });
+
             });
         },
         /**

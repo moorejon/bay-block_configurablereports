@@ -31,6 +31,7 @@ class plugin_yearhebrew extends plugin_base{
         $this->unique = true;
         $this->fullname = get_string('filteryearhebrew', 'block_configurable_reports');
         $this->reporttypes = array('categories', 'sql');
+        $this->defaultfiltervalue = (isset($this->defaultfilter->filter_yearhebrew)) ? $this->defaultfilter->filter_yearhebrew : '';
     }
 
     public function summary($data) {
@@ -39,7 +40,7 @@ class plugin_yearhebrew extends plugin_base{
 
     public function execute($finalelements, $data) {
 
-        $filteryearhebrew = optional_param('filter_yearhebrew', '', PARAM_RAW);
+        $filteryearhebrew = optional_param('filter_yearhebrew', $this->defaultfiltervalue, PARAM_RAW);
         if (!$filteryearhebrew) {
             return $finalelements;
         }
@@ -88,5 +89,6 @@ class plugin_yearhebrew extends plugin_base{
         $elestr = get_string('filteryearhebrew', 'block_configurable_reports');
         $mform->addElement('select', 'filter_yearhebrew', $elestr, $yearhebrewoptions);
         $mform->setType('filter_yearhebrew', PARAM_RAW);
+        $mform->setDefault('filter_yearhebrew', $this->defaultfiltervalue);
     }
 }

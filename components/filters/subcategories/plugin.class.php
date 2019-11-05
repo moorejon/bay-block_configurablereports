@@ -31,6 +31,7 @@ class plugin_subcategories extends plugin_base {
         $this->unique = true;
         $this->fullname = get_string('filtersubcategories', 'block_configurable_reports');
         $this->reporttypes = array('categories', 'sql');
+        $this->defaultfiltervalue = (isset($this->defaultfilter->filter_subcategories)) ? $this->defaultfilter->filter_subcategories : 0;
     }
 
     public function summary($data) {
@@ -38,7 +39,7 @@ class plugin_subcategories extends plugin_base {
     }
 
     public function execute($finalelements, $data) {
-        $filtersubcategories = optional_param('filter_subcategories', 0, PARAM_INT);
+        $filtersubcategories = optional_param('filter_subcategories', $this->defaultfiltervalue, PARAM_INT);
         if (!$filtersubcategories) {
             return $finalelements;
         }
@@ -110,5 +111,6 @@ class plugin_subcategories extends plugin_base {
 
         $mform->addElement('select', 'filter_subcategories', get_string('category'), $courseoptions);
         $mform->setType('filter_subcategories', PARAM_INT);
+        $mform->setDefault('filter_subcategories', $this->defaultfiltervalue);
     }
 }

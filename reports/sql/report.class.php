@@ -124,12 +124,12 @@ class report_sql extends report_base {
             $sql = $this->prepare_sql($sql);
 
             $rs = $this->execute_query($sql);
-	    
+
             if (get_class($rs) == 'dml_read_exception') {
                 $this->errormesage = $rs->error;
                 $rs = null;
             }
-	    
+
             if ($rs) {
                 foreach ($rs as $row) {
                     if (empty($finaltable)) {

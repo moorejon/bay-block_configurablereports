@@ -31,6 +31,7 @@ class plugin_yearnumeric extends plugin_base {
         $this->unique = true;
         $this->fullname = get_string('filteryearnumeric', 'block_configurable_reports');
         $this->reporttypes = array('categories', 'sql');
+        $this->defaultfiltervalue = (isset($this->defaultfilter->filter_yearnumeric)) ? $this->defaultfilter->filter_yearnumeric : 0;
     }
 
     public function summary($data) {
@@ -39,7 +40,7 @@ class plugin_yearnumeric extends plugin_base {
 
     public function execute($finalelements, $data) {
 
-        $filteryearnumeric = optional_param('filter_yearnumeric', 0, PARAM_INT);
+        $filteryearnumeric = optional_param('filter_yearnumeric', $this->defaultfiltervalue, PARAM_INT);
         if (!$filteryearnumeric) {
             return $finalelements;
         }
@@ -90,5 +91,6 @@ class plugin_yearnumeric extends plugin_base {
         $elestr = get_string('filteryearnumeric', 'block_configurable_reports');
         $mform->addElement('select', 'filter_yearnumeric', $elestr, $yearnumericoptions);
         $mform->setType('filter_yearnumeric', PARAM_INT);
+        $mform->setDefault('filter_yearnumeric', $this->defaultfiltervalue);
     }
 }

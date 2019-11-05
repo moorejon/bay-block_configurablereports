@@ -31,6 +31,7 @@ class plugin_coursemodules extends plugin_base {
         $this->unique = true;
         $this->fullname = get_string('filtercoursemodules', 'block_configurable_reports');
         $this->reporttypes = array('courses', 'sql');
+        $this->defaultfiltervalue = (isset($this->defaultfilter->filter_coursemodules)) ? $this->defaultfilter->filter_coursemodules : 0;
     }
 
     public function summary($data) {
@@ -40,7 +41,7 @@ class plugin_coursemodules extends plugin_base {
     public function execute($finalelements, $data) {
         global $remotedb;
 
-        $filtercoursemoduleid = optional_param('filter_coursemodules', 0, PARAM_INT);
+        $filtercoursemoduleid = optional_param('filter_coursemodules', $this->defaultfiltervalue, PARAM_INT);
         if (!$filtercoursemoduleid) {
             return $finalelements;
         }
@@ -97,5 +98,6 @@ class plugin_coursemodules extends plugin_base {
         $elestr = get_string('filtercoursemodules', 'block_configurable_reports');
         $mform->addElement('select', 'filter_coursemodules', $elestr, $courseoptions);
         $mform->setType('filter_coursemodules', PARAM_INT);
+        $mform->setDefault('filter_coursemodules', $this->defaultfiltervalue);
     }
 }

@@ -31,6 +31,7 @@ class plugin_role extends plugin_base{
         $this->unique = true;
         $this->fullname = get_string('filterrole', 'block_configurable_reports');
         $this->reporttypes = array('categories', 'sql');
+        $this->defaultfiltervalue = (isset($this->defaultfilter->filter_role)) ? $this->defaultfilter->filter_role : 0;
     }
 
     public function summary($data) {
@@ -39,7 +40,7 @@ class plugin_role extends plugin_base{
 
     public function execute($finalelements, $data) {
 
-        $filterrole = optional_param('filter_role', 0, PARAM_INT);
+        $filterrole = optional_param('filter_role', $this->defaultfiltervalue, PARAM_INT);
         if (!$filterrole) {
             return $finalelements;
         }
@@ -90,5 +91,6 @@ class plugin_role extends plugin_base{
 
         $mform->addElement('select', 'filter_role', get_string('filterrole', 'block_configurable_reports'), $roleoptions);
         $mform->setType('filter_role', PARAM_INT);
+        $mform->setDefault('filter_role', $this->defaultfiltervalue);
     }
 }
