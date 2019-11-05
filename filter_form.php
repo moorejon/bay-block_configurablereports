@@ -43,38 +43,45 @@ class report_edit_form extends moodleform {
         $this->add_action_buttons(true, get_string('filter_apply', 'block_configurable_reports'));
 
         // Filter preference save
-        $preferences = array();
-        $preferences[] =& $mform->createElement('text', 'prefname', get_string('savechanges'),
-            ['placeholder' => get_string('savepreferences', 'block_configurable_reports'), 'data-id' => 0]);
-        $preferences[] =& $mform->createElement('button', 'prefsave', '<i class="fa fa-plus" aria-hidden="true"></i>');
+        if (get_config('block_configurable_reports', 'allowpreferences')) {
+            $preferences = array();
+            $preferences[] =& $mform->createElement('text', 'prefname', get_string('savechanges'),
+                    ['placeholder' => get_string('savepreferences', 'block_configurable_reports'), 'data-id' => 0]);
+            $preferences[] =& $mform->createElement('button', 'prefsave', '<i class="fa fa-plus" aria-hidden="true"></i>');
 
-        $preferencesmenu = [];
-        $defaultfilterid = 0;
-        if ($records = $DB->get_records('block_configurable_reports_p',
-            ['userid' => $USER->id, 'reportid' => $this->_customdata->config->id])) {
+            $preferencesmenu = [];
+            $defaultfilterid = 0;
+            if ($records = $DB->get_records('block_configurable_reports_p',
+                    ['userid' => $USER->id, 'reportid' => $this->_customdata->config->id])) {
 
-            foreach ($records as $record) {
-                if ($record->defaultfilter) {
-                    $preferencesmenu[$record->id] = $record->name . ' ('.get_string('default').')';
-                    $defaultfilterid = $record->id;
-                } else {
-                    $preferencesmenu[$record->id] = $record->name;
+                foreach ($records as $record) {
+                    if ($record->defaultfilter) {
+                        $preferencesmenu[$record->id] = $record->name . ' (' . get_string('default') . ')';
+                        $defaultfilterid = $record->id;
+                    } else {
+                        $preferencesmenu[$record->id] = $record->name;
+                    }
                 }
+                $preferencesmenu = [0 => ''] + $preferencesmenu;
+                $preferences[] =& $mform->createElement('select', 'presaved', '', $preferencesmenu);
+                $preferences[] =&
+                        $mform->createElement('button', 'prefupdate', '<i class="fa fa-floppy-o" aria-hidden="true"></i>');
+                $preferences[] =& $mform->createElement('button', 'prefdelete', '<i class="fa fa-trash-o" aria-hidden="true"></i>');
+                $preferences[] =& $mform->createElement('button', 'prefdefault', '<i class="fa fa-star-o" aria-hidden="true"></i>');
+            } else {
+                $preferences[] =& $mform->createElement('select', 'presaved', '', $preferencesmenu,
+                        ['style' => 'display: none;', 'hidden' => 'hidden']);
+                $preferences[] =& $mform->createElement('button', 'prefupdate', '<i class="fa fa-floppy-o" aria-hidden="true"></i>',
+                        ['style' => 'display: none;', 'hidden' => 'hidden']);
+                $preferences[] =& $mform->createElement('button', 'prefdelete', '<i class="fa fa-trash-o" aria-hidden="true"></i>',
+                        ['style' => 'display: none;', 'hidden' => 'hidden']);
+                $preferences[] =& $mform->createElement('button', 'prefdefault', '<i class="fa fa-star-o" aria-hidden="true"></i>',
+                        ['style' => 'display: none;', 'hidden' => 'hidden']);
             }
-            $preferencesmenu = [0 => ''] + $preferencesmenu;
-            $preferences[] =& $mform->createElement('select', 'presaved', '',   $preferencesmenu);
-            $preferences[] =& $mform->createElement('button', 'prefupdate', '<i class="fa fa-floppy-o" aria-hidden="true"></i>');
-            $preferences[] =& $mform->createElement('button', 'prefdelete', '<i class="fa fa-trash-o" aria-hidden="true"></i>');
-            $preferences[] =& $mform->createElement('button', 'prefdefault', '<i class="fa fa-star-o" aria-hidden="true"></i>');
-        } else {
-            $preferences[] =& $mform->createElement('select', 'presaved', '',   $preferencesmenu, ['style' => 'display: none;', 'hidden' =>'hidden']);
-            $preferences[] =& $mform->createElement('button', 'prefupdate', '<i class="fa fa-floppy-o" aria-hidden="true"></i>', ['style' => 'display: none;', 'hidden' =>'hidden']);
-            $preferences[] =& $mform->createElement('button', 'prefdelete', '<i class="fa fa-trash-o" aria-hidden="true"></i>', ['style' => 'display: none;', 'hidden' =>'hidden']);
-            $preferences[] =& $mform->createElement('button', 'prefdefault', '<i class="fa fa-star-o" aria-hidden="true"></i>', ['style' => 'display: none;', 'hidden' =>'hidden']);
-        }
 
-        $mform->setType('prefname', PARAM_TEXT);
-        $mform->addGroup($preferences, 'preferencesarr', '', array(' '), false);
-        $mform->setDefault('presaved', $defaultfilterid);
+            $mform->setType('prefname', PARAM_TEXT);
+            $mform->addGroup($preferences, 'preferencesarr', '', array(' '), false);
+            $mform->setDefault('presaved', $defaultfilterid);
+        }
     }
 }

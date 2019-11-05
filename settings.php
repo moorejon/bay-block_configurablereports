@@ -17,6 +17,9 @@
 defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
+    $settings->add(new admin_setting_configcheckbox('block_configurable_reports/allowpreferences', get_string('allowpreferences', 'block_configurable_reports'),
+            get_string('allowpreferencesinfo', 'block_configurable_reports'), 0));
+
     $settings->add(new admin_setting_configtext('block_configurable_reports/dbhost', get_string('dbhost', 'block_configurable_reports'),
                     get_string('dbhostinfo', 'block_configurable_reports'), '', PARAM_URL, 30));
     $settings->add(new admin_setting_configtext('block_configurable_reports/dbname', get_string('dbname', 'block_configurable_reports'),

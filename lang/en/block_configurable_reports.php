@@ -511,6 +511,8 @@ $string['privacy:metadata:block_configurable_reports:lastexecutiontime'] = 'Time
  in milliseconds.';
 
 // MLC EDIT.
+$string['allowpreferences'] = 'Allow filter preferences?';
+$string['allowpreferencesinfo'] = 'This enables the option for users to save filter preferences.';
 $string['at'] = 'at';
 $string['automaticallydaily'] = 'Scheduled, daily';
 $string['automaticallymonthly'] = 'Scheduled, on the first day of each month';
