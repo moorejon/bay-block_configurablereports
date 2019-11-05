@@ -44,8 +44,17 @@ class plugin_base {
         }
 
         if (!data_submitted()) {
+            // Cron export.
+            if (defined('CLI_SCRIPT')) {
+                if ($this->report->emailto) {
+                    $clireportuser = $DB->get_record('user', array('email' => $this->report->emailto));
+                }
+            }
+
+            $prefuserid = (!empty($clireportuser)) ? $clireportuser->id : $USER->id;
+
             if ($defaultfilter = $DB->get_field('block_configurable_reports_p', 'filter',
-                array('reportid' => $this->report->id, 'userid' => $USER->id, 'defaultfilter' => 1))) {
+                array('reportid' => $this->report->id, 'userid' => $prefuserid, 'defaultfilter' => 1))) {
 
                 $this->defaultfilter = new stdClass();
                 foreach (json_decode($defaultfilter) as $item) {
