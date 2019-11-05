@@ -43,6 +43,9 @@ class plugin_startendtime extends plugin_base {
         if ($this->report->type != 'sql') {
             return $finalelements;
         }
+        if (!isset($data->selector)) {
+            $data->selector = 'datetime';
+        }
 
         if ($CFG->version < 2011120100) {
             $filterstarttime = optional_param('filter_starttime', 0, PARAM_RAW);
@@ -59,10 +62,15 @@ class plugin_startendtime extends plugin_base {
                 list($filterstarttime, $filterendtime) = $this->get_start_end_times();
             }
         } else {
-            $filterstarttime = make_timestamp($filterstarttime['year'], $filterstarttime['month'], $filterstarttime['day'],
-                    $filterstarttime['hour'], $filterstarttime['minute']);
-            $filterendtime = make_timestamp($filterendtime['year'], $filterendtime['month'], $filterendtime['day'],
-                    $filterendtime['hour'], $filterendtime['minute']);
+            if ($data->selector == 'datetime') {
+                $filterstarttime = make_timestamp($filterstarttime['year'], $filterstarttime['month'], $filterstarttime['day'],
+                        $filterstarttime['hour'], $filterstarttime['minute']);
+                $filterendtime = make_timestamp($filterendtime['year'], $filterendtime['month'], $filterendtime['day'],
+                        $filterendtime['hour'], $filterendtime['minute']);
+            } else {
+                $filterstarttime = make_timestamp($filterstarttime['year'], $filterstarttime['month'], $filterstarttime['day']);
+                $filterendtime = make_timestamp($filterendtime['year'], $filterendtime['month'], $filterendtime['day']);
+            }
         }
 
         $operators = array('<', '>', '<=', '>=');
@@ -96,14 +104,23 @@ class plugin_startendtime extends plugin_base {
     }
 
     public function print_filter(&$mform, $data) {
-        $mform->addElement('date_time_selector', 'filter_starttime', get_string('starttime', 'block_configurable_reports'));
+        if (!isset($data->selector)) {
+            $data->selector = 'datetime';
+        }
+        if ($data->selector == 'datetime') {
+            $selector = 'date_time_selector';
+        } else {
+            $selector = 'date_selector';
+        }
+
+        $mform->addElement($selector, 'filter_starttime', get_string('starttime', 'block_configurable_reports'));
         if (!empty($data->defaulttimeframe)) {
             list($starttime, $endtime) = $this->get_start_end_times($data->defaulttimeframe);
         } else {
             list($starttime, $endtime) = $this->get_start_end_times();
         }
         $mform->setDefault('filter_starttime', $starttime);
-        $mform->addElement('date_time_selector', 'filter_endtime', get_string('endtime', 'block_configurable_reports'));
+        $mform->addElement($selector, 'filter_endtime', get_string('endtime', 'block_configurable_reports'));
         $mform->setDefault('filter_endtime', $endtime);
     }
 
