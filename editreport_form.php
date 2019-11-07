@@ -98,6 +98,37 @@ class report_edit_form extends moodleform {
             $mform->setType('noresultdisplay', PARAM_NOTAGS);
         }
 
+        $timeformats = array(
+                'strftimedate',
+                'strftimedatefullshort',
+                'strftimedateshort',
+                'strftimedatetime',
+                'strftimedatetimeshort',
+                'strftimedaydate',
+                'strftimedaydatetime',
+                'strftimedayshort',
+                'strftimedaytime',
+                'strftimemonthyear',
+                'strftimerecent',
+                'strftimerecentfull',
+                'strftimetime',
+                'strftimetime12',
+                'strftimetime24'
+        );
+        $stringman = get_string_manager();
+        $formatoptions = array();
+        foreach ($timeformats as $timeformat) {
+            if ($stringman->string_exists($timeformat, 'langconfig')) {
+                $formatoptions[$timeformat] = get_string($timeformat, 'langconfig');
+            }
+        }
+        $mform->addElement('checkbox', 'converttime', get_string('converttime', 'block_configurable_reports'), get_string('converttimedescription', 'block_configurable_reports'));
+        $mform->addHelpButton('converttime', 'converttime', 'block_configurable_reports');
+        $mform->setDefault('converttime', 0);
+        $mform->addElement('select', 'timeformat', get_string('timeformat', 'block_configurable_reports'), $formatoptions);
+        $mform->addHelpButton('timeformat', 'timeformat', 'block_configurable_reports');
+        $mform->disabledIf('timeformat', 'converttime', 'notchecked');
+
         $mform->addElement('header', 'exportoptions', get_string('exportoptions', 'block_configurable_reports'));
         $options = cr_get_export_plugins();
 
@@ -114,11 +145,6 @@ class report_edit_form extends moodleform {
         $runat[] = $mform->createElement('select', 'at', null, block_configurable_reports_daily_at_options());
         $mform->addGroup($runat, 'frequencygroup', get_string('frequency', 'block_configurable_reports'),
                 get_string('at', 'block_configurable_reports'), false);
-
-        //$mform->addElement('text', 'customdir', get_string('customdir', 'block_configurable_reports'), 'size = 70');
-        //$mform->setType('customdir', PARAM_PATH);
-        //$mform->disabledIf('customdir', 'enableschedule', 'notchecked');
-        //$mform->addHelpButton('customdir', 'customdir', 'block_configurable_reports');
 
         $mform->addElement('text', 'emailto', get_string('emailto', 'block_configurable_reports'), 'size = 70');
         $mform->disabledIf('frequencygroup','enableschedule', 'notchecked');

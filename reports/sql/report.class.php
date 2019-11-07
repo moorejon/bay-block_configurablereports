@@ -133,14 +133,32 @@ class report_sql extends report_base {
             if ($rs) {
                 foreach ($rs as $row) {
                     if (empty($finaltable)) {
-                        foreach ($row as $colname => $value) {
-                            $tablehead[] = str_replace('_', ' ', $colname);
+                        if ($this->config->converttime) {
+                            $timecolumns = array();
+                            foreach ($row as $colname => $value) {
+                                $tablehead[] = str_replace('_', ' ', $colname);
+
+                                if (strpos($colname, 'time') !== false) {
+                                    $timecolumns[] = true;
+                                } else {
+                                    $timecolumns[] = false;
+                                }
+                            }
+                        } else {
+                            foreach ($row as $colname => $value) {
+                                $tablehead[] = str_replace('_', ' ', $colname);
+                            }
                         }
                     }
                     $arrayrow = array_values((array) $row);
                     foreach ($arrayrow as $ii => $cell) {
                         if (isset($PAGE->context)) {
                             $cell = format_text($cell, FORMAT_HTML, array('trusted' => true, 'noclean' => true, 'para' => false));
+                        }
+                        if ($this->config->converttime) {
+                            if ($timecolumns[$ii]) {
+                                $cell = userdate($cell, $this->config->timeformat);
+                            }
                         }
                         $arrayrow[$ii] = str_replace('[[QUESTIONMARK]]', '?', $cell);
                     }
