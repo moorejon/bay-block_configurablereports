@@ -50,12 +50,6 @@ class report_sql extends report_base {
         $sql = str_replace('%%COURSEID%%', $COURSE->id, $sql);
         $sql = str_replace('%%CATEGORYID%%', $COURSE->category, $sql);
 
-        $datetimezoneutc = new DateTimeZone('UTC');
-        $datetimezoneuser = new DateTimeZone(get_user_timezone());
-        $datetimeutc = new DateTime("now", $datetimezoneutc);
-        $timeoffset = $datetimezoneuser->getOffset($datetimeutc);
-        $sql = str_replace('%%TZOFFSET%%', $timeoffset, $sql);
-
         // See http://en.wikipedia.org/wiki/Year_2038_problem.
         $sql = str_replace(array('%%STARTTIME%%', '%%ENDTIME%%'), array('0', '2145938400'), $sql);
         $sql = str_replace('%%WWWROOT%%', $CFG->wwwroot, $sql);
@@ -139,14 +133,32 @@ class report_sql extends report_base {
             if ($rs) {
                 foreach ($rs as $row) {
                     if (empty($finaltable)) {
-                        foreach ($row as $colname => $value) {
-                            $tablehead[] = str_replace('_', ' ', $colname);
+                        if ($this->config->converttime) {
+                            $timecolumns = array();
+                            foreach ($row as $colname => $value) {
+                                $tablehead[] = str_replace('_', ' ', $colname);
+
+                                if (strpos($colname, 'time') !== false) {
+                                    $timecolumns[] = true;
+                                } else {
+                                    $timecolumns[] = false;
+                                }
+                            }
+                        } else {
+                            foreach ($row as $colname => $value) {
+                                $tablehead[] = str_replace('_', ' ', $colname);
+                            }
                         }
                     }
                     $arrayrow = array_values((array) $row);
                     foreach ($arrayrow as $ii => $cell) {
                         if (isset($PAGE->context)) {
                             $cell = format_text($cell, FORMAT_HTML, array('trusted' => true, 'noclean' => true, 'para' => false));
+                        }
+                        if ($this->config->converttime) {
+                            if ($timecolumns[$ii]) {
+                                $cell = userdate($cell, $this->config->timeformat);
+                            }
                         }
                         $arrayrow[$ii] = str_replace('[[QUESTIONMARK]]', '?', $cell);
                     }

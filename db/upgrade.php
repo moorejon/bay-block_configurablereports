@@ -250,5 +250,29 @@ function xmldb_block_configurable_reports_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2019092301, 'configurable_reports');
     }
 
+    if ($oldversion < 2019103102) {
+
+        // Define field converttime to be added to block_configurable_reports.
+        $table = new xmldb_table('block_configurable_reports');
+        $field = new xmldb_field('converttime', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'datatableperpage');
+
+        // Conditionally launch add field converttime.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field timeformat to be added to block_configurable_reports.
+        $table = new xmldb_table('block_configurable_reports');
+        $field = new xmldb_field('timeformat', XMLDB_TYPE_CHAR, '25', null, XMLDB_NOTNULL, null, null, 'converttime');
+
+        // Conditionally launch add field timeformat.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Configurable_reports savepoint reached.
+        upgrade_block_savepoint(true, 2019103102, 'configurable_reports');
+    }
+
     return true;
 }

@@ -219,6 +219,19 @@ if ($editform->is_cancelled()) {
         $data->cron = 0;
     }
 
+    if (!isset($data->converttime)) {
+        $data->converttime = 0;
+    }
+
+    if ($data->converttime) {
+        $stringman = get_string_manager();
+        if ($stringman->string_exists($data->timeformat, 'langconfig')) {
+            $data->timeformat = get_string($data->timeformat, 'langconfig');
+        } else {
+            $data->timeformat = '';
+        }
+    }
+
     if (empty($report)) {
         $data->ownerid = $USER->id;
         $data->courseid = $courseid;
