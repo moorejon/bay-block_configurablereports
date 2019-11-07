@@ -57,9 +57,9 @@ class plugin_startendtime extends plugin_base {
 
         if (!$filterstarttime || !$filterendtime) {
             if (!empty($data->defaulttimeframe)) {
-                list($filterstarttime, $filterendtime) = $this->get_start_end_times($data->defaulttimeframe);
+                list($filterstarttime, $filterendtime) = $this->get_start_end_times($data->defaulttimeframe, $data->selector);
             } else {
-                list($filterstarttime, $filterendtime) = $this->get_start_end_times();
+                list($filterstarttime, $filterendtime) = $this->get_start_end_times('1 month', $data->selector);
             }
         } else {
             if ($data->selector == 'datetime') {
@@ -115,22 +115,32 @@ class plugin_startendtime extends plugin_base {
 
         $mform->addElement($selector, 'filter_starttime', get_string('starttime', 'block_configurable_reports'));
         if (!empty($data->defaulttimeframe)) {
-            list($starttime, $endtime) = $this->get_start_end_times($data->defaulttimeframe);
+            list($starttime, $endtime) = $this->get_start_end_times($data->defaulttimeframe, $data->selector);
         } else {
-            list($starttime, $endtime) = $this->get_start_end_times();
+            list($starttime, $endtime) = $this->get_start_end_times('1 month', $data->selector);
         }
         $mform->setDefault('filter_starttime', $starttime);
         $mform->addElement($selector, 'filter_endtime', get_string('endtime', 'block_configurable_reports'));
         $mform->setDefault('filter_endtime', $endtime);
     }
 
-    public function get_start_end_times($timeframe = '1 month') {
-        $endtime = new DateTime('now');
-        $starttime = clone $endtime;
-        if ($timeframe) {
-            $dateinterval = date_interval_create_from_date_string($timeframe);
+    public function get_start_end_times($timeframe = '1 month', $dateselectortype = 'datetime') {
+        if ($dateselectortype == 'datetime') {
+            $endtime = new DateTime('now');
+            $starttime = clone $endtime;
+            if ($timeframe) {
+                $dateinterval = date_interval_create_from_date_string($timeframe);
+            }
+            $starttime->sub($dateinterval);
+        } else {
+            $endtime = new DateTime('now');
+            $endtime->setTime(0,0, 0);
+            $starttime = clone $endtime;
+            if ($timeframe) {
+                $dateinterval = date_interval_create_from_date_string($timeframe);
+            }
+            $starttime->sub($dateinterval);
         }
-        date_sub($starttime, $dateinterval);
 
         return array($starttime->getTimestamp(), $endtime->getTimestamp());
     }
