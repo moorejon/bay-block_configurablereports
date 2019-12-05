@@ -171,7 +171,7 @@ class block_configurable_reports extends block_base {
             $lastitem = end($main['items']);
             $managereporturl = $lastitem->url;
 
-            if ($managereporturl->get_path() == "/blocks/configurable_reports/managereport.php") {
+            if ($managereporturl && $managereporturl->get_path() == "/blocks/configurable_reports/managereport.php") {
                 $output .= html_writer::div(
                     html_writer::link($managereporturl, $lastitem->name),
                     'centerpara'
