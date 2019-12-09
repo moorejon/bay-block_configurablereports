@@ -148,11 +148,11 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                 $('#id_prefdelete').click(function(event) {
                     event.preventDefault();
 
-                    var id = $('select[name=presaved]').val();
+                    var id = parseInt($('select[name=presaved]').val());
                     var reportid = $('input[name=id]').val();
                     var name = $('select[name=presaved] option:selected').text().trim();
 
-                    if (!id) {
+                    if (id === 0) {
                         return;
                     }
 
@@ -178,11 +178,11 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                 $('#id_prefdefault').click(function(event) {
                     event.preventDefault();
 
-                    var id = $('select[name=presaved]').val();
+                    var id = parseInt($('select[name=presaved]').val());
                     var reportid = $('input[name=id]').val();
                     var name = $('select[name=presaved] option:selected').text().trim();
 
-                    if (!id) {
+                    if (id === 0) {
                         return;
                     }
 
