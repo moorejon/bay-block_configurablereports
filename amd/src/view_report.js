@@ -21,7 +21,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'], function ($, templates, notification, ajax, str) {
+define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'],
+    function ($, templates, notification, ajax, str) {
 
     return {
         init: function () {
@@ -106,7 +107,6 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                     event.preventDefault();
 
                     var form = $(this).closest("form");
-                    var prefname = $('input[name=prefname]');
                     var presaved = $('select[name=presaved]');
 
                     // Ajax parameters.
@@ -138,10 +138,12 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                                     }
                                 });
                             }
-
+                            window.onbeforeunload = null;
                             form.submit();
 
                         }).fail(notification.exception);
+                    } else {
+                        $("#id_cancel").click();
                     }
                 });
 
