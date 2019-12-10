@@ -30,17 +30,8 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
             var self = this;
 
             var updatefilterpreferences = function(form, id, reportid, name, preflistelem) {
-                var disregard = ['id', 'courseid', 'embedded', 'sesskey', '_qf__report_edit_form',
-                    'mform_isexpanded_id_general', 'prefname', 'presaved', 'prefdelete', 'prefdefault'];
-                var formelements = form.serializeArray();
-                var parameters = [];
+                var parameters = getFormElements(form);
                 var defaultfilter = 0;
-
-                $.each(formelements, function(index, field) {
-                    if ($.inArray(field.name, disregard) === -1) {
-                        parameters.push(field);
-                    }
-                });
 
                 ajax.call([{
                     methodname: 'block_configurable_reports_update_filter_preferences',
@@ -55,6 +46,9 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                 }])[0].done(function(data) {
                     if (data.success === true) {
                         if (preflistelem !== null) {
+                            if (!preflistelem.children().length > 0) {
+                                preflistelem.append('<option value="0"></option>');
+                            }
                             preflistelem.append('<option value="' + data.id + '" selected="selected">' + name + '</option>');
                         }
                         if (id > 0) {
@@ -65,15 +59,55 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                                 notification.alert(strings[0], strings[1]);
                             }).fail(notification.exception);
                         }
-                        $('#id_presaved').show().removeAttr('hidden');
-                        $('#id_prefupdate').show().removeAttr('hidden');
-                        $('#id_prefdelete').show().removeAttr('hidden');
-                        $('#id_prefdefault').show().removeAttr('hidden');
+                        showPrefButtons();
                         $('#id_prefname').val('');
                     } else {
                         notification.alert(null, data.msg);
                     }
                 }).fail(notification.exception);
+            };
+            /**
+             * Used to hide preference buttons when not relevant
+             */
+            var showPrefButtons = function() {
+                $('#id_prefupdate').show();
+                $('#id_prefdelete').show();
+                $('#id_prefdefault').show();
+            };
+
+            var hidePrefButtons = function() {
+                $('#id_prefupdate').hide();
+                $('#id_prefdelete').hide();
+                $('#id_prefdefault').hide();
+            };
+
+            var clearForm = function(form) {
+                var formelements = getFormElements(form);
+                $.each(formelements, function(index, field) {
+                    var elem = $('#id_' + field.name);
+                    if (elem.length > 0) {
+                        if (elem.prop("tagName") == 'SELECT') {
+                            elem.prop('selectedIndex',0);
+                        } else {
+                            elem.val('');
+                        }
+                    }
+                });
+            };
+
+            var getFormElements = function(form) {
+                var disregard = ['id', 'courseid', 'embedded', 'sesskey', '_qf__report_edit_form',
+                    'mform_isexpanded_id_general', 'prefname', 'presaved', 'prefdelete', 'prefdefault'];
+                var rawformelements = form.serializeArray();
+                var formelements = [];
+
+                $.each(rawformelements, function(index, field) {
+                    if ($.inArray(field.name, disregard) === -1) {
+                        formelements.push(field);
+                    }
+                });
+
+                return formelements;
             };
 
             $(document).ready(function() {
@@ -89,9 +123,9 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                 $('#id_prefsave').click(function(event) {
                     event.preventDefault();
 
-                    var form = $(this).closest("form");
                     var prefname = $('input[name=prefname]');
                     var presaved = $('select[name=presaved]');
+                    var form = $(this).closest("form");
 
                     // Ajax parameters.
                     var reportid = $('input[name=id]').val();
@@ -101,14 +135,14 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                         return;
                     }
 
-                    updatefilterpreferences(form, 0, reportid, name, presaved);
+                    updatefilterpreferences(form,0, reportid, name, presaved);
                 });
 
                 $('#id_prefupdate').click(function(event) {
                     event.preventDefault();
 
-                    var form = $(this).closest("form");
                     var presaved = $('select[name=presaved]');
+                    var form = $(this).closest("form");
 
                     // Ajax parameters.
                     var id = presaved.val();
@@ -118,8 +152,8 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                 });
 
                 $('#id_presaved').change(function() {
-                    var form = $(this).closest("form");
                     var preferenceid = $(this).val();
+                    var form = $(this).closest("form");
 
                     if (preferenceid > 0) {
                         ajax.call([{
@@ -131,6 +165,7 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                             if (data === false) {
                                 notification.alert(null, 'Error!');
                             } else {
+                                clearForm(form);
                                 var filter = JSON.parse(data.filter);
                                 $.each(filter, function(index, field) {
                                     var elem = $('#id_' + field.name);
@@ -139,12 +174,11 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                                     }
                                 });
                             }
-                            window.onbeforeunload = null;
-                            form.submit();
-
                         }).fail(notification.exception);
+                        showPrefButtons();
                     } else {
-                        $("#id_cancel").click();
+                        clearForm(form);
+                        hidePrefButtons();
                     }
                 });
 
@@ -154,6 +188,7 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                     var id = parseInt($('select[name=presaved]').val());
                     var reportid = $('input[name=id]').val();
                     var name = $('select[name=presaved] option:selected').text().trim();
+                    var form = $(this).closest("form");
 
                     if (id === 0) {
                         return;
@@ -171,7 +206,9 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                         }
                     }])[0].done(function(data) {
                         if (data.success === true) {
-                            $("#id_cancel").click();
+                            $('select[name=presaved] option[value=' + id + ']').remove();
+                            clearForm(form);
+                            hidePrefButtons();
                         } else {
                             notification.alert(null, data.msg);
                         }
