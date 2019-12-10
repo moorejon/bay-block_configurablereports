@@ -57,7 +57,9 @@ class report_edit_form extends moodleform {
                 foreach ($records as $record) {
                     if ($record->defaultfilter) {
                         $preferencesmenu[$record->id] = $record->name . ' (' . get_string('default') . ')';
-                        $defaultfilterid = $record->id;
+                        if (!optional_param('resetfilters', 0, PARAM_INT)) {
+                            $defaultfilterid = $record->id;
+                        }
                     } else {
                         $preferencesmenu[$record->id] = $record->name;
                     }

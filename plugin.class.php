@@ -43,7 +43,8 @@ class plugin_base {
             $this->report = $report;
         }
 
-        if (!data_submitted()) {
+        $resetfilters = optional_param('resetfilters', 0, PARAM_INT);
+        if (!$resetfilters && !data_submitted()) {
             // Cron export.
             if (defined('CLI_SCRIPT')) {
                 if ($this->report->emailto) {
