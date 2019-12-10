@@ -179,7 +179,7 @@ class report_base {
             $filterform->set_data($formdata);
 
             if ($filterform->is_cancelled()) {
-                $params = ['id' => $this->config->id, 'courseid' => $this->config->courseid];
+                $params = ['id' => $this->config->id, 'courseid' => $this->config->courseid, 'resetfilters' => 1];
                 redirect(new \moodle_url('/blocks/configurable_reports/viewreport.php', $params));
                 die;
             }
