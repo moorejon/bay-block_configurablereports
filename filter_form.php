@@ -39,9 +39,6 @@ class report_edit_form extends moodleform {
         $mform->addElement('hidden', 'embedded', optional_param('embedded', 0, PARAM_INT));
         $mform->setType('embedded', PARAM_INT);
 
-        // Buttons.
-        $this->add_action_buttons(true, get_string('filter_apply', 'block_configurable_reports'));
-
         // Filter preference save
         if (get_config('block_configurable_reports', 'allowpreferences')) {
             $preferences = array();
@@ -71,19 +68,21 @@ class report_edit_form extends moodleform {
                 $preferences[] =& $mform->createElement('button', 'prefdelete', '<i class="fa fa-trash-o" aria-hidden="true"></i>');
                 $preferences[] =& $mform->createElement('button', 'prefdefault', '<i class="fa fa-star-o" aria-hidden="true"></i>');
             } else {
-                $preferences[] =& $mform->createElement('select', 'presaved', '', $preferencesmenu,
-                        ['style' => 'display: none;', 'hidden' => 'hidden']);
-                $preferences[] =& $mform->createElement('button', 'prefupdate', '<i class="fa fa-floppy-o" aria-hidden="true"></i>',
-                        ['style' => 'display: none;', 'hidden' => 'hidden']);
-                $preferences[] =& $mform->createElement('button', 'prefdelete', '<i class="fa fa-trash-o" aria-hidden="true"></i>',
-                        ['style' => 'display: none;', 'hidden' => 'hidden']);
-                $preferences[] =& $mform->createElement('button', 'prefdefault', '<i class="fa fa-star-o" aria-hidden="true"></i>',
-                        ['style' => 'display: none;', 'hidden' => 'hidden']);
+                $preferences[] =& $mform->createElement('select', 'presaved', '', $preferencesmenu);
+                $preferences[] =& $mform->createElement('button', 'prefupdate', '<i class="fa fa-floppy-o" ></i>',
+                        ['style' => 'display:none']);
+                $preferences[] =& $mform->createElement('button', 'prefdelete', '<i class="fa fa-trash-o" ></i>',
+                        ['style' => 'display:none']);
+                $preferences[] =& $mform->createElement('button', 'prefdefault', '<i class="fa fa-star-o" ></i>',
+                        ['style' => 'display:none']);
             }
 
             $mform->setType('prefname', PARAM_TEXT);
             $mform->addGroup($preferences, 'preferencesarr', '', array(' '), false);
             $mform->setDefault('presaved', $defaultfilterid);
         }
+
+        // Buttons.
+        $this->add_action_buttons(true, get_string('filter_apply', 'block_configurable_reports'));
     }
 }
