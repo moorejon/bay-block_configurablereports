@@ -148,15 +148,15 @@ class run_reports extends \core\task\scheduled_task {
         }
 
         // Email all recipients.
-        $usernames = preg_split("/[\s,;]+/", $report->emailto);
-        foreach ($usernames as $username) {
+        $emails = preg_split("/[\s,;]+/", $report->emailto);
+        foreach ($emails as $email) {
             $messageresult = false;
-            $recipient = $DB->get_record('user', array('username' => $username));
+            $recipient = $DB->get_record('user', array('email' => $email));
             if ($recipient) {
                 $messageresult = email_to_user($recipient, $from, $message->subject, $message->messagetext, $message->messagehtml, $attachment, $attachname);
             }
             if (!$messageresult) {
-                mtrace(get_string('emailsentfailed', 'block_configurable_reports', $username));
+                mtrace(get_string('emailsentfailed', 'block_configurable_reports', $email));
             }
         }
     }

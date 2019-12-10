@@ -150,7 +150,7 @@ class report_edit_form extends moodleform {
         $mform->disabledIf('frequencygroup','enableschedule', 'notchecked');
         $mform->disabledIf('at', 'frequency', 'ne', 'daily');
         $mform->disabledIf('emailto', 'enableschedule', 'notchecked');
-        $mform->setType('emailto', PARAM_RAW);
+        $mform->setType('emailto', PARAM_EMAIL);
 
         if (isset($this->_customdata['report']->id) && $this->_customdata['report']->id) {
             $mform->addElement('hidden', 'id', $this->_customdata['report']->id);
