@@ -69,6 +69,7 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                         $('#id_prefupdate').show().removeAttr('hidden');
                         $('#id_prefdelete').show().removeAttr('hidden');
                         $('#id_prefdefault').show().removeAttr('hidden');
+                        $('#id_prefname').val('');
                     } else {
                         notification.alert(null, data.msg);
                     }
@@ -170,7 +171,7 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                         }
                     }])[0].done(function(data) {
                         if (data.success === true) {
-                            $('select[name=presaved] option[value=' + id + ']').remove();
+                            $("#id_cancel").click();
                         } else {
                             notification.alert(null, data.msg);
                         }
