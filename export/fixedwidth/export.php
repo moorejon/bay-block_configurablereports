@@ -82,7 +82,7 @@ class export_fixedwidth {
             if (isset($row->index)) {
                 $indexkey = array_search(str_replace('_', ' ', strtolower($row->index)), $report->table->head);
             }
-            if ($indexkey) {
+            if (is_numeric($indexkey)) {
                 if ($fields = $this->parse_pattern($row->pattern)) {
                     foreach ($fields as $index => $field) {
                         $key = array_search($field['name'], $report->table->head);
@@ -94,16 +94,14 @@ class export_fixedwidth {
                     foreach ($report->table->data as $line)  {
                         $linetxt = '';
                         $indexvalue = $this->clean_data($line[$indexkey]);
-
                         $counter  = false;
-
                         foreach ($fields as $field) {
                             if (is_numeric($field['key'])) {
                                 $linetxt .= str_pad($this->clean_data($line[$field['key']]), $field['width']);
                             } else {
                                 if ($field['name'] == '%%count%%') {
                                     $counter = true;
-                                    if (isset($data['&&'.$indexvalue][$fields[0]['name']])) {
+                                    if (isset($data['%%'.$indexvalue][$fields[0]['name']])) {
                                         $count = count($data['%%'.$indexvalue][$fields[0]['name']]) + 1;
                                     } else {
                                         $count = 1;
@@ -123,7 +121,6 @@ class export_fixedwidth {
                             } else {
                                 $data[$indexvalue][$fields[0]['name']][] = $linetxt;
                             }
-
                         } else {
                             $data[$indexvalue][$fields[0]['name']] = $linetxt;
                         }
