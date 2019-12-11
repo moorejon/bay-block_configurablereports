@@ -274,5 +274,19 @@ function xmldb_block_configurable_reports_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2019103102, 'configurable_reports');
     }
 
+    if ($oldversion < 2019120800) {
+
+        // Define field fixedwidthpattern to be added to block_configurable_reports.
+        $table = new xmldb_table('block_configurable_reports');
+        $field = new xmldb_field('fixedwidthpattern', XMLDB_TYPE_TEXT, null, null, null, null, null, 'timeformat');
+
+        // Conditionally launch add field fixedwidthpattern.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Configurable_reports savepoint reached.
+        upgrade_block_savepoint(true, 2019120800, 'configurable_reports');
+    }
     return true;
 }

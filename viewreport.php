@@ -128,7 +128,11 @@ if (!$download) {
         require_once($exportplugin);
         $classname = 'export_'.$format;
         $export = new $classname();
-        $export->export_report($reportclass->finalreport);
+        if ($format == 'fixedwidth') {
+            $export->export_report($reportclass->finalreport, true, $reportclass->config->fixedwidthpattern);
+        } else {
+            $export->export_report($reportclass->finalreport);
+        }
     }
     die;
 }
