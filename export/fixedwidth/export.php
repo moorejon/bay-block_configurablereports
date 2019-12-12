@@ -83,7 +83,7 @@ class export_fixedwidth {
             if (is_numeric($indexkey)) {
                 if ($fields = $this->parse_pattern($row->pattern)) {
                     foreach ($fields as $index => $field) {
-                        $key = array_search($field['name'], $report->table->head);
+                        $key = array_search(str_replace('_', ' ', strtolower($field['name'])), $report->table->head);
                         $field['key'] = $key;
                         $fields[$index] = $field;
                     }
@@ -128,7 +128,7 @@ class export_fixedwidth {
                 if ($fields = $this->parse_pattern($row->pattern)) {
                     $linetxt = '';
                     foreach ($fields as $field) {
-                        if ($field['name'] == '%%rowcount%%') {
+                        if (str_replace('_', ' ', strtolower($field['name'])) == '%%rowcount%%') {
                             $linetxt .= $this->generate_string(($numberoflines + 1), $field['width']);
                         } else {
                             $linetxt .= $this->generate_string($field['name'], $field['width']);
@@ -184,7 +184,7 @@ class export_fixedwidth {
             if (count($arr2) != 2) {
                 continue;
             }
-            $var[] = ['name' => str_replace('_', ' ', strtolower($arr2[0])), 'width' => $arr2[1]];
+            $var[] = ['name' => $arr2[0], 'width' => $arr2[1]];
         }
         return $var;
     }
