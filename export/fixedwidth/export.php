@@ -190,7 +190,11 @@ class export_fixedwidth {
     }
 
     protected function generate_string($data, $width) {
-        $output = str_pad($data, $width);
+        if (is_numeric($data)) {
+            $output = str_pad($data, $width, "0", STR_PAD_LEFT);
+        } else {
+            $output = str_pad($data, $width);
+        }
         if (strlen($output) > $width) {
             $output = substr($output, 0, $width);
         }
