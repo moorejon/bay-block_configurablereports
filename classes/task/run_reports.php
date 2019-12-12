@@ -106,7 +106,11 @@ class run_reports extends \core\task\scheduled_task {
                     require_once($exportplugin);
                     $classname = 'export_'.$format;
                     $export = new $classname();
-                    $files[$format] = $export->export_report($reportclass->finalreport, false);
+                    if ($format == 'fixedwidth') {
+                        $files['txt'] = $export->export_report($reportclass->finalreport, false, $reportclass->config->fixedwidthpattern);
+                    } else {
+                        $files[$format] = $export->export_report($reportclass->finalreport, false);
+                    }
                 }
             }
         }

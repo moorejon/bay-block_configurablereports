@@ -57,9 +57,7 @@ class export_fixedwidth {
             $numberoflines = substr_count($txt, "\n");
         }
 
-        $table = $report->table;
         $filename = 'report.txt';
-        $headers = $table->head;
 
         $downloadfilename = clean_filename($filename);
         if ($download) {
@@ -70,8 +68,8 @@ class export_fixedwidth {
         } else {
             $tmppath = '/temp';
             // Create a unique temporary filename to use for this schedule
-            $filename = tempnam($CFG->dataroot.$tmppath, 'export_json_');
-            file_put_contents($filename, json_encode($json));
+            $filename = tempnam($CFG->dataroot.$tmppath, 'export_txt_');
+            file_put_contents($filename, $txt);
             return $filename;
         }
     }
@@ -97,7 +95,7 @@ class export_fixedwidth {
                         $counter  = false;
                         foreach ($fields as $field) {
                             if (is_numeric($field['key'])) {
-                                $linetxt .= str_pad($this->clean_data($line[$field['key']]), $field['width']);
+                                $linetxt .= $this->generate_string($this->clean_data($line[$field['key']]), $field['width']);
                             } else {
                                 if ($field['name'] == '%%count%%') {
                                     $counter = true;
@@ -106,9 +104,9 @@ class export_fixedwidth {
                                     } else {
                                         $count = 1;
                                     }
-                                    $linetxt .= str_pad($count, $field['width']);
+                                    $linetxt .= $this->generate_string($count, $field['width']);
                                 } else {
-                                    $linetxt .= str_pad($this->clean_data($field['name']), $field['width']);
+                                    $linetxt .= $this->generate_string($this->clean_data($field['name']), $field['width']);
                                 }
                             }
                         }
@@ -131,9 +129,9 @@ class export_fixedwidth {
                     $linetxt = '';
                     foreach ($fields as $field) {
                         if ($field['name'] == '%%rowcount%%') {
-                            $linetxt .= str_pad(($numberoflines+1), $field['width']);
+                            $linetxt .= $this->generate_string(($numberoflines + 1), $field['width']);
                         } else {
-                            $linetxt .= str_pad($field['name'], $field['width']);
+                            $linetxt .= $this->generate_string($field['name'], $field['width']);
                         }
                     }
                     $data[] = $linetxt;
@@ -189,5 +187,14 @@ class export_fixedwidth {
             $var[] = ['name' => str_replace('_', ' ', strtolower($arr2[0])), 'width' => $arr2[1]];
         }
         return $var;
+    }
+
+    protected function generate_string($data, $width) {
+        $output = str_pad($data, $width);
+        if (strlen($output) > $width) {
+            $output = substr($output, 0, $width);
+        }
+
+        return $output;
     }
 }
