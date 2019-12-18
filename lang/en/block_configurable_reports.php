@@ -573,4 +573,7 @@ $string['filternotupdate'] = 'Failed to update filter';
 $string['setasdefault'] = 'Set as default';
 $string['message'] = 'Message';
 $string['saved'] = 'Saved!';
+$string['export_fixedwidth'] = "Export in Fixed Width TXT format";
+$string['fixedwidthpattern'] = "Fixed Width TXT Pattern";
+$string['invalidjson'] = "Invalid JSON";
 // END MLC EDIT.

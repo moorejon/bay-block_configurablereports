@@ -136,6 +136,9 @@ class report_edit_form extends moodleform {
             $mform->addElement('checkbox', 'export_'.$key, null, $val);
         }
 
+        $mform->addElement('textarea', 'fixedwidthpattern', get_string("fixedwidthpattern", "block_configurable_reports"), 'wrap="virtual" rows="8" cols="50"');
+        $mform->hideIf('fixedwidthpattern', 'export_fixedwidth', 'notchecked');
+
         $mform->addElement('header', 'scheduleoptions', get_string('scheduleoptions', 'block_configurable_reports'));
 
         $mform->addElement('advcheckbox', 'enableschedule', get_string('enableschedule', 'block_configurable_reports'),
@@ -173,6 +176,19 @@ class report_edit_form extends moodleform {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+
+        if (!empty($data['export_fixedwidth'])) {
+            if (empty($data['fixedwidthpattern'])) {
+                $errors['fixedwidthpattern'] = get_string('required');
+            } else {
+                if (!empty($data['fixedwidthpattern'])) {
+                    $patterndata = @json_decode($data['fixedwidthpattern']);
+                    if (!$isvalid = (json_last_error() === JSON_ERROR_NONE)) {
+                        $errors['fixedwidthpattern'] = get_string('invalidjson', 'block_configurable_reports');
+                    }
+                }
+            }
+        }
         return $errors;
     }
 
