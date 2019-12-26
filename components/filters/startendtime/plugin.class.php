@@ -125,15 +125,16 @@ class plugin_startendtime extends plugin_base {
     }
 
     public function get_start_end_times($timeframe = '1 month', $dateselectortype = 'datetime') {
+        $timezone = new DateTimeZone(get_user_timezone($this->user->timezone));
         if ($dateselectortype == 'datetime') {
-            $endtime = new DateTime('now');
+            $endtime = new DateTime('now', $timezone);
             $starttime = clone $endtime;
             if ($timeframe) {
                 $dateinterval = date_interval_create_from_date_string($timeframe);
             }
             $starttime->sub($dateinterval);
         } else {
-            $endtime = new DateTime('now');
+            $endtime = new DateTime('now', $timezone);
             $endtime->setTime(0,0, 0);
             $starttime = clone $endtime;
             if ($timeframe) {

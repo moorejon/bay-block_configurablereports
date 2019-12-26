@@ -33,9 +33,10 @@ class plugin_base {
     public $reporttypes = array();
     public $defaultfilter = null;
     public $defaultfiltervalue = null;
+    public $user = null;
 
-    public function __construct($report) {
-        global $DB, $CFG, $remotedb, $USER;
+    public function __construct($report, $user = null) {
+        global $DB, $USER;
 
         if (is_numeric($report)) {
             $this->report = $DB->get_record('block_configurable_reports', array('id' => $report));
@@ -43,19 +44,12 @@ class plugin_base {
             $this->report = $report;
         }
 
+        $this->user = (!empty($user)) ? $user : $USER;
+
         $resetfilters = optional_param('resetfilters', 0, PARAM_INT);
         if (!$resetfilters && !data_submitted()) {
-            // Cron export.
-            if (defined('CLI_SCRIPT')) {
-                if ($this->report->emailto) {
-                    $clireportuser = $DB->get_record('user', array('email' => $this->report->emailto));
-                }
-            }
-
-            $prefuserid = (!empty($clireportuser)) ? $clireportuser->id : $USER->id;
-
             if ($defaultfilter = $DB->get_field('block_configurable_reports_p', 'filter',
-                array('reportid' => $this->report->id, 'userid' => $prefuserid, 'defaultfilter' => 1))) {
+                array('reportid' => $this->report->id, 'userid' => $this->user->id, 'defaultfilter' => 1))) {
 
                 $this->defaultfilter = new stdClass();
                 foreach (json_decode($defaultfilter) as $item) {

@@ -116,7 +116,7 @@ class report_sql extends report_base {
                 foreach ($filters as $f) {
                     require_once($CFG->dirroot.'/blocks/configurable_reports/components/filters/'.$f['pluginname'].'/plugin.class.php');
                     $classname = 'plugin_'.$f['pluginname'];
-                    $class = new $classname($this->config);
+                    $class = new $classname($this->config, $this->currentuser);
                     $sql = $class->execute($sql, $f['formdata']);
                 }
             }
@@ -138,7 +138,7 @@ class report_sql extends report_base {
                             foreach ($row as $colname => $value) {
                                 $tablehead[] = str_replace('_', ' ', $colname);
 
-                                if (strpos($colname, 'time') !== false) {
+                                if (strpos($colname, 'time') !== false || strpos($colname, 'date') !== false) {
                                     $timecolumns[] = true;
                                 } else {
                                     $timecolumns[] = false;
@@ -157,7 +157,7 @@ class report_sql extends report_base {
                         }
                         if ($this->config->converttime) {
                             if ($timecolumns[$ii]) {
-                                $cell = userdate($cell, $this->config->timeformat);
+                                $cell = userdate($cell, $this->config->timeformat, get_user_timezone($this->currentuser->timezone));
                             }
                         }
                         $arrayrow[$ii] = str_replace('[[QUESTIONMARK]]', '?', $cell);

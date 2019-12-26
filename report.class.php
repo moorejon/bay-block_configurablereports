@@ -37,7 +37,7 @@ class report_base {
     public $sql = '';
     public $filterform = null;
 
-    public function reports_base($report) {
+    public function reports_base($report, $user = null) {
         global $DB, $CFG, $USER, $remotedb;
 
         if (is_numeric($report)) {
@@ -46,7 +46,7 @@ class report_base {
             $this->config = $report;
         }
 
-        $this->currentuser = $USER;
+        $this->currentuser = $user ? $user : $USER;
         $this->currentcourseid = $this->config->courseid;
         $this->init();
 
@@ -67,8 +67,8 @@ class report_base {
 
     }
 
-    public function __construct($report) {
-        $this->reports_base($report);
+    public function __construct($report, $user = null) {
+        $this->reports_base($report, $user);
     }
 
     public function check_permissions($userid, $context) {

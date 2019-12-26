@@ -73,6 +73,8 @@ class export_csv {
 
 class ScheduledCsv extends csv_export_writer {
     public function __destruct() {
-        fclose($this->fp);
+        if ($this->fp) {
+            fclose($this->fp);
+        }
     }
 }
