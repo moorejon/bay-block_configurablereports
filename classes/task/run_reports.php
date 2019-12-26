@@ -63,7 +63,7 @@ class run_reports extends \core\task\scheduled_task {
 
         // Get weekly and monthly scheduled reports.
         $scheduledreportstorun = $DB->get_records_select('block_configurable_reports',
-                        "enableschedule = 1 AND ((frequency = 'weekly' AND lastrun < :startofthisweek) OR
+                        "enableschedule = 1 AND emailto <> '' AND ((frequency = 'weekly' AND lastrun < :startofthisweek) OR
                                  (frequency = 'monthly' AND lastrun < :startofthismonth) OR
                                  (frequency = 'quarterly' AND lastrun < :startofthisquarter))",
                 array('startofthisweek' => $startofthisweek,
@@ -93,47 +93,50 @@ class run_reports extends \core\task\scheduled_task {
         require_once($CFG->dirroot.'/blocks/configurable_reports/reports/'.$report->type.'/report.class.php');
 
         $reportclassname = 'report_'.$report->type;
-        $reportclass = new $reportclassname($report);
-        $reportclass->create_report();
+        $emails = preg_split("/[\s,;]+/", $report->emailto);
+        list ($sql, $params) = $DB->get_in_or_equal($emails);
+        $users = $DB->get_records_select('user', 'email ' . $sql, $params);
 
-        $exports = explode(',', $report->export);
-        $files = array();
+        foreach ($users as $user) {
+            $reportclass = new $reportclassname($report, $user);
+            $reportclass->create_report();
 
-        foreach ($exports as $format) {
-            if ($format) {
-                $exportplugin = $CFG->dirroot.'/blocks/configurable_reports/export/'.$format.'/export.php';
-                if (file_exists($exportplugin)) {
-                    require_once($exportplugin);
-                    $classname = 'export_'.$format;
-                    $export = new $classname();
-                    if ($format == 'fixedwidth') {
-                        $files['txt'] = $export->export_report($reportclass->finalreport, false, $reportclass->config->fixedwidthpattern);
-                    } else {
-                        $files[$format] = $export->export_report($reportclass->finalreport, false);
+            $exports = explode(',', $report->export);
+            $files = array();
+            if ($reportclass->totalrecords) {
+                foreach ($exports as $format) {
+                    if ($format) {
+                        $exportplugin = $CFG->dirroot . '/blocks/configurable_reports/export/' . $format . '/export.php';
+                        if (file_exists($exportplugin)) {
+                            require_once($exportplugin);
+                            $classname = 'export_' . $format;
+                            $export = new $classname();
+                            if ($format == 'fixedwidth') {
+                                $files['txt'] = $export->export_report($reportclass->finalreport, false,
+                                        $reportclass->config->fixedwidthpattern);
+                            } else {
+                                if ($file = $export->export_report($reportclass->finalreport, false)) {
+                                    $files[$format] = $file;
+                                }
+                            }
+                        }
                     }
                 }
             }
+            $this->block_configurable_reports_email_report($reportclass, $files);
         }
-        $this->block_configurable_reports_email_report($report, $files);
         $report->lastrun = time();
         $DB->update_record('block_configurable_reports', $report);
     }
 
-    public function block_configurable_reports_email_report($report, $files = null) {
-        global $DB;
-
-        // If there are no recipients return.
-        if (!$report->emailto) {
-            return;
-        }
-
+    public function block_configurable_reports_email_report($reportclass, $files = null) {
         $from = get_string('fromname', 'block_configurable_reports');
 
         // Get the message.
         $attachment = null;
         $attachname = null;
         if ($files) {
-            $message = $this->block_configurable_reports_get_message($report);
+            $message = $this->block_configurable_reports_get_message($reportclass->config);
             $zip = new \ZipArchive;
             $attachname = 'report_download.zip';
             $filename = $this->get_temp_path($attachname);
@@ -148,20 +151,12 @@ class run_reports extends \core\task\scheduled_task {
             $zip->close();
             $attachment = $filename;
         } else {
-            $message = $this->block_configurable_reports_get_message_no_data($report);
+            $message = $this->block_configurable_reports_get_message_no_data($reportclass->config);
         }
 
-        // Email all recipients.
-        $emails = preg_split("/[\s,;]+/", $report->emailto);
-        foreach ($emails as $email) {
-            $messageresult = false;
-            $recipient = $DB->get_record('user', array('email' => $email));
-            if ($recipient) {
-                $messageresult = email_to_user($recipient, $from, $message->subject, $message->messagetext, $message->messagehtml, $attachment, $attachname);
-            }
-            if (!$messageresult) {
-                mtrace(get_string('emailsentfailed', 'block_configurable_reports', $email));
-            }
+        $messageresult = email_to_user($reportclass->currentuser, $from, $message->subject, $message->messagetext, $message->messagehtml, $attachment, $attachname);
+        if (!$messageresult) {
+            mtrace(get_string('emailsentfailed', 'block_configurable_reports', $reportclass->user->email));
         }
     }
 

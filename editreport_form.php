@@ -98,34 +98,11 @@ class report_edit_form extends moodleform {
             $mform->setType('noresultdisplay', PARAM_NOTAGS);
         }
 
-        $timeformats = array(
-                'strftimedate',
-                'strftimedatefullshort',
-                'strftimedateshort',
-                'strftimedatetime',
-                'strftimedatetimeshort',
-                'strftimedaydate',
-                'strftimedaydatetime',
-                'strftimedayshort',
-                'strftimedaytime',
-                'strftimemonthyear',
-                'strftimerecent',
-                'strftimerecentfull',
-                'strftimetime',
-                'strftimetime12',
-                'strftimetime24'
-        );
-        $stringman = get_string_manager();
-        $formatoptions = array();
-        foreach ($timeformats as $timeformat) {
-            if ($stringman->string_exists($timeformat, 'langconfig')) {
-                $formatoptions[$timeformat] = get_string($timeformat, 'langconfig');
-            }
-        }
         $mform->addElement('checkbox', 'converttime', get_string('converttime', 'block_configurable_reports'), get_string('converttimedescription', 'block_configurable_reports'));
         $mform->addHelpButton('converttime', 'converttime', 'block_configurable_reports');
         $mform->setDefault('converttime', 0);
-        $mform->addElement('select', 'timeformat', get_string('timeformat', 'block_configurable_reports'), $formatoptions);
+        $mform->addElement('text', 'timeformat', get_string('timeformat', 'block_configurable_reports'), '%m/%d/%Y');
+        $mform->setType('timeformat', PARAM_TEXT);
         $mform->addHelpButton('timeformat', 'timeformat', 'block_configurable_reports');
         $mform->disabledIf('timeformat', 'converttime', 'notchecked');
 
@@ -153,7 +130,11 @@ class report_edit_form extends moodleform {
         $mform->disabledIf('frequencygroup','enableschedule', 'notchecked');
         $mform->disabledIf('at', 'frequency', 'ne', 'daily');
         $mform->disabledIf('emailto', 'enableschedule', 'notchecked');
-        $mform->setType('emailto', PARAM_EMAIL);
+        $mform->setType('emailto', PARAM_TEXT);
+
+        $mform->addElement('advcheckbox', 'relativetime', get_string('relativetime', 'block_configurable_reports'),
+                get_string('relativetime', 'block_configurable_reports'));
+        $mform->disabledIf('emailto', 'enableschedule', 'notchecked');
 
         if (isset($this->_customdata['report']->id) && $this->_customdata['report']->id) {
             $mform->addElement('hidden', 'id', $this->_customdata['report']->id);
