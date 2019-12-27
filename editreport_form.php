@@ -132,10 +132,6 @@ class report_edit_form extends moodleform {
         $mform->disabledIf('emailto', 'enableschedule', 'notchecked');
         $mform->setType('emailto', PARAM_TEXT);
 
-        $mform->addElement('advcheckbox', 'relativetime', get_string('relativetime', 'block_configurable_reports'),
-                get_string('relativetime', 'block_configurable_reports'));
-        $mform->disabledIf('emailto', 'enableschedule', 'notchecked');
-
         if (isset($this->_customdata['report']->id) && $this->_customdata['report']->id) {
             $mform->addElement('hidden', 'id', $this->_customdata['report']->id);
             $mform->setType('id', PARAM_INT);
