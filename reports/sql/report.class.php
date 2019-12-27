@@ -157,7 +157,8 @@ class report_sql extends report_base {
                         }
                         if ($this->config->converttime) {
                             if ($timecolumns[$ii]) {
-                                $cell = userdate($cell, $this->config->timeformat, get_user_timezone($this->currentuser->timezone));
+                                $timezone = core_date::get_user_timezone($this->currentuser);
+                                $cell = userdate($cell, $this->config->timeformat, core_date::get_user_timezone($this->currentuser));
                             }
                         }
                         $arrayrow[$ii] = str_replace('[[QUESTIONMARK]]', '?', $cell);

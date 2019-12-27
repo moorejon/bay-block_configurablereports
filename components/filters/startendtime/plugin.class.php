@@ -64,12 +64,14 @@ class plugin_startendtime extends plugin_base {
         } else {
             if ($data->selector == 'datetime') {
                 $filterstarttime = make_timestamp($filterstarttime['year'], $filterstarttime['month'], $filterstarttime['day'],
-                        $filterstarttime['hour'], $filterstarttime['minute']);
+                        $filterstarttime['hour'], $filterstarttime['minute'], 0, core_date::get_user_timezone($this->user));
                 $filterendtime = make_timestamp($filterendtime['year'], $filterendtime['month'], $filterendtime['day'],
-                        $filterendtime['hour'], $filterendtime['minute']);
+                        $filterendtime['hour'], $filterendtime['minute'], 0, core_date::get_user_timezone($this->user));
             } else {
-                $filterstarttime = make_timestamp($filterstarttime['year'], $filterstarttime['month'], $filterstarttime['day']);
-                $filterendtime = make_timestamp($filterendtime['year'], $filterendtime['month'], $filterendtime['day']);
+                $filterstarttime = make_timestamp($filterstarttime['year'], $filterstarttime['month'], $filterstarttime['day'],
+                        0, 0, 0, core_date::get_user_timezone($this->user));
+                $filterendtime = make_timestamp($filterendtime['year'], $filterendtime['month'], $filterendtime['day'],
+                        0, 0, 0, core_date::get_user_timezone($this->user));
             }
         }
 
@@ -125,7 +127,7 @@ class plugin_startendtime extends plugin_base {
     }
 
     public function get_start_end_times($timeframe = '1 month', $dateselectortype = 'datetime') {
-        $timezone = new DateTimeZone(get_user_timezone($this->user->timezone));
+        $timezone = new DateTimeZone(core_date::get_user_timezone($this->user));
         if ($dateselectortype == 'datetime') {
             $endtime = new DateTime('now', $timezone);
             $starttime = clone $endtime;
