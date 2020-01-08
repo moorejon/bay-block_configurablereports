@@ -84,9 +84,11 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
             var clearForm = function(form) {
                 var formelements = getFormElements(form);
                 $.each(formelements, function(index, field) {
-                    var elem = $('#id_' + field.name);
+                    var elem = $('[name="' + field.name + '"]');
                     if (elem.length > 0) {
-                        if (elem.prop("tagName") == 'SELECT') {
+                        if (field.name.includes("[]")) {
+                            elem.val([]);
+                        } else if (elem.prop("tagName") == 'SELECT') {
                             elem.prop('selectedIndex',0);
                         } else {
                             elem.val('');
@@ -98,11 +100,13 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
             var getFormElements = function(form) {
                 var disregard = ['id', 'courseid', 'embedded', 'sesskey', '_qf__report_edit_form',
                     'mform_isexpanded_id_general', 'prefname', 'presaved', 'prefdelete', 'prefdefault'];
+                var disregardvalues = ['_qf__force_multiselect_submission'];
                 var rawformelements = form.serializeArray();
                 var formelements = [];
 
                 $.each(rawformelements, function(index, field) {
-                    if ($.inArray(field.name, disregard) === -1) {
+                    if ($.inArray(field.name, disregard) === -1 &&
+                        $.inArray(field.value, disregardvalues) === -1) {
                         formelements.push(field);
                     }
                 });
@@ -168,9 +172,13 @@ define(['jquery', 'core/templates', 'core/notification', 'core/ajax', 'core/str'
                                 clearForm(form);
                                 var filter = JSON.parse(data.filter);
                                 $.each(filter, function(index, field) {
-                                    var elem = $('#id_' + field.name);
+                                    var elem = $('[name="' + field.name + '"]');
                                     if (elem.length > 0) {
-                                        elem.val(field.value);
+                                        if (field.name.includes("[]")) {
+                                            elem.find("option[value='" + field.value + "']").prop("selected", true);
+                                        } else {
+                                            elem.val(field.value);
+                                        }
                                     }
                                 });
                             }

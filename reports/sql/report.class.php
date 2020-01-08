@@ -86,6 +86,7 @@ class report_sql extends report_base {
 
             $DB->update_record('block_configurable_reports', $updaterecord);
         } catch (dml_read_exception $e) {
+            error_log($e->error);
             return $e;
         }
         return $results;
