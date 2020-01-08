@@ -53,7 +53,13 @@ class plugin_base {
 
                 $this->defaultfilter = new stdClass();
                 foreach (json_decode($defaultfilter) as $item) {
-                    $this->defaultfilter->{$item->name} = $item->value;
+                    $arraypos = strpos($item->name, '[]');
+                    if ($arraypos !== false) {
+                        $name = str_replace("[]", "", $item->name);
+                        $this->defaultfilter->{$name}[] = $item->value;
+                    } else {
+                        $this->defaultfilter->{$item->name} = $item->value;
+                    }
                 }
             }
         }

@@ -160,15 +160,12 @@ class plugin_sqloptions extends plugin_base {
         $select = $mform->addElement('select', 'filter_sql_'.$data->idnumber, $selectname, $filteroptions);
         if (!empty($data->multiselect)) {
             $select->setMultiple(true);
-            if ($defaultvalue) {
-                $select->setSelected($defaultvalue);
-            } else {
-                $select->setSelected('%all%');
-            }
+        }
+
+        if ($defaultvalue) {
+            $select->setSelected($defaultvalue);
         } else {
-            if ($defaultvalue) {
-                $select->setSelected($defaultvalue);
-            }
+            $select->setSelected('%all%');
         }
 
         if (!$defaultvalue && !empty($data->defaultsql)) {
