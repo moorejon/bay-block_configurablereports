@@ -56,6 +56,13 @@ class plugin_base {
                     $arraypos = strpos($item->name, '[]');
                     if ($arraypos !== false) {
                         $name = str_replace("[]", "", $item->name);
+                        if (isset($this->defaultfilter->{$name}) && !is_array($this->defaultfilter->{$name})) {
+                            if (!is_null($this->defaultfilter->{$name})) {
+                                $this->defaultfilter->{$name} = array($this->defaultfilter->{$name});
+                            } else {
+                                $this->defaultfilter->{$name} = array();
+                            }
+                        }
                         $this->defaultfilter->{$name}[] = $item->value;
                     } else {
                         $this->defaultfilter->{$item->name} = $item->value;
