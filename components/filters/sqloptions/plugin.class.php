@@ -39,37 +39,57 @@ class plugin_sqloptions extends plugin_base {
 
     public function execute($finalelements, $data) {
         global $DB;
-        $defaultvalue = (isset($this->defaultfilter->{'filter_sql_'.$data->idnumber})) ? $this->defaultfilter->{'filter_sql_'.$data->idnumber} : '';
+
+        // Default from preferences
+        $defaultprefvalue = (isset($this->defaultfilter->{'filter_sql_'.$data->idnumber})) ? $this->defaultfilter->{'filter_sql_'.$data->idnumber} : null;
+
+        // Retrieving submission if any
+        $filtersqloptions = array();
         if (!empty($data->multiselect)) {
-            $filtersqloptions = optional_param_array('filter_sql_'.$data->idnumber, $defaultvalue, PARAM_RAW);
+            $params = optional_param_array('filter_sql_'.$data->idnumber, $defaultprefvalue, PARAM_RAW);
+            if (!is_null($params)) {
+                $filtersqloptions = $params;
+            }
         } else {
-            $filtersqloptions = optional_param('filter_sql_'.$data->idnumber, $defaultvalue, PARAM_RAW);
+            $param = optional_param('filter_sql_'.$data->idnumber, $defaultprefvalue, PARAM_RAW);
+            if (!is_null($param)) {
+                $filtersqloptions[] = $param;
+            }
         }
 
-        $filter = '%all%';
+        // Parsing filters
         $filters = [];
-        if ($filtersqloptions && is_array($filtersqloptions) && !in_array('%all%', $filtersqloptions)) {
+        if (!in_array('%all%', $filtersqloptions)) {
             foreach ($filtersqloptions as $filtersqloption) {
                 $filters[] = clean_param(base64_decode($filtersqloption), PARAM_RAW);
             }
-        }
-        if ($filtersqloptions && !is_array($filtersqloptions) && $filtersqloptions != '%all%') {
-            $filter = clean_param(base64_decode($filtersqloptions), PARAM_RAW);
-        }
-        if (empty($filters) && $filter == '%all%') {
-            if ($filtersqloptions != '%all%' && !empty($data->defaultsql)) {
-                $reportclassname = 'report_'.$this->report->type;
-                $reportclass = new $reportclassname($this->report);
-                $sql = $reportclass->prepare_sql($data->defaultsql);
-                if ($result = $DB->get_record_sql($sql, null, IGNORE_MULTIPLE)) {
-                    $filter = $result->configid;
+            if (is_null($defaultprefvalue) && (empty($filters))) {
+                if (!empty($data->querysql) && !empty($data->defaultsql)) {
+                    $reportclassname = 'report_' . $this->report->type;
+                    $reportclass = new $reportclassname($this->report);
+
+                    // Get possible values
+                    $sql = $reportclass->prepare_sql($data->querysql);
+                    $possiblevalues = $DB->get_records_sql($sql);
+                    // Get default
+                    $sql = $reportclass->prepare_sql($data->defaultsql);
+                    $result = $DB->get_record_sql($sql, null, IGNORE_MULTIPLE);
+                    // Ensure default is a possible value in the dropdown
+                    if ($possiblevalues && $result) {
+                        foreach ($possiblevalues as $value) {
+                            if ($value->configid == $result->configid) {
+                                $filters[] = $result->configid;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }
 
         $operators = array('=', '<', '>', '<=', '>=', '~', 'in', 'rin');
 
-        if ((!empty($filters) || $filter != '%all%')
+        if ((!empty($filters))
             && preg_match_all("/%%FILTER_SQL_$data->idnumber:([^%]+)%%/i", $finalelements, $output)) {
             for ($i = 0; $i < count($output[1]); $i++) {
                 list($field, $operator) = preg_split('/:/', $output[1][$i]);
@@ -77,35 +97,24 @@ class plugin_sqloptions extends plugin_base {
                     print_error('nosuchoperator');
                 }
                 if ($operator == '~') {
-                    if ($filters) {
-                        $sqlfilter = [];
-                        foreach ($filters as $filter) {
-                            $sqlfilter[] = "$field LIKE '%$filter%'";
-                        }
-                        $replace = " AND (" . implode(' OR ', $sqlfilter) . ')';
-                    } else {
-                        $replace = " AND $field LIKE '%$filter%'";
+                    $sqlfilter = [];
+                    foreach ($filters as $filter) {
+                        $sqlfilter[] = "$field LIKE '%$filter%'";
                     }
+                    $replace = " AND (" . implode(' OR ', $sqlfilter) . ')';
                 } else if ($operator == 'in') {
-                    if ($filters) {
-                        $sqlfilter = [];
-                        foreach ($filters as $filter) {
-                            $sqlfilter = "'$filter' IN $field";
-                        }
-                    } else {
-                        $replace = " AND '$filter' IN $field";
+                    $sqlfilter = [];
+                    foreach ($filters as $filter) {
+                        $sqlfilter[] = "'$filter' IN $field";
                     }
+                    $replace = " AND (" . implode(' OR ', $sqlfilter) . ')';
                 } else if ($operator == 'rin') {
                     // Reverse IN
                     // Checks if defined column value is in value(s) selected in the filter
-                    if ($filters) {
-                        $filter = implode(',', $filters);
-                    }
-                    $possibles = explode(',', $filter);
-                    $length = count($possibles);
+                    $length = count($filters);
                     $filtersql = "(";
                     for ($j = 0; $j < $length; $j++) {
-                        $filtersql .= "'$possibles[$j]'";
+                        $filtersql .= "'$filters[$j]'";
                         if ($j < ($length - 1)) {
                             $filtersql .= ",";
                         } else {
@@ -114,15 +123,11 @@ class plugin_sqloptions extends plugin_base {
                     }
                     $replace = " AND $field IN $filtersql";
                 } else {
-                    if ($filters) {
-                        $sqlfilter = [];
-                        foreach ($filters as $filter) {
-                            $sqlfilter[] = "$field $operator '$filter'";
-                        }
-                        $replace = " AND (" . implode(' OR ', $sqlfilter) . ')';
-                    } else {
-                        $replace = " AND $field $operator '$filter'";
+                    $sqlfilter = [];
+                    foreach ($filters as $filter) {
+                        $sqlfilter[] = "$field $operator '$filter'";
                     }
+                    $replace = " AND (" . implode(' OR ', $sqlfilter) . ')';
                 }
 
                 $finalelements = str_replace('%%FILTER_SQL_'.$data->idnumber.':' . $output[1][$i] . '%%', $replace, $finalelements);
