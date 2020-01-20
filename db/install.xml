@@ -34,6 +34,10 @@
         <FIELD NAME="converttime" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Stores report option to determine if report should convert time columns to user's timezone"/>
         <FIELD NAME="timeformat" TYPE="char" LENGTH="25" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="fixedwidthpattern" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="enablepersonalizednotification" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="notificationemailfield" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="notificationsubject"  TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="notificationtemplate" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

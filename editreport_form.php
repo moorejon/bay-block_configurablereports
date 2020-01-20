@@ -132,6 +132,23 @@ class report_edit_form extends moodleform {
         $mform->disabledIf('emailto', 'enableschedule', 'notchecked');
         $mform->setType('emailto', PARAM_TEXT);
 
+        $mform->addElement('header', 'personalizednotifications', get_string('personalizednotifications', 'block_configurable_reports'));
+        $mform->addElement('advcheckbox', 'enablepersonalizednotification', '',
+            get_string('enablepersonalizednotifications', 'block_configurable_reports'));
+        $mform->setDefault('enablepersonalizednotification', 0);
+
+        $mform->addElement('text', 'notificationemailfield', get_string('usersemailaddress', 'block_configurable_reports'), 'size = 70');
+        $mform->disabledIf('notificationemailfield','enablepersonalizednotification', 'notchecked');
+        $mform->setType('notificationemailfield', PARAM_TEXT);
+
+        $mform->addElement('text', 'notificationsubject', get_string('email_subject', 'block_configurable_reports'), 'size = 70');
+        $mform->disabledIf('notificationsubject','enablepersonalizednotification', 'notchecked');
+        $mform->setType('notificationsubject', PARAM_TEXT);
+
+        $mform->addElement('textarea', 'notificationtemplate', get_string('notificationtemplate', 'block_configurable_reports'), 'wrap="virtual" rows="5" cols="60"');
+        $mform->disabledIf('notificationtemplate','enablepersonalizednotification', 'notchecked');
+        $mform->setType('notificationtemplate', PARAM_RAW);
+
         if (isset($this->_customdata['report']->id) && $this->_customdata['report']->id) {
             $mform->addElement('hidden', 'id', $this->_customdata['report']->id);
             $mform->setType('id', PARAM_INT);
@@ -166,6 +183,19 @@ class report_edit_form extends moodleform {
                 }
             }
         }
+
+        if (!empty($data['enablepersonalizednotification'])) {
+            if (empty($data['notificationemailfield'])) {
+                $errors['notificationemailfield'] = get_string('required');
+            }
+            if (empty($data['notificationsubject'])) {
+                $errors['notificationsubject'] = get_string('required');
+            }
+            if (empty($data['notificationtemplate'])) {
+                $errors['notificationtemplate'] = get_string('required');
+            }
+        }
+
         return $errors;
     }
 

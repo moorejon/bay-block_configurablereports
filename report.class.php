@@ -249,6 +249,15 @@ class report_base {
             $timeoflastexport->setTimezone(new DateTimeZone(\core_date::get_user_timezone($USER)));
             $lastexport = get_string('lastexported', 'block_configurable_reports') . $timeoflastexport->format('M d, Y g:ia');
         }
+        if (!empty($this->config->enablepersonalizednotification)) {
+            $output .= '<br /><div class="centerpara">';
+            $pageurl = new \moodle_url($wwwpath);
+            $pageparams = $pageurl->params();
+            $pageparams['sesskey'] = sesskey();
+            $notificationurl = new \moodle_url('/blocks/configurable_reports/send_notifications.php', $pageparams);
+            $output .= '<a href="'.$notificationurl->out(false).'">'.get_string('sendnotifications', 'block_configurable_reports').'</a>';
+            $output .= '</div>';
+        }
         if (!empty($this->config->export)) {
             $output .= '<br /><div class="centerpara">';
             $output .= get_string('downloadreport', 'block_configurable_reports').': ';

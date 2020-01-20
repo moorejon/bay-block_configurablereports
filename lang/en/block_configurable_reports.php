@@ -576,4 +576,12 @@ $string['saved'] = 'Saved!';
 $string['export_fixedwidth'] = "Export in Fixed Width TXT format";
 $string['fixedwidthpattern'] = "Fixed Width TXT Pattern";
 $string['invalidjson'] = "Invalid JSON";
+$string['personalizednotifications'] = 'Personalized Notifications';
+$string['enablepersonalizednotifications'] = 'Enable personalized notifications';
+$string['usersemailaddress'] = 'User\'s email address';
+$string['notificationtemplate'] = 'Notification template';
+$string['notificationssent'] = 'All notifications have been sent';
+$string['notificationssending'] = 'Sending notifications...';
+$string['sendnotificationconfirm'] = 'Would you like to send notifications';
+$string['sendnotifications'] = 'Send notifications';
 // END MLC EDIT.

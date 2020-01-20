@@ -288,5 +288,45 @@ function xmldb_block_configurable_reports_upgrade($oldversion) {
         // Configurable_reports savepoint reached.
         upgrade_block_savepoint(true, 2019120800, 'configurable_reports');
     }
+
+    if ($oldversion < 2019120802) {
+
+        // Define field enablepersonalizednotification to be added to block_configurable_reports.
+        $table = new xmldb_table('block_configurable_reports');
+        $field = new xmldb_field('enablepersonalizednotification', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'fixedwidthpattern');
+
+        // Conditionally launch add field enablepersonalizednotification.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field notificationemailfield to be added to block_configurable_reports.
+        $field = new xmldb_field('notificationemailfield', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'enablepersonalizednotification');
+
+        // Conditionally launch add field notificationemailfield.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field notificationsubject to be added to block_configurable_reports.
+        $field = new xmldb_field('notificationsubject', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'notificationemailfield');
+
+        // Conditionally launch add field notificationsubject.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field notificationtemplate to be added to block_configurable_reports.
+        $field = new xmldb_field('notificationtemplate', XMLDB_TYPE_TEXT, null, null, null, null, null, 'notificationsubject');
+
+        // Conditionally launch add field notificationtemplate.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Configurable_reports savepoint reached.
+        upgrade_block_savepoint(true, 2019120802, 'configurable_reports');
+    }
+
     return true;
 }
