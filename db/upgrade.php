@@ -328,5 +328,20 @@ function xmldb_block_configurable_reports_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2019120802, 'configurable_reports');
     }
 
+    if ($oldversion < 2019120803) {
+
+        // Define field notificationgrouping to be added to block_configurable_reports.
+        $table = new xmldb_table('block_configurable_reports');
+        $field = new xmldb_field('notificationgrouping', XMLDB_TYPE_TEXT, null, null, null, null, null, 'notificationtemplate');
+
+        // Conditionally launch add field notificationgrouping.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Configurable_reports savepoint reached.
+        upgrade_block_savepoint(true, 2019120803, 'configurable_reports');
+    }
+
     return true;
 }

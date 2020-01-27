@@ -702,3 +702,7 @@ function get_temp_path($filename) {
     $path = tempnam($CFG->dataroot.$tmppath, $filename);
     return $path;
 }
+
+function cr_organize_data($dataobject, $values) {
+
+}

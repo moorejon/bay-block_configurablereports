@@ -27,6 +27,7 @@ define('NO_OUTPUT_BUFFERING', true); // progress bar is used here
 require_once("../../config.php");
 require_once($CFG->dirroot."/blocks/configurable_reports/locallib.php");
 require_once($CFG->dirroot.'/blocks/configurable_reports/report.class.php');
+require_once($CFG->dirroot.'/lib/classes/output/mustache_engine.php');
 
 $id = required_param('id', PARAM_INT);
 $process = optional_param('process', 0, PARAM_INT);
@@ -100,23 +101,19 @@ if ($process) {
         print_error('noemailfield', 'block_configurable_reports');
     }
 
-    // Get receoients frim report.
-    $recepients = [];
+    $groups = array();
+    if ($report->notificationgrouping) {
+        $groups = explode('->', $report->notificationgrouping);
+    }
+
+    // Get recipients from report.
+    $recipients = [];
     foreach ($reportclass->finalreport->table->data as $data) {
-        $recepients[$data[$notificationemailfieldindex]] = 0;
+        $recipients[$data[$notificationemailfieldindex]] = 0;
     }
 
-    if (!$recepients) {
+    if (!$recipients) {
         print_error('norecepients', 'block_configurable_reports');
-    }
-
-    // Email Template.
-    $templatename = 'notification_' . $report->id . '_' . uniqid();
-    $fulltemplatepath = $CFG->dirroot . "/blocks/configurable_reports/templates/" . $templatename . ".mustache";
-
-    if ($handle = fopen($fulltemplatepath, 'w')) {
-        fwrite($handle, $report->notificationtemplate);
-        fclose($handle);
     }
 
     $noreply = core_user::get_noreply_user();
@@ -130,30 +127,91 @@ if ($process) {
     $done = 0;
     $strinprogress = get_string('notificationssending', 'block_configurable_reports');
 
-    foreach ($reportclass->finalreport->table->data as $data) {
-        $templatecontext = new stdClass();
-
-        $recepient = $data[$notificationemailfieldindex];
-
-        if (!empty($recepients[$recepient])) {
-            continue;
+    $head = $reportclass->finalreport->table->head;
+    $parent = null;
+    $grouparray = array();
+    foreach ($groups as $group) {
+        $groupobj = new stdClass();
+        $groupobj->parent = $parent;
+        $grouparray[$group] = $groupobj;
+        $parent = $group;
+    }
+    foreach ($recipients as $recipient => $status) {
+        $processeddata = new stdClass();
+        foreach ($reportclass->finalreport->table->data as $data) {
+            if ($data[$notificationemailfieldindex] != $recipient) {
+                continue;
+            }
+            foreach ($data as $index => $datum) {
+                $column = $head[$index];
+                $datumobj = new stdClass();
+                $valueattribute = $column . 'value';
+                $datumobj->$valueattribute = $datum;
+                // Handle data that has been referenced in group links
+                if (array_key_exists($column, $grouparray)) {
+                    $parent = $grouparray[$column]->parent;
+                    // If the datum has a parent defined place it inside the parent
+                    if (!empty($parent)) {
+                        // Get index of parent column in this row
+                        $parentindex = array_search($parent, $head);
+                        $parentfromcurrentrow = $data[$parentindex];
+                        $storedparentvalue = $parent . 'value';
+                        $parentobj = null;
+                        foreach ($processeddata->$parent as $target) {
+                            if ($target->$storedparentvalue == $parentfromcurrentrow) {
+                                $parentobj = $target;
+                                break;
+                            }
+                        }
+                        if (!isset($parentobj->{$column})) {
+                            $parentobj->{$column} = array($datumobj);
+                        } else {
+                            $found = false;
+                            foreach ($parentobj->{$column} as $childobj) {
+                                if ($childobj->{$valueattribute} == $datumobj->{$valueattribute}) {
+                                    $found = true;
+                                    break;
+                                }
+                            }
+                            if (!$found) {
+                                $parentobj->{$column}[] = $datumobj;
+                            }
+                        }
+                    } else {
+                        if (!isset($processeddata->{$column})) {
+                            $processeddata->{$column} = array($datumobj);
+                        } else {
+                            $found = false;
+                            foreach ($processeddata->{$column} as $childobj) {
+                                if ($childobj->{$valueattribute} == $datumobj->{$valueattribute}) {
+                                    $found = true;
+                                    break;
+                                }
+                            }
+                            if (!$found) {
+                                $processeddata->{$column}[] = $datumobj;
+                            }
+                        }
+                    }
+                } else if (!isset($processeddata->{$column})) {
+                    $processeddata->{$column} = $datumobj;
+                }
+            }
         }
 
-        foreach ($data as $index => $datum) {
-            $templatecontext->{$reportclass->finalreport->table->head[$index]} = $datum;
+        $mustache = new \core\output\mustache_engine();
+        $html = $mustache->render($report->notificationtemplate, $processeddata);
+        $user = core_user::get_user_by_email($recipient);
+        if ($user) {
+            $user->mailformat = FORMAT_HTML;
+            email_to_user($user, $noreply, $report->notificationsubject, '', $html);
         }
 
-        $html = $OUTPUT->render_from_template('block_configurable_reports/' . $templatename, $templatecontext);
-        $user = core_user::get_user_by_email($recepient);
-        $user->mailformat = FORMAT_HTML;
-
-        email_to_user($user, $noreply, $report->notificationsubject, '', $html);
-
-        $recepients[$recepient] = 1;
+        $recipients[$recipient] = 1;
 
         $done++;
         if (!is_null($progressbar)) {
-            $donepercent = floor($done / count($recepients) * 100);
+            $donepercent = floor($done / count($recipients) * 100);
             $progressbar->update_full($donepercent, $strinprogress);
         }
     }
@@ -161,7 +219,6 @@ if ($process) {
     if (!is_null($progressbar)) {
         $progressbar->update_full(100, get_string('notificationssent', 'block_configurable_reports'));
     }
-    unlink($fulltemplatepath);
     echo $OUTPUT->continue_button($redirecturl, 'get');
     echo $OUTPUT->footer();
 } else {

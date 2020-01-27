@@ -141,6 +141,10 @@ class report_edit_form extends moodleform {
         $mform->disabledIf('notificationemailfield','enablepersonalizednotification', 'notchecked');
         $mform->setType('notificationemailfield', PARAM_TEXT);
 
+        $mform->addElement('text', 'notificationgrouping', get_string('notificationgrouping', 'block_configurable_reports'), 'size = 70');
+        $mform->disabledIf('notificationgrouping','enablepersonalizednotification', 'notchecked');
+        $mform->setType('notificationgrouping', PARAM_RAW);
+
         $mform->addElement('text', 'notificationsubject', get_string('email_subject', 'block_configurable_reports'), 'size = 70');
         $mform->disabledIf('notificationsubject','enablepersonalizednotification', 'notchecked');
         $mform->setType('notificationsubject', PARAM_TEXT);

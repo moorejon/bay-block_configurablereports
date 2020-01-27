@@ -224,6 +224,7 @@ class report_base {
         if ($request) {
             $id = clean_param($request['id'], PARAM_INT);
             $wwwpath = 'viewreport.php?id='.$id;
+            $notificationurl = 'send_notifications.php?id='.$id;
             unset($request['id']);
             foreach ($request as $key => $val) {
                 $key = clean_param($key, PARAM_CLEANHTML);
@@ -232,10 +233,12 @@ class report_base {
                         $k = clean_param($k, PARAM_CLEANHTML);
                         $v = clean_param($v, PARAM_CLEANHTML);
                         $wwwpath .= "&amp;{$key}[$k]=".$v;
+                        $notificationurl .= "&amp;{$key}[$k]=".$v;
                     }
                 } else {
                     $val = clean_param($val, PARAM_CLEANHTML);
                     $wwwpath .= "&amp;$key=".$val;
+                    $notificationurl .= "&amp;$key=".$val;
                 }
             }
         }
@@ -251,11 +254,7 @@ class report_base {
         }
         if (!empty($this->config->enablepersonalizednotification)) {
             $output .= '<br /><div class="centerpara">';
-            $pageurl = new \moodle_url($wwwpath);
-            $pageparams = $pageurl->params();
-            $pageparams['sesskey'] = sesskey();
-            $notificationurl = new \moodle_url('/blocks/configurable_reports/send_notifications.php', $pageparams);
-            $output .= '<a href="'.$notificationurl->out(false).'">'.get_string('sendnotifications', 'block_configurable_reports').'</a>';
+            $output .= '<a href="'.$notificationurl.'">'.get_string('sendnotifications', 'block_configurable_reports').'</a>';
             $output .= '</div>';
         }
         if (!empty($this->config->export)) {

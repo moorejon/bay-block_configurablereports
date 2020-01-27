@@ -579,6 +579,7 @@ $string['invalidjson'] = "Invalid JSON";
 $string['personalizednotifications'] = 'Personalized Notifications';
 $string['enablepersonalizednotifications'] = 'Enable personalized notifications';
 $string['usersemailaddress'] = 'User\'s email address';
+$string['notificationgrouping'] = 'Data grouping';
 $string['notificationtemplate'] = 'Notification template';
 $string['notificationssent'] = 'All notifications have been sent';
 $string['notificationssending'] = 'Sending notifications...';
