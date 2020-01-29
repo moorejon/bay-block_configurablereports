@@ -219,29 +219,8 @@ class report_base {
     public function print_export_options($return = false) {
         global $CFG, $USER;
 
-        $wwwpath = $CFG->wwwroot;
-        $request = array_merge($_POST, $_GET);
-        if ($request) {
-            $id = clean_param($request['id'], PARAM_INT);
-            $wwwpath = 'viewreport.php?id='.$id;
-            $notificationurl = 'send_notifications.php?id='.$id;
-            unset($request['id']);
-            foreach ($request as $key => $val) {
-                $key = clean_param($key, PARAM_CLEANHTML);
-                if (is_array($val)) {
-                    foreach ($val as $k => $v) {
-                        $k = clean_param($k, PARAM_CLEANHTML);
-                        $v = clean_param($v, PARAM_CLEANHTML);
-                        $wwwpath .= "&amp;{$key}[$k]=".$v;
-                        $notificationurl .= "&amp;{$key}[$k]=".$v;
-                    }
-                } else {
-                    $val = clean_param($val, PARAM_CLEANHTML);
-                    $wwwpath .= "&amp;$key=".$val;
-                    $notificationurl .= "&amp;$key=".$val;
-                }
-            }
-        }
+        $wwwpath = $this->generate_url('/blocks/configurable_reports/viewreport.php');
+        $notificationurl = $this->generate_url('/blocks/configurable_reports/send_notifications.php');
 
         $output = '';
         $lastexport = '';
@@ -822,6 +801,34 @@ class report_base {
     public function utf8_strrev($str) {
         preg_match_all('/./us', $str, $ar);
         return join('', array_reverse($ar[0]));
+    }
+
+    public function generate_url($url, $params = array()) {
+        global $CFG;
+
+        $wwwpath = $CFG->wwwroot;
+
+        $request = array_merge($_POST, $_GET, $params);
+        if ($request) {
+            $id = clean_param($request['id'], PARAM_INT);
+            $httpquery = '?id=' . $id;
+            unset($request['id']);
+            foreach ($request as $key => $val) {
+                $key = clean_param($key, PARAM_CLEANHTML);
+                if (is_array($val)) {
+                    foreach ($val as $k => $v) {
+                        $k = clean_param($k, PARAM_CLEANHTML);
+                        $v = clean_param($v, PARAM_CLEANHTML);
+                        $httpquery .= "&amp;{$key}[$k]=" . $v;
+                    }
+                } else {
+                    $val = clean_param($val, PARAM_CLEANHTML);
+                    $httpquery .= "&amp;$key=" . $val;
+                }
+            }
+        }
+
+        return $wwwpath . $url . $httpquery;
     }
 }
 

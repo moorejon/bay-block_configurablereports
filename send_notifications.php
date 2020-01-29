@@ -66,8 +66,9 @@ if (!$reportclass->check_permissions($USER->id, $context)) {
     print_error('badpermissions', 'block_configurable_reports');
 }
 
-$thispageurl = new moodle_url('/blocks/configurable_reports/send_notifications.php', ['id'=> $report->id, 'courseid' => $course->id]);
-$redirecturl = new moodle_url('/blocks/configurable_reports/viewreport.php', ['id'=> $report->id, 'courseid' => $course->id]);
+$params = array('process' => 1);
+$thispageurl = $reportclass->generate_url('/blocks/configurable_reports/send_notifications.php', $params);
+$redirecturl = $reportclass->generate_url('/blocks/configurable_reports/viewreport.php');
 
 $hasmanageallcap = has_capability('block/configurable_reports:managereports', $context);
 $hasmanageowncap = has_capability('block/configurable_reports:manageownreports', $context);
@@ -224,7 +225,7 @@ if ($process) {
 } else {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('sendnotifications', 'block_configurable_reports') . ' - ' . $report->name);
-    $thispageurl->param('process', 1);
-    echo $OUTPUT->confirm(get_string('sendnotificationconfirm', 'block_configurable_reports') , $thispageurl,  $redirecturl);
+    $renderer = $PAGE->get_renderer('block_configurable_reports');
+    echo $renderer->confirm(get_string('confirm'), get_string('sendnotificationconfirm', 'block_configurable_reports'), $thispageurl, $redirecturl);
     echo $OUTPUT->footer();
 }

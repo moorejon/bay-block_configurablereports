@@ -1,0 +1,58 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template core/single_button
+
+    Moodle template for a single button submit form.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * classes - a list of classes to wrap the form.
+    * method - get or post
+    * url - the action url to submit to
+    * formid - optional id value for the form
+    * params - array of params with name and value attributes
+    * primary - true if this is a primary action button
+    * id - id for the element
+    * tooltip - tooltip text for the button
+    * disabled - true if this element is disabled
+    * label - text to show on the button
+
+    Example context (json):
+    { "method" : "get",
+      "url" : "#",
+      "primary" : true,
+      "tooltip" : "This is a tooltip",
+      "label" : "This is a the button text"
+    }
+}}
+<div id="notice" class="box generalbox modal modal-dialog modal-in-page show py-3">
+    <div id="modal-content" class="box modal-content py-3">
+        <div id="modal-header" class="box modal-header p-x-1 py-3"><h4>{{header}}</h4></div>
+        <div id="modal-body" class="box modal-body py-3"><p>{{message}}</p></div>
+        <div id="modal-footer" class="box modal-footer py-3">
+            {{#buttons}}
+                <a href="{{url}}" class="btn {{classes}}">{{text}}</a>
+            {{/buttons}}
+        </div>
+    </div>
+</div>

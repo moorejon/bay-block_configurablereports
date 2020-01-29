@@ -46,4 +46,38 @@ class renderer extends plugin_renderer_base {
     public function render_main(main $main) {
         return $this->render_from_template('block_configurable_reports/main', $main->export_for_template($this));
     }
+
+    /**
+     * Returns a modal confirmation box using get parameter urls
+     *
+     * @param $header Header message
+     * @param $message Modal message
+     * @param $confirmurl URL for confirm button
+     * @param $cancelurl URL for cancel button
+     * @return bool|string
+     * @throws \coding_exception
+     * @throws \moodle_exception
+     */
+    public function confirm($header, $message, $confirmurl, $cancelurl) {
+        $confirm = new \stdClass();
+        $confirm->classes = "btn-primary";
+        $confirm->url = htmlspecialchars_decode($confirmurl);
+        $confirm->text = get_string('confirm');
+
+        $cancel = new \stdClass();
+        $cancel->classes = "btn-secondary";
+        $cancel->url = htmlspecialchars_decode($cancelurl);
+        $cancel->text = get_string('cancel');
+
+        $context = array(
+                'header' => $header,
+                'message' => $message,
+                'buttons' => array(
+                        $confirm,
+                        $cancel
+                )
+        );
+
+        return $this->render_from_template('block_configurable_reports/confirm', $context);
+    }
 }

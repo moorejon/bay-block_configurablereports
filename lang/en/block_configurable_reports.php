@@ -583,6 +583,6 @@ $string['notificationgrouping'] = 'Data grouping';
 $string['notificationtemplate'] = 'Notification template';
 $string['notificationssent'] = 'All notifications have been sent';
 $string['notificationssending'] = 'Sending notifications...';
-$string['sendnotificationconfirm'] = 'Would you like to send notifications';
+$string['sendnotificationconfirm'] = 'Would you like to send notifications?';
 $string['sendnotifications'] = 'Send notifications';
 // END MLC EDIT.
