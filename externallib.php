@@ -65,12 +65,6 @@ class block_configurable_reports_external extends external_api {
         $context = context_course::instance($report->courseid);
         self::validate_context($context);
 
-        if (!has_capability('block/configurable_reports:viewreports', $context)) {
-            $result['success'] = false;
-            $result['msg'] = get_string('nopermissions', 'error', '');
-            return $result;
-        }
-
         if ($params['id']) {
             $preference = $DB->get_record('block_configurable_reports_p', ['id' => $params['id']], '*', MUST_EXIST);
         }
@@ -171,10 +165,6 @@ class block_configurable_reports_external extends external_api {
 
         $context = context_course::instance($report->courseid);
         self::validate_context($context);
-
-        if (!has_capability('block/configurable_reports:viewreports', $context)) {
-            return false;
-        }
 
         return $preference;
     }
