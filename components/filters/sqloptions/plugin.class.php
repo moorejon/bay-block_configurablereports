@@ -61,7 +61,7 @@ class plugin_sqloptions extends plugin_base {
         $filters = [];
         if (!in_array('%all%', $filtersqloptions)) {
             foreach ($filtersqloptions as $filtersqloption) {
-                $filters[] = clean_param(base64_decode($filtersqloption), PARAM_RAW);
+                $filters[] = addslashes(clean_param(base64_decode($filtersqloption), PARAM_RAW));
             }
             if (is_null($defaultprefvalue) && (empty($filters))) {
                 if (!empty($data->querysql) && !empty($data->defaultsql)) {
