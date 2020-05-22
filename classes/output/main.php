@@ -167,8 +167,10 @@ class main implements renderable, templatable {
         $this->get_course_reports($this->course, $context);
         $this->get_manage_link($this->course, $context);
 
+        $hasitems = !empty($this->items);
         return [
-            'items' => $this->items
+            'items' => $this->items,
+            'hasitems' => $hasitems
         ];
     }
 }
