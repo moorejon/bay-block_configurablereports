@@ -100,7 +100,11 @@ class block_configurable_reports extends block_base {
             ];
         }
 
-        $course = $DB->get_record('course', array('id' => $COURSE->id));
+        if (get_config('block_configurable_reports', 'restrictcoursereports')) {
+            $course = $DB->get_record('course', array('id' => 1));
+        } else {
+            $course = $DB->get_record('course', array('id' => $COURSE->id));
+        }
 
         if (!$course) {
             print_error('coursedoesnotexists');
