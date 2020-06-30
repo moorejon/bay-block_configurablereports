@@ -576,4 +576,6 @@ $string['saved'] = 'Saved!';
 $string['export_fixedwidth'] = "Export in Fixed Width TXT format";
 $string['fixedwidthpattern'] = "Fixed Width TXT Pattern";
 $string['invalidjson'] = "Invalid JSON";
+$string['restrictcoursereports'] = 'Restrict course reports';
+$string['restrictcoursereportsinfo'] = 'Prevents accessing the report within a course context';
 // END MLC EDIT.
